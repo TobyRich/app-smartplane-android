@@ -1,0 +1,61 @@
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fullscreen_content">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="190dp"
+        android:id="@+id/controlPanel"
+        android:layout_alignParentBottom="true">
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/imgPanel"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/panel_640x342"
+            android:scaleType="centerCrop" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/artificialHorizon"
+        android:layout_above="@+id/controlPanel">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="I am the last thing in horizon"
+            android:id="@+id/textView"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="false"
+            android:layout_alignParentLeft="false"
+            android:gravity="center" />
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/imageHorizon"
+                android:src="@drawable/horizon"
+                android:scaleType="centerCrop" />
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/imgHorizonCover"
+                android:src="@drawable/cover"
+                android:scaleType="fitXY" />
+
+        </FrameLayout>
+    </RelativeLayout>
+</RelativeLayout>
