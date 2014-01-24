@@ -19,6 +19,19 @@
             android:src="@drawable/panel_640x342"
             android:scaleType="centerCrop" />
 
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:id="@+id/imageView"
+            android:layout_alignParentBottom="false"
+            android:rotation="0"
+            android:scaleType="fitCenter"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentRight="false"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/controller"
+            android:paddingLeft="20dp" />
+
     </RelativeLayout>
 
     <RelativeLayout
