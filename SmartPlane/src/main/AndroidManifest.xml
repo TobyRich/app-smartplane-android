@@ -2,9 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.tobyrich.app.SmartPlane" >
 
-    <uses-sdk android:minSdkVersion="17"
+    <uses-sdk android:minSdkVersion="18"
         android:targetSdkVersion="18"
         android:maxSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
 
     <application
         android:allowBackup="true"

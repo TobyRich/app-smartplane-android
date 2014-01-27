@@ -4,9 +4,15 @@ import com.tobyrich.app.SmartPlane.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +20,9 @@ import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 
 public class FullscreenActivity extends Activity {
+    private static final int REQUEST_ENABLE_BT = 1;
+    private BluetoothAdapter mBluetoothAdapter;
+
     @Override
     public void onResume(){
         super.onResume();
@@ -31,6 +40,49 @@ public class FullscreenActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_fullscreen);
+        
+        Log.v("SmartPlane", "Initializing BLE...");
+        initializeBluetooth();
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            Log.d("SmartPlane", "Bluetooth enabled");
+            startScanning(0);
+        } else {
+            Log.e("SmartPlane", "Bluetooth enabling was canceled by user");
+        }
+    }
+
+
+    private void initializeBluetooth() {
+        // Initializes Bluetooth adapter.
+        final BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+
+        // Ensures Bluetooth is available on the device and it is enabled. If not,
+        // displays a dialog requesting user permission to enable Bluetooth.
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            Log.e("SmartPlane", "Bluetooth was not enabled, showing intent to enable");
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        } else {
+            Log.v("SmartPlane", "BLE was ready, scanning now");
+            startScanning(0);
+        }
+    }
+
+    private void startScanning(int timeout) {
+        mBluetoothAdapter.startLeScan(mLeScanCallback);
+    }
+    // Device scan callback.
+    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
+                @Override
+                public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+                    Log.d("SmartPlane", device.getName() + " found");
+                }
+            };
 }
