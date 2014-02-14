@@ -1,29 +1,33 @@
 package com.tobyrich.app.SmartPlane;
 
-import com.tobyrich.app.SmartPlane.util.SystemUiHider;
-
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.RelativeLayout;
 
-public class FullscreenActivity extends Activity implements BluetoothAdapter.LeScanCallback {
+import com.dd.plist.PropertyListFormatException;
+import com.tobyrich.lib.smartlink.BLEService;
+import com.tobyrich.lib.smartlink.BluetoothDevice;
+import com.tobyrich.lib.smartlink.BluetoothDeviceDelegate;
+
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.text.ParseException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+public class FullscreenActivity
+        extends Activity
+        implements BluetoothDeviceDelegate
+{
     private static final int REQUEST_ENABLE_BT = 1;
     private static final String TAG = "SmartPlane";
-    private BluetoothAdapter mBluetoothAdapter;
+    private static final int RSSI_THRESHOLD_TO_CONNECT = -100; // dB
+
+    private BluetoothDevice device;
 
     @Override
     public void onResume(){
@@ -42,43 +46,57 @@ public class FullscreenActivity extends Activity implements BluetoothAdapter.LeS
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_fullscreen);
-        
-        initializeBluetooth();
+
+        try {
+            device = new BluetoothDevice(getResources().openRawResource(R.raw.smartplane), this);
+            device.delegate = this;
+            device.connect();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (PropertyListFormatException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            startScanning(0);
+            if (device != null) {
+                device.connect(); // start scanning and connect
+            }
         } else {
             Log.e(TAG, "Bluetooth enabling was canceled by user");
         }
     }
 
+    @Override
+    public void didStartService(BluetoothDevice device, String serviceName, BLEService service) {
 
-    private void initializeBluetooth() {
-        // Initializes Bluetooth adapter.
-        final BluetoothManager bluetoothManager =
-                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
-
-        // Ensures Bluetooth is available on the device and it is enabled. If not,
-        // displays a dialog requesting user permission to enable Bluetooth.
-        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-            Log.w(TAG, "Bluetooth was not enabled, showing intent to enable");
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        } else {
-            startScanning(0);
-        }
-    }
-
-    private void startScanning(int timeout) {
-        mBluetoothAdapter.startLeScan(this);
     }
 
     @Override
-    public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-        Log.d(TAG, device.getName() + " found");
+    public void didUpdateSignalStrength(BluetoothDevice device, float signalStrength) {
+
+    }
+
+    @Override
+    public void didStartScanning(BluetoothDevice device) {
+        Log.d(TAG, "started scanning");
+    }
+
+    @Override
+    public void didStartConnectingTo(BluetoothDevice device, float signalStrength) {
+
+    }
+
+    @Override
+    public void didDisconnect(BluetoothDevice device) {
+
     }
 }

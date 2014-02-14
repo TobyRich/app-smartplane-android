@@ -20,4 +20,6 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:18.0.0'
+    compile files('libs/dd-plist.jar')
+    compile files('libs/commons-lang3-3.2.1.jar')
 }
