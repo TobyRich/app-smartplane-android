@@ -86,26 +86,6 @@
 				<string>75b64e51-0040-4ed1-921a-476090d80ba7</string>
 			</dict>
 		</dict>
-		<key>shocky</key>
-		<dict>
-			<key>UUID</key>
-			<string>75b64e51-f172-4ed1-921a-476090d80ba7</string>
-			<key>Primary</key>
-			<true/>
-			<key>Fields</key>
-			<dict>
-				<key>engine</key>
-				<string>75b64e51-0020-4ed1-921a-476090d80ba7</string>
-				<key>rudder</key>
-				<string>75b64e51-0021-4ed1-921a-476090d80ba7</string>
-				<key>elevator</key>
-				<string>75b64e51-0022-4ed1-921a-476090d80ba7</string>
-				<key>aileron</key>
-				<string>75b64e51-0023-4ed1-921a-476090d80ba7</string>
-				<key>temperature</key>
-				<string>75b64e51-0030-4ed1-921a-476090d80ba7</string>
-			</dict>
-		</dict>
 	</dict>
 </dict>
 </plist>

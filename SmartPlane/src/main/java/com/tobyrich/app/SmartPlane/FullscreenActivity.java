@@ -10,7 +10,6 @@ import android.view.ViewTreeObserver;
 import com.dd.plist.PropertyListFormatException;
 import com.tobyrich.lib.smartlink.BLEService;
 import com.tobyrich.lib.smartlink.BluetoothDevice;
-import com.tobyrich.lib.smartlink.BluetoothDeviceDelegate;
 
 import org.xml.sax.SAXException;
 
@@ -21,7 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class FullscreenActivity
         extends Activity
-        implements BluetoothDeviceDelegate
+        implements BluetoothDevice.Delegate
 {
     private static final int REQUEST_ENABLE_BT = 1;
     private static final String TAG = "SmartPlane";
@@ -48,8 +47,9 @@ public class FullscreenActivity
         setContentView(R.layout.activity_fullscreen);
 
         try {
-            device = new BluetoothDevice(getResources().openRawResource(R.raw.smartplane), this);
+            device = new BluetoothDevice(getResources().openRawResource(R.raw.powerup), this);
             device.delegate = this;
+            device.automaticallyReconnect = true;
             device.connect();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
