@@ -152,7 +152,9 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
     }
 
     public void updateSignalStrength() {
-
+        if (mBluetoothGatt != null) {
+            mBluetoothGatt.readRemoteRssi();
+        }
     }
 
     private void initializeBluetooth() {
@@ -312,5 +314,12 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         BLEService driver = charToDriver.get(characteristic);
         driver.didUpdateValueForCharacteristic(uuidToName.get(uuidHarmonize(characteristic.getUuid().toString())));
+    }
+
+    @Override
+    public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
+        if (delegate.get() != null) {
+            delegate.get().didUpdateSignalStrength(this, rssi);
+        }
     }
 }

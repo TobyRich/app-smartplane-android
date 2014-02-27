@@ -69,6 +69,24 @@
                 android:src="@drawable/cover"
                 android:scaleType="fitXY" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Searching..."
+                android:id="@+id/txtSearching"
+                android:layout_gravity="center"
+                android:textColor="#2b2b2b"
+                android:textSize="30dp" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progressBar"
+                android:layout_gravity="center_horizontal|bottom"
+                android:layout_marginBottom="70dp" />
+
         </FrameLayout>
     </RelativeLayout>
 </RelativeLayout>
