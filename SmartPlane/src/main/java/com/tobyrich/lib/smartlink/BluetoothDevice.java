@@ -36,6 +36,7 @@ import static org.apache.commons.lang3.ArrayUtils.*;
 /*
  * Created by pvaibhav on 13/02/2014.
  */
+@SuppressWarnings("ConstantConditions") // because we are already checking for null pointers for delegate
 public class BluetoothDevice extends BluetoothGattCallback implements BluetoothAdapter.LeScanCallback {
 
     public interface Delegate {
@@ -53,20 +54,17 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
 
     public WeakReference<Delegate> delegate;
     public boolean automaticallyReconnect = false;
-    public int rssiHigh = -25;
-    public int rssiLow = -96;
+    private int rssiHigh = -25;
+    private int rssiLow = -96;
 
-    private Activity mOwner;
-    private NSDictionary mPlist;
+    private final Activity mOwner;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothGatt mBluetoothGatt;
     private UUID[] mPrimaryServices;
 
     private HashMap<String, String> uuidToName;
-    private HashMap<String, String> nameToUuid;
     private HashMap<String, String> mServiceNameToDriverClass;
-    private HashMap<String, BluetoothGattCharacteristic> nameToChar;
-    private HashMap<BluetoothGattCharacteristic, BLEService> charToDriver = new HashMap<BluetoothGattCharacteristic, BLEService>();
+    private final HashMap<BluetoothGattCharacteristic, BLEService> charToDriver = new HashMap<BluetoothGattCharacteristic, BLEService>();
 
     private static String uuidHarmonize(String old) {
         // takes a 16 or 128 bit uuid string (with dashes) and harmonizes it into a 128 bit uuid
@@ -80,7 +78,7 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
 
     public BluetoothDevice(InputStream plistFile, Activity owner) throws ParserConfigurationException, ParseException, SAXException, PropertyListFormatException, IOException {
         mOwner = owner;
-        mPlist = (NSDictionary) PropertyListParser.parse(plistFile);
+        NSDictionary mPlist = (NSDictionary) PropertyListParser.parse(plistFile);
 
         // Collect basic settings
         rssiHigh = ((NSNumber) mPlist.objectForKey("rssi high")).intValue();
@@ -112,8 +110,7 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
 
         // Now build our HashMap of uuid -> name and name -> uuid. Done separately for clarity.
         uuidToName = new HashMap<String, String>();
-        nameToUuid = new HashMap<String, String>();
-        nameToChar = new HashMap<String, BluetoothGattCharacteristic>();
+        HashMap<String, String> nameToUuid = new HashMap<String, String>();
         mServiceNameToDriverClass = new HashMap<String, String>();
 
         for (String serviceName: services.allKeys()) {
@@ -228,17 +225,16 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
 
         // Android BLE api has a bug which does not filter on 128 bit UUIDs (only 16 bit works).
         // To workaround it, we will manually check if this device is not supported, and skip it
-        if (!includesPrimaryService(scanRecord)) {
-            Log.d(TAG, "Primary service is NOT included by above device");
-            return;
-        }
-
-        // So this is a supported device, connect to it if signal strength is high enough
-        if (rssiLow < rssi && rssi < rssiHigh) {
-            device.connectGatt(mOwner.getApplicationContext(), true, this);
-            if (delegate.get() != null) {
-                delegate.get().didStartConnectingTo(this, rssi);
+        if (includesPrimaryService(scanRecord)) {
+            // So this is a supported device, connect to it if signal strength is high enough
+            if (rssiLow < rssi && rssi < rssiHigh) {
+                device.connectGatt(mOwner.getApplicationContext(), true, this);
+                if (delegate.get() != null) {
+                    delegate.get().didStartConnectingTo(this, rssi);
+                }
             }
+        } else {
+            Log.d(TAG, "Primary service is NOT included by above device");
         }
     }
 
@@ -271,10 +267,7 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
         List<BluetoothGattService> gattServiceList = mBluetoothGatt.getServices();
         for (BluetoothGattService s: gattServiceList) {
             String sName = uuidToName.get(uuidHarmonize(s.getUuid().toString()));
-            if (sName == null) {
-                // this service was not in plist, so ignore it
-                continue;
-            } else {
+            if (sName != null) {
                 // process this service's fields
                 Log.d(TAG, "service driver: " + mServiceNameToDriverClass.get(sName));
                 HashMap<String, BluetoothGattCharacteristic> listOfFields = new HashMap<String, BluetoothGattCharacteristic>();
@@ -288,7 +281,7 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
                     listOfFields.put(cName, c);
                 }
 
-                BLEService driver = null;
+                BLEService driver;
                 try {
                     driver = (BLEService) Class.forName("com.tobyrich.lib.smartlink.driver." + mServiceNameToDriverClass.get(sName)).newInstance();
                     driver.attach(mBluetoothGatt, listOfFields);
@@ -304,7 +297,7 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 } catch (ClassNotFoundException e) {
-                    continue;
+                    // if the driver class was not found, it's alright, just ignore.
                 }
             }
         }
