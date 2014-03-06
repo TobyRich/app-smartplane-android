@@ -76,7 +76,7 @@
 			<string>BLESmartplaneService</string>
 			<key>Fields</key>
 			<dict>
-				<key>motor</key>
+				<key>engine</key>
 				<string>86C3810E-0010-40D9-A117-26B300768CD6</string>
 				<key>rudder</key>
 				<string>86C3810E-0021-40D9-A117-26B300768CD6</string>

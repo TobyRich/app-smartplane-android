@@ -14,6 +14,7 @@ import android.view.ViewTreeObserver;
 import com.dd.plist.PropertyListFormatException;
 import com.tobyrich.lib.smartlink.BLEService;
 import com.tobyrich.lib.smartlink.BluetoothDevice;
+import com.tobyrich.lib.smartlink.driver.BLESmartplaneService;
 
 import org.xml.sax.SAXException;
 
@@ -31,15 +32,19 @@ public class FullscreenActivity
     private static final String TAG = "SmartPlane";
     private static final int RSSI_THRESHOLD_TO_CONNECT = -100; // dB
 
-    private final SensorManager mSensorManager;
-    private final Sensor mAccelerometer;
+    private final int MAX_ROLL_ANGLE = 45;
+    private final int MAX_PITCH_ANGLE = 90;
 
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private Sensor mMagnetometer;
     private BluetoothDevice device;
+    private BLESmartplaneService mSmartplaneService;
 
-    public FullscreenActivity() {
-        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-    }
+    private float[] mGravity = new float[3];
+   
+    private float[] mGeomagnetic = new float[3];
+
 
     private void showSearching(boolean show) {
         final int visibility = show ? View.VISIBLE : View.GONE;
@@ -81,6 +86,18 @@ public class FullscreenActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_fullscreen);
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+        if (mAccelerometer != null && mMagnetometer != null) {
+            mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+            mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_UI);
+        } else {
+            Log.e(TAG, "no Accelerometer!");
+        }
+
 
         try {
             device = new BluetoothDevice(getResources().openRawResource(R.raw.powerup), this);
@@ -114,6 +131,9 @@ public class FullscreenActivity
     @Override
     public void didStartService(BluetoothDevice device, String serviceName, BLEService service) {
         showSearching(false);
+        if(serviceName.equals("smartplane")){
+             mSmartplaneService = (BLESmartplaneService)service;
+        }
     }
 
     @Override
@@ -139,7 +159,40 @@ public class FullscreenActivity
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            mGravity = event.values;
+        }
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            mGeomagnetic = event.values;
+        }
+        if (mGravity != null && mGeomagnetic != null) {
+            float R[] = new float[9];
+            float I[] = new float[9];
 
+            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic); //get rotation matrix
+
+            if (success) {
+                float orientation[] = new float[3];
+                SensorManager.getOrientation(R, orientation); //get orientation
+                float pitch_angle = orientation[1] * (float)(180/Math.PI); //radian to degrees
+                float roll_angle = orientation[2] * (float)(180/Math.PI);
+
+                short new_motor = (short)(pitch_angle * -254/MAX_PITCH_ANGLE);
+                short new_rudder = (short)(roll_angle * -127/MAX_ROLL_ANGLE);
+
+                try{
+
+
+                    if(mSmartplaneService != null){
+                        mSmartplaneService.setRudder(new_rudder);
+                        mSmartplaneService.setMotor(new_motor);
+                    }
+
+                }catch(NullPointerException e){
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
