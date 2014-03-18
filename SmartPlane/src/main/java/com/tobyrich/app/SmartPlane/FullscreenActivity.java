@@ -49,7 +49,9 @@ public class FullscreenActivity
     private float[] mGeomagnetic = new float[3];
 
     private ImageView controlPanel;
+    private ImageView slider;
 
+    private float newcontrolPanelHeight;
 
     private DisplayMetrics display = new DisplayMetrics();
 
@@ -90,6 +92,13 @@ public class FullscreenActivity
         mSensorManager.unregisterListener(this);
     }
 
+    /* Here, the movement of the slider with touch is implemented. The dimension of the display, the fingerposition in the screen by the user
+    and the control panel height are the values mostly used. For movement of the imageview (slider), the new control panel height is caluclated by reducing the control panel height by 20%
+    which limits the movement of the slider inside the control panel in a required way. Checking the values of event.getY() which is the vertical movement of the finger, the movement of
+    the slider is adjusted. But for the touch response on the screen, the variable diffFingerPosition is used to limit the touch events in the required area i.e the control panel. In one place 30%
+    of the controlPanelHeight is used because the touch movement is made limited above the navigation bar.
+     */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,22 +112,31 @@ public class FullscreenActivity
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         controlPanel = (ImageView) findViewById(R.id.imgPanel);
+        slider = (ImageView) findViewById(R.id.imageView);
+
 
         controlPanel.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 int eventId = event.getAction();
-                switch (eventId) {
-                    case MotionEvent.ACTION_MOVE:
-                        float fingerPosition = event.getRawY(); //the fingerposition on the screen, here only the values in Y axis
-                        float motorSpeed = 0;
-                        float diffFingerPosition = display.heightPixels - fingerPosition; //gets the required finger position
-                        float controlpanelHeight = controlPanel.getHeight();
+                float fingerPosition = event.getRawY(); //the fingerposition on the screen, here only the values in Y axis
+                float motorSpeed = 0;
+                float diffFingerPosition = display.heightPixels - fingerPosition; //gets the required finger position
+                float controlpanelHeight = controlPanel.getHeight();
 
+                switch (eventId) {
+
+                    case MotionEvent.ACTION_MOVE:
+
+                        newcontrolPanelHeight = (float) (controlPanel.getHeight() - ((0.2) * controlPanel.getHeight())); //this new controlpanel height which is the range for the slider to move
+
+                        if (event.getY() > 0 && event.getY() < newcontrolPanelHeight) {
+                            slider.setY(event.getY()); //movement of the slider with touch
+                        }
 
                         //calculations made so that the values of motorSpeed is only calculated in the controlpanel area
-                        if (diffFingerPosition < controlpanelHeight) {
+                        if ((diffFingerPosition < controlpanelHeight) && (diffFingerPosition > ((0.3) * controlPanel.getHeight()))) {
                             motorSpeed = ((diffFingerPosition / (controlpanelHeight)) * 100); //multiplying by 100 to get the values in percentage
                             if (motorSpeed < 0) {
                                 motorSpeed = 0;
@@ -129,10 +147,6 @@ public class FullscreenActivity
                             if (motorSpeed < 0) {
                                 motorSpeed = 0;
                             }
-
-                        } else if (diffFingerPosition < 0) {
-                            fingerPosition = 0;
-                            motorSpeed = 0;
                         }
 
                         short new_motor = (short) (motorSpeed * MAX_MOTOR_SPEED / 100); //converting motorSpeed in percentage values so that it ranges from 0 to MAX_MOTOR_SPEED
@@ -242,7 +256,7 @@ public class FullscreenActivity
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation); //get orientation
 
-                float rollAngle = orientation[2] * (float)(180 / Math.PI); //radian to degrees
+                float rollAngle = orientation[2] * (float) (180 / Math.PI); //radian to degrees
 
                 short newRudder = (short) (rollAngle * -MAX_RUDDER_SPEED / MAX_ROLL_ANGLE);
 
