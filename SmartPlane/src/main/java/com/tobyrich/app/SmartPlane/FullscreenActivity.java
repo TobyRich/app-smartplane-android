@@ -7,9 +7,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
+import android.widget.Toast;
+import android.view.View;
+import android.view.MotionEvent;
 
 import com.dd.plist.PropertyListFormatException;
 import com.tobyrich.lib.smartlink.BLEService;
@@ -26,14 +30,14 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class FullscreenActivity
         extends Activity
-        implements BluetoothDevice.Delegate, SensorEventListener
-{
+        implements BluetoothDevice.Delegate, SensorEventListener {
     private static final int REQUEST_ENABLE_BT = 1;
     private static final String TAG = "SmartPlane";
     private static final int RSSI_THRESHOLD_TO_CONNECT = -100; // dB
 
     private final int MAX_ROLL_ANGLE = 45;
-    private final int MAX_PITCH_ANGLE = 90;
+    private final int MAX_RUDDER_SPEED = 127;
+    private final int MAX_MOTOR_SPEED = 254;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -42,8 +46,12 @@ public class FullscreenActivity
     private BLESmartplaneService mSmartplaneService;
 
     private float[] mGravity = new float[3];
-   
     private float[] mGeomagnetic = new float[3];
+
+    private ImageView controlPanel;
+
+
+    private DisplayMetrics display = new DisplayMetrics();
 
 
     private void showSearching(boolean show) {
@@ -63,10 +71,11 @@ public class FullscreenActivity
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         findViewById(R.id.controlPanel).getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override public void onGlobalLayout() {
+            @Override
+            public void onGlobalLayout() {
                 // Change the height of the control panel section to maintain aspect ratio of image
                 View controlPanel = findViewById(R.id.controlPanel);
                 controlPanel.getLayoutParams().height = (int) (controlPanel.getWidth() / (640.0 / 342.0));
@@ -84,9 +93,67 @@ public class FullscreenActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_fullscreen);
-        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        getWindowManager().getDefaultDisplay().getMetrics(display); //used to get the dimensions of the display
+
+
+        Toast.makeText(FullscreenActivity.this,
+                "Pull Up to Start the Motor",
+                Toast.LENGTH_LONG).show();
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        controlPanel = (ImageView) findViewById(R.id.imgPanel);
+
+        controlPanel.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int eventId = event.getAction();
+                switch (eventId) {
+                    case MotionEvent.ACTION_MOVE:
+                        float fingerPosition = event.getRawY(); //the fingerposition on the screen, here only the values in Y axis
+                        float motorSpeed = 0;
+                        float diffFingerPosition = display.heightPixels - fingerPosition; //gets the required finger position
+                        float controlpanelHeight = controlPanel.getHeight();
+
+
+                        //calculations made so that the values of motorSpeed is only calculated in the controlpanel area
+                        if (diffFingerPosition < controlpanelHeight) {
+                            motorSpeed = ((diffFingerPosition / (controlpanelHeight)) * 100); //multiplying by 100 to get the values in percentage
+                            if (motorSpeed < 0) {
+                                motorSpeed = 0;
+                            }
+                        } else if (diffFingerPosition > controlpanelHeight) {
+                            fingerPosition = controlpanelHeight;
+                            motorSpeed = ((fingerPosition / controlpanelHeight) * 100); //multiplying by 100 to get the values in percentage
+                            if (motorSpeed < 0) {
+                                motorSpeed = 0;
+                            }
+
+                        } else if (diffFingerPosition < 0) {
+                            fingerPosition = 0;
+                            motorSpeed = 0;
+                        }
+
+                        short new_motor = (short) (motorSpeed * MAX_MOTOR_SPEED / 100); //converting motorSpeed in percentage values so that it ranges from 0 to MAX_MOTOR_SPEED
+
+                        try {
+
+                            mSmartplaneService.setMotor(new_motor);
+
+                        } catch (NullPointerException e) {
+                            e.printStackTrace();
+                        }
+
+                        break;
+
+                    default:
+                        break;
+
+                }
+                return true; //keeps listening for touch events when returned true
+            }
+        });
 
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -97,7 +164,6 @@ public class FullscreenActivity
         } else {
             Log.e(TAG, "no Accelerometer!");
         }
-
 
         try {
             device = new BluetoothDevice(getResources().openRawResource(R.raw.powerup), this);
@@ -117,6 +183,7 @@ public class FullscreenActivity
         }
     }
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
@@ -131,8 +198,8 @@ public class FullscreenActivity
     @Override
     public void didStartService(BluetoothDevice device, String serviceName, BLEService service) {
         showSearching(false);
-        if(serviceName.equals("smartplane")){
-             mSmartplaneService = (BLESmartplaneService)service;
+        if (serviceName.equals("smartplane")) {
+            mSmartplaneService = (BLESmartplaneService) service;
         }
     }
 
@@ -174,21 +241,16 @@ public class FullscreenActivity
             if (success) {
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation); //get orientation
-                float pitch_angle = orientation[1] * (float)(180/Math.PI); //radian to degrees
-                float roll_angle = orientation[2] * (float)(180/Math.PI);
 
-                short new_motor = (short)(pitch_angle * -254/MAX_PITCH_ANGLE);
-                short new_rudder = (short)(roll_angle * -127/MAX_ROLL_ANGLE);
+                float rollAngle = orientation[2] * (float)(180 / Math.PI); //radian to degrees
 
-                try{
+                short newRudder = (short) (rollAngle * -MAX_RUDDER_SPEED / MAX_ROLL_ANGLE);
 
+                try {
 
-                    if(mSmartplaneService != null){
-                        mSmartplaneService.setRudder(new_rudder);
-                        mSmartplaneService.setMotor(new_motor);
-                    }
+                    mSmartplaneService.setRudder(newRudder);
 
-                }catch(NullPointerException e){
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }
@@ -199,4 +261,7 @@ public class FullscreenActivity
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
+
 }
+
