@@ -38,6 +38,8 @@ public class FullscreenActivity
     private final int MAX_ROLL_ANGLE = 45;
     private final int MAX_RUDDER_SPEED = 127;
     private final int MAX_MOTOR_SPEED = 254;
+    private final double SCALE_FOR_CONTROL_PANEL = 0.2;
+    private final double SCALE_LOWER_RANGE_OF_SLIDER = 0.3;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -129,14 +131,16 @@ public class FullscreenActivity
 
                     case MotionEvent.ACTION_MOVE:
 
-                        newcontrolPanelHeight = (float) (controlPanel.getHeight() - ((0.2) * controlPanel.getHeight())); //this new controlpanel height which is the range for the slider to move
+                        newcontrolPanelHeight = (float) (controlPanel.getHeight() - (SCALE_FOR_CONTROL_PANEL * controlPanel.getHeight())); //this new controlpanel height which is the range for the slider to move
 
                         if (event.getY() > 0 && event.getY() < newcontrolPanelHeight) {
                             slider.setY(event.getY()); //movement of the slider with touch
+                        } else if (event.getY() < 0) { //checking if the slider moves above the control panel height
+                            slider.setY(0); //setting the slider to the max position if the user slides directly outside the control panel as the slider ranges from 0 to the control panel height
                         }
 
                         //calculations made so that the values of motorSpeed is only calculated in the controlpanel area
-                        if ((diffFingerPosition < controlpanelHeight) && (diffFingerPosition > ((0.3) * controlPanel.getHeight()))) {
+                        if ((diffFingerPosition < controlpanelHeight) && (diffFingerPosition > (SCALE_LOWER_RANGE_OF_SLIDER * controlPanel.getHeight()))) {
                             motorSpeed = ((diffFingerPosition / (controlpanelHeight)) * 100); //multiplying by 100 to get the values in percentage
                             if (motorSpeed < 0) {
                                 motorSpeed = 0;
