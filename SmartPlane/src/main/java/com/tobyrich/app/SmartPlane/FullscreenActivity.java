@@ -2,6 +2,8 @@ package com.tobyrich.app.SmartPlane;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -52,8 +54,8 @@ public class FullscreenActivity
 
     private ImageView controlPanel;
     private ImageView slider;
-
     private float newcontrolPanelHeight;
+    private ImageView imagePanel;
 
     private DisplayMetrics display = new DisplayMetrics();
 
@@ -80,9 +82,16 @@ public class FullscreenActivity
         findViewById(R.id.controlPanel).getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+                imagePanel = (ImageView) findViewById(R.id.imgPanel);
+
+                Drawable drawable = imagePanel.getDrawable(); //get the drawable of the imageView here, imgPanel
+
+                float bitmapWidth = drawable.getIntrinsicWidth(); //this is the bitmap's width
+                float bitmapHeight = drawable.getIntrinsicHeight(); //this is the bitmap's height
+
                 // Change the height of the control panel section to maintain aspect ratio of image
                 View controlPanel = findViewById(R.id.controlPanel);
-                controlPanel.getLayoutParams().height = (int) (controlPanel.getWidth() / (640.0 / 342.0));
+                controlPanel.getLayoutParams().height = (int) (controlPanel.getWidth() / (bitmapWidth / bitmapHeight));
             }
         });
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
