@@ -2,7 +2,6 @@ package com.tobyrich.app.SmartPlane;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -11,11 +10,15 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.Toast;
-import android.view.View;
-import android.view.MotionEvent;
 
 import com.dd.plist.PropertyListFormatException;
 import com.tobyrich.lib.smartlink.BLEService;
@@ -42,6 +45,10 @@ public class FullscreenActivity
     private final int MAX_MOTOR_SPEED = 254;
     private final double SCALE_FOR_CONTROL_PANEL = 0.2;
     private final double SCALE_LOWER_RANGE_OF_SLIDER = 0.3;
+    private final double SCALE_FOR_VERT_MOVEMENT_HORIZON = 4.5;
+    private final double PITCH_ANGLE_MAX = 50;
+    private final double PITCH_ANGLE_MIN = -50;
+    private final long ANIMATION_DURATION_MILLISEC = 500;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -51,11 +58,17 @@ public class FullscreenActivity
 
     private float[] mGravity = new float[3];
     private float[] mGeomagnetic = new float[3];
+    private float[] prevOrientation = new float[3];
+    private float[] rotateMatrix = new float[9];
+    private float[] inclintationMatrix = new float[9];
+    private float[] newOrientation = new float[3];
 
     private ImageView controlPanel;
     private ImageView slider;
+
     private float newcontrolPanelHeight;
     private ImageView imagePanel;
+    private ImageView horizonImageView;
 
     private DisplayMetrics display = new DisplayMetrics();
 
@@ -124,6 +137,7 @@ public class FullscreenActivity
 
         controlPanel = (ImageView) findViewById(R.id.imgPanel);
         slider = (ImageView) findViewById(R.id.imageView);
+        horizonImageView = (ImageView) findViewById(R.id.imageHorizon);
 
 
         controlPanel.setOnTouchListener(new View.OnTouchListener() {
@@ -169,7 +183,7 @@ public class FullscreenActivity
                             mSmartplaneService.setMotor(new_motor);
 
                         } catch (NullPointerException e) {
-                            e.printStackTrace();
+                            //checking, because mSmartplaneService might not be available everytime
                         }
 
                         break;
@@ -259,26 +273,54 @@ public class FullscreenActivity
         if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             mGeomagnetic = event.values;
         }
-        if (mGravity != null && mGeomagnetic != null) {
-            float R[] = new float[9];
-            float I[] = new float[9];
 
-            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic); //get rotation matrix
+        if (mGravity != null && mGeomagnetic != null) {
+
+            final boolean success = SensorManager.getRotationMatrix(rotateMatrix, inclintationMatrix, mGravity, mGeomagnetic); //get rotation matrix
 
             if (success) {
-                float orientation[] = new float[3];
-                SensorManager.getOrientation(R, orientation); //get orientation
 
-                float rollAngle = orientation[2] * (float) (180 / Math.PI); //radian to degrees
+                SensorManager.getOrientation(rotateMatrix, newOrientation);
 
-                short newRudder = (short) (rollAngle * -MAX_RUDDER_SPEED / MAX_ROLL_ANGLE);
+                newOrientation = LowPassFilter.filter(newOrientation, prevOrientation);
+                prevOrientation = newOrientation;
+
+                //getting just the integer part of the angles for smooth data
+                final int rollAngle = (int) Math.toDegrees(newOrientation[2]); //radian to degrees
+                final int pitchAngle = (int) Math.toDegrees(newOrientation[1]);
+
+                double horizonVerticalMovement = 0.0;
+
+                //limiting the values of pitch angle for the vertical movement of the horizon
+                if (PITCH_ANGLE_MIN < pitchAngle && pitchAngle < PITCH_ANGLE_MAX) {
+                    horizonVerticalMovement = SCALE_FOR_VERT_MOVEMENT_HORIZON * pitchAngle;
+                } else if (pitchAngle <= PITCH_ANGLE_MIN) {
+                    horizonVerticalMovement = SCALE_FOR_VERT_MOVEMENT_HORIZON * PITCH_ANGLE_MIN;
+                } else if (pitchAngle >= PITCH_ANGLE_MAX) {
+                    horizonVerticalMovement = SCALE_FOR_VERT_MOVEMENT_HORIZON * PITCH_ANGLE_MAX;
+                }
+                final short newRudder = (short) (rollAngle * -MAX_RUDDER_SPEED / MAX_ROLL_ANGLE);
+
+                //rotation animation, from -rollangle to roll angle, relative to self with pivot being the center
+                RotateAnimation rotateHorizon = new RotateAnimation(-(float) rollAngle, (float) rollAngle, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                rotateHorizon.setDuration(ANIMATION_DURATION_MILLISEC);
+
+                //translation animation, translating the image in the vertical direction
+                TranslateAnimation translateHorizon = new TranslateAnimation(0, 0, -(float) horizonVerticalMovement, (float) horizonVerticalMovement);
+                translateHorizon.setDuration(ANIMATION_DURATION_MILLISEC);
+
+                AnimationSet animationSet = new AnimationSet(true);
+                animationSet.addAnimation(rotateHorizon);
+                animationSet.addAnimation(translateHorizon);
+
+                horizonImageView.startAnimation(animationSet);
 
                 try {
 
                     mSmartplaneService.setRudder(newRudder);
 
                 } catch (NullPointerException e) {
-                    e.printStackTrace();
+                    //checking, because mSmartplaneService might not be available everytime
                 }
             }
         }

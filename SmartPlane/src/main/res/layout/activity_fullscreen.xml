@@ -1,8 +1,9 @@
-<RelativeLayout
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fullscreen_content">
+    android:id="@+id/fullscreen_content"
+    tools:context=".FullscreenActivity">
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -56,11 +57,12 @@
             android:layout_height="fill_parent">
 
             <ImageView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="600dp"
+                android:layout_height="600dp"
                 android:id="@+id/imageHorizon"
+                android:scaleType="centerCrop"
                 android:src="@drawable/horizon"
-                android:scaleType="centerCrop" />
+                android:layout_gravity="center" />
 
             <ImageView
                 android:layout_width="fill_parent"
@@ -89,4 +91,5 @@
 
         </FrameLayout>
     </RelativeLayout>
+
 </RelativeLayout>
