@@ -3,7 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Android.iml" filepath="$PROJECT_DIR$/Android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/SmartPlane/SmartPlane.iml" filepath="$PROJECT_DIR$/SmartPlane/SmartPlane.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SmartPlane.iml" filepath="$PROJECT_DIR$/SmartPlane.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SmartPlane/SmartPlane-SmartPlane.iml" filepath="$PROJECT_DIR$/SmartPlane/SmartPlane-SmartPlane.iml" />
     </modules>
   </component>
 </project>

@@ -40,15 +40,15 @@ public class FullscreenActivity
     private static final String TAG = "SmartPlane";
     private static final int RSSI_THRESHOLD_TO_CONNECT = -100; // dB
 
-    private final int MAX_ROLL_ANGLE = 45;
-    private final int MAX_RUDDER_SPEED = 127;
-    private final int MAX_MOTOR_SPEED = 254;
-    private final double PITCH_ANGLE_MAX = 50;
-    private final double PITCH_ANGLE_MIN = -50;
-    private final long ANIMATION_DURATION_MILLISEC = 500;
-    private final double SCALE_FOR_CONTROL_PANEL = 0.2; // movement of slider only in 80% of the control panel height
-    private final double SCALE_LOWER_RANGE_OF_SLIDER = 0.1; // limiting the bottom slider movement
-    private final double SCALE_FOR_VERT_MOVEMENT_HORIZON = 4.5;
+    private static final int MAX_ROLL_ANGLE = 45;
+    private static final int MAX_RUDDER_SPEED = 127;
+    private static final int MAX_MOTOR_SPEED = 254;
+    private static final double PITCH_ANGLE_MAX = 50;
+    private static final double PITCH_ANGLE_MIN = -50;
+    private static final long ANIMATION_DURATION_MILLISEC = 500;
+    private static final double SCALE_FOR_CONTROL_PANEL = 0.2; // movement of slider only in 80% of the control panel height
+    private static final double SCALE_LOWER_RANGE_OF_SLIDER = 0.1; // limiting the bottom slider movement
+    private static final double SCALE_FOR_VERT_MOVEMENT_HORIZON = 4.5;
     private static float THROTTLE_NEEDLE_MAX_ANGLE = 40; // in degrees
     private static float THROTTLE_NEEDLE_MIN_ANGLE = -132; // in degrees
 
@@ -71,7 +71,6 @@ public class FullscreenActivity
     private ImageView fuelNeedleImageView;
     private ImageView signalNeedleImageView;
 
-    private float newcontrolPanelHeight;
     private ImageView imagePanel;
     private ImageView horizonImageView;
 
@@ -113,6 +112,7 @@ public class FullscreenActivity
             }
         });
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -151,12 +151,13 @@ public class FullscreenActivity
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                int eventId = event.getAction();
+                final int eventId = event.getAction();
                 float fingerPosition = event.getRawY(); //the fingerposition on the screen, here only the values in Y axis
-                float motorSpeed = 0;
                 final float diffFingerPosition = display.heightPixels - fingerPosition; //gets the required finger position
                 final float controlpanelHeight = controlPanel.getHeight();
                 final float eventYValue = event.getY();
+                float newcontrolPanelHeight = 0;
+                float motorSpeed = 0;
 
                 switch (eventId) {
 
@@ -172,7 +173,6 @@ public class FullscreenActivity
 
                         //calculations made so that the values of motorSpeed is only calculated in the controlpanel area
                         if ((diffFingerPosition < controlpanelHeight) && (diffFingerPosition > (SCALE_LOWER_RANGE_OF_SLIDER * controlpanelHeight))) {
-
                             motorSpeed = diffFingerPosition / controlpanelHeight;
                             if (motorSpeed < 0) {
                                 motorSpeed = 0;
@@ -185,17 +185,11 @@ public class FullscreenActivity
                             }
                         }
 
-
-                        short new_motor = (short) (motorSpeed * MAX_MOTOR_SPEED); //converting motorSpeed from percentage values so that it ranges from 0 to MAX_MOTOR_SPEED
-
-                        System.out.println(motorSpeed);
-                        //scaling new_motor value to range from 0 to 1
-                        rotateImageView(throttleNeedleImageView, ((float) new_motor / MAX_MOTOR_SPEED), THROTTLE_NEEDLE_MIN_ANGLE, THROTTLE_NEEDLE_MAX_ANGLE);
-
+                        rotateImageView(throttleNeedleImageView, motorSpeed, THROTTLE_NEEDLE_MIN_ANGLE, THROTTLE_NEEDLE_MAX_ANGLE);
 
                         try {
 
-                            mSmartplaneService.setMotor(new_motor);
+                            mSmartplaneService.setMotor((short) (motorSpeed * MAX_MOTOR_SPEED));
 
                         } catch (NullPointerException e) {
                             //checking, because mSmartplaneService might not be available everytime
@@ -247,7 +241,7 @@ public class FullscreenActivity
        maxAngle: maximum angle for rotation
      */
     public void rotateImageView(ImageView im, float value, float minAngle, float maxAngle) {
-        float rotationVal = (minAngle + (value * (maxAngle - minAngle)));
+        final float rotationVal = (minAngle + (value * (maxAngle - minAngle)));
 
         im.setRotation(rotationVal);
     }
