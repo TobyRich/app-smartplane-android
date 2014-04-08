@@ -33,6 +33,43 @@
             android:adjustViewBounds="false"
             android:longClickable="false" />
 
+        <ImageView
+            android:layout_width="150dp"
+            android:layout_height="95dp"
+            android:id="@+id/imgThrottleNeedle"
+            android:rotation="-135"
+            android:src="@drawable/needle_right_circle_up"
+            android:layout_marginLeft="14dp"
+            android:adjustViewBounds="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="6dp" />
+
+        <ImageView
+            android:layout_width="105dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/imgFuelNeedle"
+            android:rotation="-90"
+            android:layout_above="@+id/imgThrottleNeedle"
+            android:layout_toRightOf="@+id/imgThrottleNeedle"
+            android:layout_marginLeft="70dp"
+            android:src="@drawable/needle_right_circle_up"
+            android:adjustViewBounds="true"
+            android:layout_marginBottom="-40dp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:id="@+id/imgSignalNeedle"
+            android:rotation= "0"
+            android:src="@drawable/needle_right_circle_up"
+            android:layout_alignBottom="@+id/imgThrottleNeedle"
+            android:layout_alignEnd="@+id/imgFuelNeedle"
+            android:layout_marginLeft="0dp"
+            android:adjustViewBounds="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="2dp" />
+
     </RelativeLayout>
 
     <RelativeLayout
