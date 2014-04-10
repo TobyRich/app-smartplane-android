@@ -30,6 +30,8 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.ParseException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -73,6 +75,8 @@ public class FullscreenActivity
 
     private ImageView imagePanel;
     private ImageView horizonImageView;
+
+    Timer timer = new Timer();
 
     private DisplayMetrics display = new DisplayMetrics();
 
@@ -216,7 +220,7 @@ public class FullscreenActivity
         }
 
         try {
-            device = new BluetoothDevice(getResources().openRawResource(R.raw.powerup), this);
+            device = new BluetoothDevice(getResources().openRawResource(R.raw.smartplane), this);
             device.delegate = new WeakReference<BluetoothDevice.Delegate>(this);
             device.automaticallyReconnect = true;
             device.connect();
@@ -230,6 +234,32 @@ public class FullscreenActivity
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    class SignalTimerTask extends TimerTask { // subclass for passing device in timer
+        WeakReference<BluetoothDevice> weakDevice; // using weakreference to BluetoothDevice
+
+        public SignalTimerTask(BluetoothDevice device) {
+            weakDevice = new WeakReference<BluetoothDevice>(device);
+        }
+
+        @Override
+        public void run() {
+            weakDevice.get().updateSignalStrength();
+        }
+    }
+
+    class UiRunnable implements Runnable { // subclass for passing signalStrength
+        float signalStrength;
+
+        public UiRunnable(float signalStrength) {
+            this.signalStrength = signalStrength;
+        }
+
+        @Override
+        public void run() {
+            rotateImageView(signalNeedleImageView, signalStrength, SIGNAL_NEEDLE_MIN_ANGLE, SIGNAL_NEEDLE_MAX_ANGLE);
         }
     }
 
@@ -263,10 +293,19 @@ public class FullscreenActivity
         if (serviceName.equals("smartplane")) {
             mSmartplaneService = (BLESmartplaneService) service;
         }
+
+        SignalTimerTask sigTask = new SignalTimerTask(device);
+        //update bluetooth signal strength at a fixed rate
+        timer.scheduleAtFixedRate(sigTask, TIMER_DELAY, TIMER_PERIOD);
     }
 
     @Override
     public void didUpdateSignalStrength(BluetoothDevice device, float signalStrength) {
+        //scaling signalStrength to range from 0 to 1
+        float finalSignalStrength = ((signalStrength - MIN_BLUETOOTH_STRENGTH) / (MAX_BLUETOOTH_STRENGTH - MIN_BLUETOOTH_STRENGTH));
+
+        //for signalneedle
+        runOnUiThread(new UiRunnable(finalSignalStrength));
 
     }
 
@@ -274,6 +313,7 @@ public class FullscreenActivity
     public void didStartScanning(BluetoothDevice device) {
         Log.d(TAG, "started scanning");
         showSearching(true);
+
     }
 
     @Override
@@ -283,7 +323,7 @@ public class FullscreenActivity
 
     @Override
     public void didDisconnect(BluetoothDevice device) {
-
+        timer.cancel(); //stop timer
     }
 
     @Override
