@@ -18,6 +18,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dd.plist.PropertyListFormatException;
@@ -25,6 +26,7 @@ import com.tobyrich.lib.smartlink.BLEService;
 import com.tobyrich.lib.smartlink.BluetoothDevice;
 import com.tobyrich.lib.smartlink.driver.BLESmartplaneService;
 
+import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -37,7 +39,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class FullscreenActivity
         extends Activity
-        implements BluetoothDevice.Delegate, SensorEventListener {
+        implements BluetoothDevice.Delegate, BLESmartplaneService.Delegate, SensorEventListener {
     private static final int REQUEST_ENABLE_BT = 1;
     private static final String TAG = "SmartPlane";
     private static final int RSSI_THRESHOLD_TO_CONNECT = -100; // dB
@@ -53,6 +55,12 @@ public class FullscreenActivity
     private static final double SCALE_FOR_VERT_MOVEMENT_HORIZON = 4.5;
     private static float THROTTLE_NEEDLE_MAX_ANGLE = 40; // in degrees
     private static float THROTTLE_NEEDLE_MIN_ANGLE = -132; // in degrees
+    private static float SIGNAL_NEEDLE_MIN_ANGLE = 0; // in degrees
+    private static float SIGNAL_NEEDLE_MAX_ANGLE = 180; // in degrees
+    private static float MAX_BLUETOOTH_STRENGTH = -20;
+    private static float MIN_BLUETOOTH_STRENGTH = -100;
+    private static long TIMER_DELAY = 500; // the delay in milliseconds before task is to be executed
+    private static long TIMER_PERIOD = 1000; // the time in milliseconds between successive task executions
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -72,9 +80,12 @@ public class FullscreenActivity
     private ImageView throttleNeedleImageView;
     private ImageView fuelNeedleImageView;
     private ImageView signalNeedleImageView;
-
     private ImageView imagePanel;
     private ImageView horizonImageView;
+
+    private TextView throttleText;
+    private TextView signalText;
+    private TextView batteryStatus;
 
     Timer timer = new Timer();
 
@@ -191,8 +202,10 @@ public class FullscreenActivity
 
                         rotateImageView(throttleNeedleImageView, motorSpeed, THROTTLE_NEEDLE_MIN_ANGLE, THROTTLE_NEEDLE_MAX_ANGLE);
 
-                        try {
+                        throttleText = (TextView) findViewById(R.id.throttleValue);
 
+                        try {
+                            throttleText.setText(String.valueOf((short) (motorSpeed * 100) + "%"));
                             mSmartplaneService.setMotor((short) (motorSpeed * MAX_MOTOR_SPEED));
 
                         } catch (NullPointerException e) {
@@ -237,6 +250,18 @@ public class FullscreenActivity
         }
     }
 
+    @Override
+    public void didStartChargingBattery() {
+        // if smartplane is charging
+        runOnUiThread(new ChargeStatusTextChanger("CHARGING"));
+    }
+
+    @Override
+    public void didStopChargingBattery() {
+        // if smartplane is not in charge
+        runOnUiThread(new ChargeStatusTextChanger("IN USE"));
+    }
+
     class SignalTimerTask extends TimerTask { // subclass for passing device in timer
         WeakReference<BluetoothDevice> weakDevice; // using weakreference to BluetoothDevice
 
@@ -250,15 +275,48 @@ public class FullscreenActivity
         }
     }
 
-    class UiRunnable implements Runnable { // subclass for passing signalStrength
-        float signalStrength;
+    class ChargeTimerTask extends TimerTask { // subclass for passing service in timer
+        WeakReference<BLESmartplaneService> service; // using weakreference to BLESmartplaneService
 
-        public UiRunnable(float signalStrength) {
-            this.signalStrength = signalStrength;
+        public ChargeTimerTask(BLESmartplaneService service) {
+            this.service = new WeakReference<BLESmartplaneService>(service);
         }
 
         @Override
         public void run() {
+            service.get().updateChargingStatus();
+        }
+    }
+
+    class ChargeStatusTextChanger implements Runnable { // updating the ui part when charging status changes
+        String chargeStatus;
+
+        public ChargeStatusTextChanger(String chargeStatus) {
+            this.chargeStatus = chargeStatus;
+        }
+
+        @Override
+        public void run() {
+            batteryStatus = (TextView) findViewById(R.id.batteryStatus);
+            batteryStatus.setText(chargeStatus);
+        }
+    }
+
+    class SignalLevelUIChanger implements Runnable { // subclass for passing signalStrength
+        float signalStrength;
+        float signalInDb;
+
+        public SignalLevelUIChanger(float signalStrength, float signalInDb) {
+            this.signalStrength = signalStrength;
+            this.signalInDb = signalInDb;
+        }
+
+        @Override
+        public void run() {
+            signalText = (TextView) findViewById(R.id.signalValue);
+
+            signalText.setText(String.valueOf((int) (signalInDb)));
+
             rotateImageView(signalNeedleImageView, signalStrength, SIGNAL_NEEDLE_MIN_ANGLE, SIGNAL_NEEDLE_MAX_ANGLE);
         }
     }
@@ -291,21 +349,28 @@ public class FullscreenActivity
     public void didStartService(BluetoothDevice device, String serviceName, BLEService service) {
         showSearching(false);
         if (serviceName.equals("smartplane")) {
-            mSmartplaneService = (BLESmartplaneService) service;
-        }
 
-        SignalTimerTask sigTask = new SignalTimerTask(device);
-        //update bluetooth signal strength at a fixed rate
-        timer.scheduleAtFixedRate(sigTask, TIMER_DELAY, TIMER_PERIOD);
+            mSmartplaneService = (BLESmartplaneService) service;
+            mSmartplaneService.delegate = new WeakReference<BLESmartplaneService.Delegate>(this);
+
+            ChargeTimerTask chargeTimerTask = new ChargeTimerTask(mSmartplaneService);
+            // update charging status at a fixed rate
+            timer.scheduleAtFixedRate(chargeTimerTask, TIMER_DELAY, TIMER_PERIOD);
+
+            SignalTimerTask sigTask = new SignalTimerTask(device);
+            // update bluetooth signal strength at a fixed rate
+            timer.scheduleAtFixedRate(sigTask, TIMER_DELAY, TIMER_PERIOD);
+        }
     }
 
     @Override
     public void didUpdateSignalStrength(BluetoothDevice device, float signalStrength) {
+        float signalInDB = signalStrength;
         //scaling signalStrength to range from 0 to 1
         float finalSignalStrength = ((signalStrength - MIN_BLUETOOTH_STRENGTH) / (MAX_BLUETOOTH_STRENGTH - MIN_BLUETOOTH_STRENGTH));
 
         //for signalneedle
-        runOnUiThread(new UiRunnable(finalSignalStrength));
+        runOnUiThread(new SignalLevelUIChanger(finalSignalStrength, signalInDB));
 
     }
 
