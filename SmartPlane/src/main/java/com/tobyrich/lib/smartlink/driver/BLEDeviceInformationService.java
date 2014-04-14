@@ -15,7 +15,7 @@ import java.util.HashMap;
 public class BLEDeviceInformationService
     extends BLEService
 {
-    interface Delegate {
+    public interface Delegate {
         void didUpdateSerialNumber(BLEDeviceInformationService device, String serialNumber);
     }
 
