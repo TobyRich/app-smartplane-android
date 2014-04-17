@@ -26,24 +26,32 @@ import java.lang.ref.WeakReference;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import static org.apache.commons.lang3.ArrayUtils.*;
+import static org.apache.commons.lang3.ArrayUtils.reverse;
 
 /*
  * Created by pvaibhav on 13/02/2014.
  */
-@SuppressWarnings("ConstantConditions") // because we are already checking for null pointers for delegate
+@SuppressWarnings({"ConstantConditions", "AccessStaticViaInstance"})
+// because we are already checking for null pointers for delegate
 public class BluetoothDevice extends BluetoothGattCallback implements BluetoothAdapter.LeScanCallback {
+
 
     public interface Delegate {
         public void didStartService(BluetoothDevice device, String serviceName, BLEService service);
+
         public void didUpdateSignalStrength(BluetoothDevice device, float signalStrength);
+
         public void didStartScanning(BluetoothDevice device);
+
         public void didStartConnectingTo(BluetoothDevice device, float signalStrength);
+
         public void didDisconnect(BluetoothDevice device);
     }
 
@@ -58,9 +66,12 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
     private int rssiLow = -96;
 
     private final Activity mOwner;
+    private android.bluetooth.BluetoothDevice mDevice;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothGatt mBluetoothGatt;
     private UUID[] mPrimaryServices;
+
+    private Queue<BluetoothGattCharacteristic> mReadQueue = new LinkedList<BluetoothGattCharacteristic>(); // FIFO of chars to read in order
 
     private HashMap<String, String> uuidToName;
     private HashMap<String, String> mServiceNameToDriverClass;
@@ -108,12 +119,12 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
         mPrimaryServices = new UUID[uuidList.size()]; // allocate array with just enough elements
         uuidList.toArray(mPrimaryServices);
 
-        // Now build our HashMap of uuid -> name and name -> uuid. Done separately for clarity.
+        // Now build our HashMap of uuid -> name.
         uuidToName = new HashMap<String, String>();
-        HashMap<String, String> nameToUuid = new HashMap<String, String>();
+        // And also one to store which driver handles a particular service
         mServiceNameToDriverClass = new HashMap<String, String>();
 
-        for (String serviceName: services.allKeys()) {
+        for (String serviceName : services.allKeys()) {
 
             // Get service information dictionary
             NSDictionary service = (NSDictionary) services.objectForKey(serviceName);
@@ -121,7 +132,6 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
             // Add service name, its uuid and driver class
             String uuid = uuidHarmonize(service.objectForKey("UUID").toString());
             uuidToName.put(uuid, serviceName);
-            nameToUuid.put(serviceName, uuid);
             mServiceNameToDriverClass.put(serviceName, service.objectForKey("DriverClass").toString());
 
             Log.i(TAG, "service " + serviceName + " ->" + uuid);
@@ -131,7 +141,6 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
             for (String charName : fields.allKeys()) {
                 String charUuid = uuidHarmonize(fields.objectForKey(charName).toString());
                 uuidToName.put(charUuid, serviceName + "/" + charName);
-                nameToUuid.put(serviceName + "/" + charName, charUuid);
                 Log.i(TAG, "  char " + charName + " -> " + charUuid);
             }
 
@@ -174,8 +183,10 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
     private void startScanning() {
         mBluetoothAdapter.stopLeScan(this); // in case scan was already running
         mBluetoothAdapter.startLeScan(this);
-        if (delegate.get() != null) {
+        try {
             delegate.get().didStartScanning(this);
+        } catch (NullPointerException ex) {
+            Log.w(TAG, "No delegate set");
         }
     }
 
@@ -198,6 +209,9 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
     }
 
     private boolean includesPrimaryService(byte[] scanRecord) {
+        if (scanRecord.length < 3)
+            return false; // cuz we need at least 3 bytes: len, type, data
+
         int offset = 0;
         do {
             final int len = scanRecord[offset++];
@@ -214,32 +228,38 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
             } else {
                 offset += len - 1;
             }
-        } while (offset <= scanRecord.length);
+        } while (offset < scanRecord.length - 1); // len-1 cuz each time we read at least 2 bytes
         return false;
     }
 
     @Override
-    public void onLeScan(android.bluetooth.BluetoothDevice device, int rssi, byte[] scanRecord) {
+    public void onLeScan(android.bluetooth.BluetoothDevice d, int rssi, byte[] scanRecord) {
         // When scan results are received
-        Log.d(TAG, device.getName() + " found");
+        mDevice = d;
+        if (mDevice.getName() == null) // some sort of error happened
+            return;
+
+        Log.d(TAG, mDevice.getName() + " found");
+        if (mDevice.getName().equalsIgnoreCase("TailorToys PowerUp"))
+            mDevice.connectGatt(mOwner.getApplicationContext(), false, this);
 
         // Android BLE api has a bug which does not filter on 128 bit UUIDs (only 16 bit works).
         // To workaround it, we will manually check if this device is not supported, and skip it
-        if (includesPrimaryService(scanRecord)) {
-            // So this is a supported device, connect to it if signal strength is high enough
-            if (rssiLow < rssi && rssi < rssiHigh) {
-                device.connectGatt(mOwner.getApplicationContext(), true, this);
-                if (delegate.get() != null) {
-                    delegate.get().didStartConnectingTo(this, rssi);
-                }
-            }
-        } else {
-            Log.d(TAG, "Primary service is NOT included by above device");
-        }
+//        if (includesPrimaryService(scanRecord)) {
+//            // So this is a supported device, connect to it if signal strength is high enough
+//            if (rssiLow < rssi && rssi < rssiHigh) {
+//                mDevice.connectGatt(mOwner.getApplicationContext(), false, this);
+//                if (delegate.get() != null) {
+//                    delegate.get().didStartConnectingTo(this, rssi);
+//                }
+//            }
+//        } else {
+//            Log.d(TAG, "Primary service is NOT included by above device");
+//        }
     }
 
     @Override
-    public void onConnectionStateChange (BluetoothGatt gatt, int status, int newState) {
+    public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         Log.d(TAG, "connection state changed " + status + " -> " + newState);
         switch (newState) {
             case BluetoothProfile.STATE_CONNECTED:
@@ -250,6 +270,8 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
                 break;
             case BluetoothProfile.STATE_DISCONNECTED:
                 mBluetoothGatt = null;
+                charToDriver.clear();
+
                 if (delegate.get() != null) {
                     delegate.get().didDisconnect(this);
                 }
@@ -262,57 +284,125 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
     }
 
     @Override
-    public void onServicesDiscovered (BluetoothGatt gatt, int status) {
+    public void onServicesDiscovered(BluetoothGatt gatt, int status) {
         Log.d(TAG, "services discovered");
         List<BluetoothGattService> gattServiceList = mBluetoothGatt.getServices();
-        for (BluetoothGattService s: gattServiceList) {
-            String sName = uuidToName.get(uuidHarmonize(s.getUuid().toString()));
-            if (sName != null) {
-                // process this service's fields
-                Log.d(TAG, "service driver: " + mServiceNameToDriverClass.get(sName));
-                HashMap<String, BluetoothGattCharacteristic> listOfFields = new HashMap<String, BluetoothGattCharacteristic>();
-                for (BluetoothGattCharacteristic c: s.getCharacteristics()) {
-                    String cName = uuidToName.get(uuidHarmonize(c.getUuid().toString()));
-                    if (cName == null) {
-                        // this field was not in plist so skip it
-                        continue;
-                    }
-                    Log.d(TAG, "found " + cName + " on device");
-                    listOfFields.put(cName, c);
-                }
 
-                BLEService driver;
-                try {
-                    driver = (BLEService) Class.forName("com.tobyrich.lib.smartlink.driver." + mServiceNameToDriverClass.get(sName)).newInstance();
-                    driver.attach(mBluetoothGatt, listOfFields);
-                    // set the driver for each field to this instance of BLEService
-                    for (String charName: listOfFields.keySet()) {
-                        charToDriver.put(listOfFields.get(charName), driver);
-                    }
-                    if (delegate.get() != null) {
-                        delegate.get().didStartService(this, sName, driver);
-                    }
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    // if the driver class was not found, it's alright, just ignore.
+        charToDriver.clear(); // start afresh
+
+        for (BluetoothGattService s : gattServiceList) {
+            // Find service name corresponding to this service's UUID, as per plist file
+            String sName = uuidToName.get(uuidHarmonize(s.getUuid().toString()));
+
+            // If it was not found (in plist), just continue to next
+            if (sName == null)
+                continue;
+
+            BLEService driver;
+            try {
+                // Try to instantiate an instance of the driver's class (as specified in the plist)
+                driver = (BLEService) Class.forName("com.tobyrich.lib.smartlink.driver."
+                        + mServiceNameToDriverClass.get(sName)).newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+                return;
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return;
+            } catch (ClassNotFoundException e) {
+                Log.w(TAG, "No driver class " + mServiceNameToDriverClass.get(sName) + " was found");
+                return;
+            }
+
+            // ----- Now that we created the driver, process this service's fields.
+            Log.d(TAG, "service driver: " + mServiceNameToDriverClass.get(sName));
+
+            // Create a hashmap to store the mapping of field names to chars.
+            // This will be sent to the driver so it can output data to chars directly.
+            HashMap<String, BluetoothGattCharacteristic> listOfFields = new HashMap<String, BluetoothGattCharacteristic>();
+
+            // Iterate over each char, and if it's in the plist, add it to our global
+            // and driver-specific lists.
+            for (BluetoothGattCharacteristic c : s.getCharacteristics()) {
+                // Find the name for this char based on its uuid, as specified in the plist
+                String cName = uuidToName.get(uuidHarmonize(c.getUuid().toString()));
+                if (cName == null) {
+                    // this field was not in plist so skip it
+                    continue;
                 }
+                Log.i(TAG, "found " + cName + " on device");
+
+                // Remove the service name before sending to the driver, as they only get
+                // the field names
+                String cNameWithoutSname = cName.substring(cName.indexOf("/") + 1);
+                listOfFields.put(cNameWithoutSname, c);
+
+                // Also store the mapping of char to its designated driver
+                charToDriver.put(c, driver);
+            }
+
+            // Attach this information to the driver instance, and notify the app
+            driver.attach(mBluetoothGatt, listOfFields, this);
+            try {
+                delegate.get().didStartService(this, sName, driver);
+            } catch (NullPointerException ex) {
+                Log.w(TAG, "No delegate set");
+            }
+        }
+    }
+
+    protected void updateField(BluetoothGattCharacteristic c) {
+        // Android ignores read requests if any previous requests are pending. So here we serialize
+        // all read requests using a FIFO, and also ignore read requests for fields that are already
+        // pending to be read in the queue.
+        Log.d(TAG, "Adding to read queue, size " + mReadQueue.size() + "->" + (mReadQueue.size() + 1));
+        if (mReadQueue.contains(c)) {
+            Log.w(TAG, "Read queue already had char " + c);
+        } else {
+            mReadQueue.add(c);
+            kickReadQueue();
+        }
+    }
+
+    private void kickReadQueue() {
+        // This function will read a field if it's the only one on the queue, otherwise it'll not
+        // do anything and wait till the queue is kicked again next time (e.g. a value finished
+        // reading and was removed from the queue)
+        if (mReadQueue.size() == 1) {
+            // queue has only one item so nothing else is pending, read it
+            Log.d(TAG, "Reading from read queue (size=1)");
+            BluetoothGattCharacteristic c = mReadQueue.peek();
+            mBluetoothGatt.readCharacteristic(c);
+        } else {
+            Log.w(TAG, "Read queue was of size " + mReadQueue.size() + ", ignoring kick.");
+            if (mReadQueue.size() > 15) {
+                // queue too long, flush and start over
+                // This is not strictly necessary, but this is Android so who knows?
+                mReadQueue.clear();
+                Log.w(TAG, "Read queue was too large --> FLUSHED");
             }
         }
     }
 
     @Override
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        String charName = uuidToName.get(uuidHarmonize(characteristic.getUuid().toString()));
+        Log.d(TAG, "Received value for char " + charName);
+        // Find which driver handles it and send it a message
         BLEService driver = charToDriver.get(characteristic);
-        driver.didUpdateValueForCharacteristic(uuidToName.get(uuidHarmonize(characteristic.getUuid().toString())));
+        Log.i(TAG, "Driver " + driver + " was found to be informed");
+        driver.didUpdateValueForCharacteristic(charName.substring(charName.indexOf("/") + 1));
+        // deque
+        mReadQueue.poll(); // remove top item
+        kickReadQueue(); // read next
     }
 
     @Override
     public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-        if (delegate.get() != null) {
+        try {
             delegate.get().didUpdateSignalStrength(this, rssi);
+        } catch (NullPointerException ex) {
+            Log.w(TAG, "No delegate set");
         }
     }
 }

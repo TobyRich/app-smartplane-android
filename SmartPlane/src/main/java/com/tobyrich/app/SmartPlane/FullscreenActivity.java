@@ -245,7 +245,7 @@ public class FullscreenActivity
         }
 
         try {
-            device = new BluetoothDevice(getResources().openRawResource(R.raw.smartplane), this);
+            device = new BluetoothDevice(getResources().openRawResource(R.raw.powerup_and_smartplane), this);
             device.delegate = new WeakReference<BluetoothDevice.Delegate>(this);
             device.automaticallyReconnect = true;
             device.connect();
@@ -386,7 +386,7 @@ public class FullscreenActivity
     @Override
     public void didStartService(BluetoothDevice device, String serviceName, BLEService service) {
         showSearching(false);
-        if (serviceName.equals("smartplane")) {
+        if (serviceName.equalsIgnoreCase("smartplane") || serviceName.equalsIgnoreCase("powerup")) {
 
             mSmartplaneService = (BLESmartplaneService) service;
             mSmartplaneService.delegate = new WeakReference<BLESmartplaneService.Delegate>(this);

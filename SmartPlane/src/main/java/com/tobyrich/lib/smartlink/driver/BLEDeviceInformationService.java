@@ -1,20 +1,16 @@
 package com.tobyrich.lib.smartlink.driver;
 
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.util.Log;
 
 import com.tobyrich.lib.smartlink.BLEService;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 
 /**
  * Created by pvaibhav on 17/02/2014.
  */
 public class BLEDeviceInformationService
-    extends BLEService
-{
+        extends BLEService {
     public interface Delegate {
         void didUpdateSerialNumber(BLEDeviceInformationService device, String serialNumber);
     }
@@ -27,24 +23,20 @@ public class BLEDeviceInformationService
     }
 
     @Override
-    public void attach(BluetoothGatt gatt, HashMap<String, BluetoothGattCharacteristic> listOfFields) {
-        super.attach(gatt, listOfFields);
-        updateField("devinfo/serialnumber");
-    }
-
-    @Override
-    public void detach() {
-
+    public void attached() {
+        updateField("serialnumber");
     }
 
     @Override
     protected void didUpdateValueForCharacteristic(String c) {
-        if (c.equalsIgnoreCase("devinfo/serialnumber")) {
-            mSerialNumber = getStringValueForCharacteristic("devinfo/serialnumber").trim();
-            if (delegate.get() != null) {
+        if (c.equalsIgnoreCase("serialnumber")) {
+            mSerialNumber = getStringValueForCharacteristic("serialnumber").trim();
+            Log.i("lib-smartlink-devinfo", "Serial number updated: " + mSerialNumber + " (len=" + mSerialNumber.length() + ")");
+            try {
                 delegate.get().didUpdateSerialNumber(this, mSerialNumber);
+            } catch (NullPointerException ex) {
+                Log.w("lib-smartlink-devinfo", "No delegate set");
             }
-            Log.d("lib-smartlink-devinfo", "Serial number updated: " + mSerialNumber + " (len=" + mSerialNumber.length() + ")");
         }
     }
 }
