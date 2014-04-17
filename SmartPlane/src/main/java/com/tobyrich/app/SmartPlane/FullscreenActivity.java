@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.dd.plist.PropertyListFormatException;
 import com.tobyrich.lib.smartlink.BLEService;
 import com.tobyrich.lib.smartlink.BluetoothDevice;
+import com.tobyrich.lib.smartlink.driver.BLEBatteryService;
 import com.tobyrich.lib.smartlink.driver.BLEDeviceInformationService;
 import com.tobyrich.lib.smartlink.driver.BLESmartplaneService;
 
@@ -41,7 +42,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class FullscreenActivity
         extends Activity
-        implements BluetoothDevice.Delegate, BLESmartplaneService.Delegate, BLEDeviceInformationService.Delegate, SensorEventListener {
+        implements BluetoothDevice.Delegate, BLESmartplaneService.Delegate, BLEDeviceInformationService.Delegate, BLEBatteryService.Delegate, SensorEventListener {
     private static final int REQUEST_ENABLE_BT = 1;
     private static final String TAG = "SmartPlane";
     private static final int RSSI_THRESHOLD_TO_CONNECT = -100; // dB
@@ -61,6 +62,9 @@ public class FullscreenActivity
     private static float SIGNAL_NEEDLE_MAX_ANGLE = 180; // in degrees
     private static float MAX_BLUETOOTH_STRENGTH = -20;
     private static float MIN_BLUETOOTH_STRENGTH = -100;
+    private static float FUEL_NEEDLE_MIN_ANGLE = -90; // in degrees
+    private static float FUEL_NEEDLE_MAX_ANGLE = 90; // in degrees
+    private static float MAX_BATTERY_VALUE = 100;
     private static long TIMER_DELAY = 500; // the delay in milliseconds before task is to be executed
     private static long TIMER_PERIOD = 1000; // the time in milliseconds between successive task executions
 
@@ -70,6 +74,7 @@ public class FullscreenActivity
     private BluetoothDevice device;
     private BLESmartplaneService mSmartplaneService;
     private BLEDeviceInformationService mDeviceInfoService;
+    private BLEBatteryService mBatteryService;
 
     private float[] mGravity = new float[3];
     private float[] mGeomagnetic = new float[3];
@@ -90,6 +95,7 @@ public class FullscreenActivity
     private TextView throttleText;
     private TextView signalText;
     private TextView batteryStatus;
+    private TextView batteryLevelText;
 
     private String appVersion;
 
@@ -279,6 +285,11 @@ public class FullscreenActivity
         runOnUiThread(new infoBox(serialNumber));
     }
 
+    @Override
+    public void didUpdateBatteryLevel(float percent) {
+        runOnUiThread(new BatteryLevelUIChanger(percent));
+    }
+
     class infoBox implements Runnable, View.OnClickListener { // for information box
         String serialNumber;
 
@@ -359,6 +370,24 @@ public class FullscreenActivity
         }
     }
 
+    class BatteryLevelUIChanger implements Runnable { // subclass for passing battery level
+        float batteryLevel;
+
+        BatteryLevelUIChanger(float batteryLevel) {
+            this.batteryLevel = batteryLevel;
+        }
+
+        @Override
+        public void run() {
+            batteryLevelText = (TextView) findViewById(R.id.batteryLevelText);
+
+            batteryLevelText.setText(String.valueOf((int) batteryLevel + "%"));
+
+            rotateImageView(fuelNeedleImageView, batteryLevel / MAX_BATTERY_VALUE, FUEL_NEEDLE_MIN_ANGLE, FUEL_NEEDLE_MAX_ANGLE);
+        }
+
+    }
+
     /*
        A method for rotation of ImageView from minAngle to maxAngle
        im: ImageView
@@ -386,7 +415,7 @@ public class FullscreenActivity
     @Override
     public void didStartService(BluetoothDevice device, String serviceName, BLEService service) {
         showSearching(false);
-        if (serviceName.equalsIgnoreCase("smartplane") || serviceName.equalsIgnoreCase("powerup")) {
+        if (serviceName.equalsIgnoreCase("smartplane") || serviceName.equalsIgnoreCase("powerup")) { // check for smartplane or powerup service
 
             mSmartplaneService = (BLESmartplaneService) service;
             mSmartplaneService.delegate = new WeakReference<BLESmartplaneService.Delegate>(this);
@@ -401,9 +430,14 @@ public class FullscreenActivity
 
         }
 
-        if (serviceName.equalsIgnoreCase("devinfo")) {
+        if (serviceName.equalsIgnoreCase("devinfo")) { // check for devinfo service
             mDeviceInfoService = (BLEDeviceInformationService) service;
             mDeviceInfoService.delegate = new WeakReference<BLEDeviceInformationService.Delegate>(this);
+        }
+
+        if (serviceName.equalsIgnoreCase("battery")) { // check for battery service
+            mBatteryService = (BLEBatteryService) service;
+            mBatteryService.delegate = new WeakReference<BLEBatteryService.Delegate>(this);
         }
     }
 

@@ -49,7 +49,7 @@
             android:layout_width="105dp"
             android:layout_height="wrap_content"
             android:id="@+id/imgFuelNeedle"
-            android:rotation="90"
+            android:rotation="-90"
             android:layout_above="@+id/imgThrottleNeedle"
             android:layout_toRightOf="@+id/imgThrottleNeedle"
             android:layout_marginLeft="70dp"
@@ -124,13 +124,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="nA"
-            android:id="@+id/batteryValue"
+            android:text="0%"
+            android:id="@+id/batteryLevelText"
             android:layout_alignStart="@+id/signalValue"
             android:singleLine="false"
             android:textStyle="bold|normal"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp" />
+            android:layout_marginLeft="16dp" />
 
         <TextView
             android:layout_width="wrap_content"
