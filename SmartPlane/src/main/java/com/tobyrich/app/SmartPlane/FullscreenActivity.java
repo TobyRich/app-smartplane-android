@@ -1,7 +1,9 @@
 package com.tobyrich.app.SmartPlane;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -24,9 +26,9 @@ import android.widget.Toast;
 import com.dd.plist.PropertyListFormatException;
 import com.tobyrich.lib.smartlink.BLEService;
 import com.tobyrich.lib.smartlink.BluetoothDevice;
+import com.tobyrich.lib.smartlink.driver.BLEDeviceInformationService;
 import com.tobyrich.lib.smartlink.driver.BLESmartplaneService;
 
-import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -39,7 +41,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class FullscreenActivity
         extends Activity
-        implements BluetoothDevice.Delegate, BLESmartplaneService.Delegate, SensorEventListener {
+        implements BluetoothDevice.Delegate, BLESmartplaneService.Delegate, BLEDeviceInformationService.Delegate, SensorEventListener {
     private static final int REQUEST_ENABLE_BT = 1;
     private static final String TAG = "SmartPlane";
     private static final int RSSI_THRESHOLD_TO_CONNECT = -100; // dB
@@ -67,6 +69,7 @@ public class FullscreenActivity
     private Sensor mMagnetometer;
     private BluetoothDevice device;
     private BLESmartplaneService mSmartplaneService;
+    private BLEDeviceInformationService mDeviceInfoService;
 
     private float[] mGravity = new float[3];
     private float[] mGeomagnetic = new float[3];
@@ -82,15 +85,17 @@ public class FullscreenActivity
     private ImageView signalNeedleImageView;
     private ImageView imagePanel;
     private ImageView horizonImageView;
+    private ImageView infoButton;
 
     private TextView throttleText;
     private TextView signalText;
     private TextView batteryStatus;
 
+    private String appVersion;
+
     Timer timer = new Timer();
 
     private DisplayMetrics display = new DisplayMetrics();
-
 
     private void showSearching(boolean show) {
         final int visibility = show ? View.VISIBLE : View.GONE;
@@ -149,6 +154,11 @@ public class FullscreenActivity
         setContentView(R.layout.activity_fullscreen);
         getWindowManager().getDefaultDisplay().getMetrics(display); //used to get the dimensions of the display
 
+        try {
+            appVersion = this.getPackageManager().getPackageInfo(this.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+
+        }
 
         Toast.makeText(FullscreenActivity.this,
                 "Pull Up to Start the Motor",
@@ -161,6 +171,7 @@ public class FullscreenActivity
         throttleNeedleImageView = (ImageView) findViewById(R.id.imgThrottleNeedle);
         fuelNeedleImageView = (ImageView) findViewById(R.id.imgFuelNeedle);
         signalNeedleImageView = (ImageView) findViewById(R.id.imgSignalNeedle);
+        infoButton = (ImageView) findViewById(R.id.imgInfo);
 
         controlPanel.setOnTouchListener(new View.OnTouchListener() {
 
@@ -222,6 +233,7 @@ public class FullscreenActivity
             }
         });
 
+
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
@@ -259,7 +271,33 @@ public class FullscreenActivity
     @Override
     public void didStopChargingBattery() {
         // if smartplane is not in charge
-        runOnUiThread(new ChargeStatusTextChanger("IN USE"));
+        runOnUiThread(new ChargeStatusTextChanger("IN USE  "));
+    }
+
+    @Override
+    public void didUpdateSerialNumber(BLEDeviceInformationService device, String serialNumber) {
+        runOnUiThread(new infoBox(serialNumber));
+    }
+
+    class infoBox implements Runnable, View.OnClickListener { // for information box
+        String serialNumber;
+
+        public infoBox(String serialNumber) {
+            this.serialNumber = serialNumber;
+        }
+
+        @Override
+        public void run() {
+            infoButton.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            // dialog box showing version info
+            AlertDialog.Builder builder = new AlertDialog.Builder(FullscreenActivity.this);
+            builder.setTitle("Version Info");
+            builder.setMessage("Software: " + appVersion + "\n" + "Hardware: " + serialNumber).setPositiveButton("OK", null).show();
+        }
     }
 
     class SignalTimerTask extends TimerTask { // subclass for passing device in timer
@@ -360,6 +398,12 @@ public class FullscreenActivity
             SignalTimerTask sigTask = new SignalTimerTask(device);
             // update bluetooth signal strength at a fixed rate
             timer.scheduleAtFixedRate(sigTask, TIMER_DELAY, TIMER_PERIOD);
+
+        }
+
+        if (serviceName.equalsIgnoreCase("devinfo")) {
+            mDeviceInfoService = (BLEDeviceInformationService) service;
+            mDeviceInfoService.delegate = new WeakReference<BLEDeviceInformationService.Delegate>(this);
         }
     }
 
@@ -389,6 +433,7 @@ public class FullscreenActivity
     @Override
     public void didDisconnect(BluetoothDevice device) {
         timer.cancel(); //stop timer
+        runOnUiThread(new infoBox("Unknown")); // if the smartplane is disconnected then, show hardware as "unknown"
     }
 
     @Override

@@ -41,6 +41,9 @@ public class BLEDeviceInformationService
     protected void didUpdateValueForCharacteristic(String c) {
         if (c.equalsIgnoreCase("devinfo/serialnumber")) {
             mSerialNumber = getStringValueForCharacteristic("devinfo/serialnumber").trim();
+            if (delegate.get() != null) {
+                delegate.get().didUpdateSerialNumber(this, mSerialNumber);
+            }
             Log.d("lib-smartlink-devinfo", "Serial number updated: " + mSerialNumber + " (len=" + mSerialNumber.length() + ")");
         }
     }

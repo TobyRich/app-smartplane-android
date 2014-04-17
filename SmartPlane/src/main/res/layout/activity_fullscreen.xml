@@ -182,8 +182,8 @@
             android:layout_alignEnd="@+id/throttleValue"
             android:textSize="14dp"
             android:textStyle="bold|normal"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="-4dp" />
+            android:layout_marginRight="7dp"
+            android:layout_marginTop="-5dp" />
 
     </RelativeLayout>
 
@@ -240,6 +240,17 @@
                 android:id="@+id/progressBar"
                 android:layout_gravity="center_horizontal|bottom"
                 android:layout_marginBottom="70dp" />
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:id="@+id/imgInfo"
+                android:layout_gravity="right|bottom"
+                android:src="@drawable/information"
+                android:layout_marginBottom="15dp"
+                android:layout_marginRight="22dp"
+                android:clickable="true"
+                android:focusableInTouchMode="false" />
 
         </FrameLayout>
     </RelativeLayout>
