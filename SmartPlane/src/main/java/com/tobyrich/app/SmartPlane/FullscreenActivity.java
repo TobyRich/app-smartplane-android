@@ -194,21 +194,15 @@ public class FullscreenActivity
 
                         newcontrolPanelHeight = (float) (controlpanelHeight - (SCALE_FOR_CONTROL_PANEL * controlpanelHeight)); //this new controlpanel height which is the range for the slider to move
 
-                        if (0 < eventYValue && eventYValue < newcontrolPanelHeight) { //range from top of control panel to bottom of control panel
-                            slider.setY(eventYValue); //movement of the slider with touch
-                        } else if (eventYValue < 0) { //checking if the slider moves above the control panel height
-                            slider.setY(0); //setting the slider to the max position if the user slides directly outside the control panel as the slider ranges from 0 to the control panel height
-                        }
-
-                        //calculations made so that the values of motorSpeed is only calculated in the controlpanel area
-                        if ((diffFingerPosition < controlpanelHeight) && (diffFingerPosition > (SCALE_LOWER_RANGE_OF_SLIDER * controlpanelHeight))) {
-                            motorSpeed = diffFingerPosition / controlpanelHeight;
+                        if (0 <= eventYValue && eventYValue < newcontrolPanelHeight) { // range from top of control panel to bottom of control panel
+                            slider.setY(eventYValue); // movement of the slider with touch
+                            motorSpeed = (1 - eventYValue / newcontrolPanelHeight); // motor speed value
                             if (motorSpeed < 0) {
                                 motorSpeed = 0;
                             }
-                        } else if (diffFingerPosition >= controlpanelHeight) {
-                            fingerPosition = controlpanelHeight;
-                            motorSpeed = fingerPosition / controlpanelHeight;
+                        } else if (eventYValue < 0) { // checking if the slider moves above the control panel height
+                            slider.setY(0); // setting the slider to the max position if the user slides directly outside the control panel as the slider ranges from 0 to the control panel height
+                            motorSpeed = 1; // max motorspeed value
                             if (motorSpeed < 0) {
                                 motorSpeed = 0;
                             }

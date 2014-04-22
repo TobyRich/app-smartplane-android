@@ -27,11 +27,12 @@
             android:rotation="0"
             android:scaleType="fitCenter"
             android:src="@drawable/controller"
-            android:paddingLeft="20dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:adjustViewBounds="false"
-            android:longClickable="false" />
+            android:longClickable="false"
+            android:baselineAlignBottom="false"
+            android:paddingLeft="20dp" />
 
         <ImageView
             android:layout_width="150dp"
@@ -76,7 +77,7 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="0%"
             android:id="@+id/throttleValue"
-            android:layout_marginRight="50dp"
+            android:layout_marginRight="53dp"
             android:textStyle="bold|normal"
             android:layout_alignEnd="@+id/imgThrottleNeedle"
             android:layout_alignBottom="@+id/imgSignalNeedle"
@@ -90,9 +91,9 @@
             android:id="@+id/signalValue"
             android:layout_above="@+id/throttleValue"
             android:layout_alignStart="@+id/imgSignalNeedle"
-            android:layout_marginLeft="-1dp"
+            android:layout_marginLeft="1dp"
             android:textStyle="bold|normal"
-            android:layout_marginBottom="-1dp"
+            android:layout_marginBottom="-1.5dp"
             android:singleLine="false" />
 
         <TextView
@@ -124,13 +125,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="0%"
+            android:text="    ..."
             android:id="@+id/batteryLevelText"
-            android:layout_alignStart="@+id/signalValue"
             android:singleLine="false"
             android:textStyle="bold|normal"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="16dp" />
+            android:layout_alignStart="@+id/signalValue"
+            android:layout_above="@+id/imgSignalNeedle"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="5dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -180,10 +182,10 @@
             android:id="@+id/batteryStatus"
             android:layout_below="@+id/textBattery"
             android:layout_alignEnd="@+id/throttleValue"
-            android:textSize="14dp"
+            android:textSize="13dp"
             android:textStyle="bold|normal"
-            android:layout_marginRight="7dp"
-            android:layout_marginTop="-5dp" />
+            android:layout_marginRight="6dp"
+            android:layout_marginTop="-6dp" />
 
     </RelativeLayout>
 
