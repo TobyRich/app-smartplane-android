@@ -9,6 +9,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -89,6 +90,11 @@ public class FullscreenActivity
     private ImageView imagePanel;
     private ImageView horizonImageView;
     private ImageView infoButton;
+    private ImageView atcOffButton;
+    private ImageView atcOnButton;
+
+    private MediaPlayer atcSound;
+    private MediaPlayer engineSound;
 
     private TextView throttleText;
     private TextView signalText;
@@ -174,6 +180,28 @@ public class FullscreenActivity
         fuelNeedleImageView = (ImageView) findViewById(R.id.imgFuelNeedle);
         signalNeedleImageView = (ImageView) findViewById(R.id.imgSignalNeedle);
         infoButton = (ImageView) findViewById(R.id.imgInfo);
+        atcOffButton = (ImageView) findViewById(R.id.atcOff);
+        atcOnButton = (ImageView) findViewById(R.id.atcOn);
+
+        atcSound = MediaPlayer.create(this, R.raw.atc_sounds1); // sound for atc
+
+        atcOffButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                atcOnButton.setVisibility(View.VISIBLE);
+                v.setVisibility(View.GONE);
+                atcSound.start();
+            }
+        });
+
+        atcOnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                atcOffButton.setVisibility(View.VISIBLE);
+                v.setVisibility(View.GONE);
+                atcSound.pause();
+            }
+        });
 
         infoButton.setOnClickListener(infoBox);
 
@@ -421,6 +449,9 @@ public class FullscreenActivity
             ChargeTimerTask chargeTimerTask = new ChargeTimerTask(mSmartplaneService);
             // update charging status at a fixed rate
             timer.scheduleAtFixedRate(chargeTimerTask, TIMER_DELAY, TIMER_PERIOD);
+
+            engineSound = MediaPlayer.create(this, R.raw.disconnected);// need to change to enginesound
+            engineSound.start();
 
             SignalTimerTask sigTask = new SignalTimerTask(device);
             // update bluetooth signal strength at a fixed rate

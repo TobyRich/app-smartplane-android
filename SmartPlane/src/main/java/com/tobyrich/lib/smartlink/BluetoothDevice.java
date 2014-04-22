@@ -240,7 +240,7 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
             return;
 
         Log.d(TAG, mDevice.getName() + " found");
-        if (mDevice.getName().equalsIgnoreCase("TailorToys PowerUp"))
+        if (mDevice.getName().equalsIgnoreCase("TailorToys PowerUp") || mDevice.getName().equalsIgnoreCase("TobyRich SmartPlane"))
             mDevice.connectGatt(mOwner.getApplicationContext(), false, this);
 
         // Android BLE api has a bug which does not filter on 128 bit UUIDs (only 16 bit works).

@@ -268,6 +268,23 @@
                 android:clickable="true"
                 android:focusableInTouchMode="false" />
 
+            <ImageView
+                android:layout_width="69dp"
+                android:layout_height="69dp"
+                android:id="@+id/atcOff"
+                android:layout_gravity="left|bottom"
+                android:src="@drawable/atc_off"
+                android:clickable="false" />
+
+            <ImageView
+                android:layout_width="69dp"
+                android:layout_height="69dp"
+                android:id="@+id/atcOn"
+                android:layout_gravity="left|bottom"
+                android:src="@drawable/atc_on"
+                android:clickable="false"
+                android:visibility="invisible" />
+
         </FrameLayout>
     </RelativeLayout>
 
