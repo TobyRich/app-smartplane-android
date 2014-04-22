@@ -62,7 +62,7 @@ public class FullscreenActivity
     private static final float MIN_BLUETOOTH_STRENGTH = -100;
     private static final float FUEL_NEEDLE_MIN_ANGLE = -90; // in degrees
     private static final float FUEL_NEEDLE_MAX_ANGLE = 90; // in degrees
-    private static final float MAX_BATTERY_VALUE = 100;
+    private static final float MAX_BATTERY_VALUE = 100; // in degrees
     private static final long TIMER_DELAY = 500; // the delay in milliseconds before task is to be executed
     private static final long TIMER_PERIOD = 1000; // the time in milliseconds between successive task executions
 
@@ -94,6 +94,7 @@ public class FullscreenActivity
     private TextView signalText;
     private TextView batteryStatus;
     private TextView batteryLevelText;
+    private TextView hdgVal;
 
     private String appVersion;
     private final InfoBox infoBox = new InfoBox(UNKNOWN);
@@ -469,6 +470,10 @@ public class FullscreenActivity
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        final String[] compassDir = {"N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"}; //compass directions
+        final int ANGLE_PER_SEGMENT = 360 / 8; // angle between segments in between north, south, east and west
+        final float ANGLE_PER_DIRECTION = (ANGLE_PER_SEGMENT / 2); // angle between N, NE, E, SE, S, SW, W , NW, N
+
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             mGravity = event.values;
         }
@@ -490,6 +495,8 @@ public class FullscreenActivity
                 //getting just the integer part of the angles for smooth data
                 final int rollAngle = (int) Math.toDegrees(newOrientation[2]); //radian to degrees
                 final int pitchAngle = (int) Math.toDegrees(newOrientation[1]);
+                int azimuthAngle = (int) Math.toDegrees(newOrientation[0]);
+                float compassAngle;
 
                 double horizonVerticalMovement = 0.0;
 
@@ -502,6 +509,16 @@ public class FullscreenActivity
                     horizonVerticalMovement = SCALE_FOR_VERT_MOVEMENT_HORIZON * PITCH_ANGLE_MAX;
                 }
                 final short newRudder = (short) (rollAngle * -MAX_RUDDER_SPEED / MAX_ROLL_ANGLE);
+
+                hdgVal = (TextView) findViewById(R.id.hdgValue);
+
+                if (azimuthAngle < 0) { //scaling angle from 0 to 360
+                    azimuthAngle += 360;
+                }
+
+                compassAngle = (azimuthAngle + ANGLE_PER_DIRECTION) / ANGLE_PER_SEGMENT;
+
+                hdgVal.setText(compassDir[(int) compassAngle]);
 
                 //translation animation, translating the image in the vertical direction
                 TranslateAnimation translateHorizon = new TranslateAnimation(0, 0, -(float) horizonVerticalMovement, (float) horizonVerticalMovement);
