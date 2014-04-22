@@ -15,9 +15,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -506,19 +503,14 @@ public class FullscreenActivity
                 }
                 final short newRudder = (short) (rollAngle * -MAX_RUDDER_SPEED / MAX_ROLL_ANGLE);
 
-                //rotation animation, from -rollangle to roll angle, relative to self with pivot being the center
-                RotateAnimation rotateHorizon = new RotateAnimation(-(float) rollAngle, (float) rollAngle, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                rotateHorizon.setDuration(ANIMATION_DURATION_MILLISEC);
-
                 //translation animation, translating the image in the vertical direction
                 TranslateAnimation translateHorizon = new TranslateAnimation(0, 0, -(float) horizonVerticalMovement, (float) horizonVerticalMovement);
                 translateHorizon.setDuration(ANIMATION_DURATION_MILLISEC);
 
-                AnimationSet animationSet = new AnimationSet(true);
-                animationSet.addAnimation(rotateHorizon);
-                animationSet.addAnimation(translateHorizon);
+                horizonImageView.startAnimation(translateHorizon);
 
-                horizonImageView.startAnimation(animationSet);
+                horizonImageView.setRotation(-rollAngle); // set rotation of horizonimageview
+
 
                 try {
 
