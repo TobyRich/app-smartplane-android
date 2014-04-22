@@ -185,7 +185,21 @@
             android:textSize="13dp"
             android:textStyle="bold|normal"
             android:layout_marginRight="6dp"
-            android:layout_marginTop="-6dp" />
+            android:layout_marginTop="-6dp"
+            android:text="...        " />
+            android:text="...        " />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="..."
+            android:id="@+id/hdgValue"
+            android:layout_below="@+id/textHDG"
+            android:layout_alignEnd="@+id/batteryStatus"
+            android:textStyle="bold|normal"
+            android:layout_marginTop="-12dp"
+            android:layout_marginRight="24dp" />
 
     </RelativeLayout>
 

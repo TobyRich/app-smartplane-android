@@ -49,21 +49,22 @@ public class FullscreenActivity
     private static final int MAX_MOTOR_SPEED = 254;
     private static final double PITCH_ANGLE_MAX = 50;
     private static final double PITCH_ANGLE_MIN = -50;
-    private static final long ANIMATION_DURATION_MILLISEC = 500;
+    private static final long ANIMATION_DURATION_MILLISEC = 1000;
     private static final double SCALE_FOR_CONTROL_PANEL = 0.2; // movement of slider only in 80% of the control panel height
     private static final double SCALE_LOWER_RANGE_OF_SLIDER = 0.1; // limiting the bottom slider movement
     private static final double SCALE_FOR_VERT_MOVEMENT_HORIZON = 4.5;
-    private static float THROTTLE_NEEDLE_MAX_ANGLE = 40; // in degrees
-    private static float THROTTLE_NEEDLE_MIN_ANGLE = -132; // in degrees
-    private static float SIGNAL_NEEDLE_MIN_ANGLE = 0; // in degrees
-    private static float SIGNAL_NEEDLE_MAX_ANGLE = 180; // in degrees
-    private static float MAX_BLUETOOTH_STRENGTH = -20;
-    private static float MIN_BLUETOOTH_STRENGTH = -100;
-    private static float FUEL_NEEDLE_MIN_ANGLE = -90; // in degrees
-    private static float FUEL_NEEDLE_MAX_ANGLE = 90; // in degrees
-    private static float MAX_BATTERY_VALUE = 100;
-    private static long TIMER_DELAY = 500; // the delay in milliseconds before task is to be executed
-    private static long TIMER_PERIOD = 1000; // the time in milliseconds between successive task executions
+    private static final String UNKNOWN = "Unknown";
+    private static final float THROTTLE_NEEDLE_MAX_ANGLE = 40; // in degrees
+    private static final float THROTTLE_NEEDLE_MIN_ANGLE = -132; // in degrees
+    private static final float SIGNAL_NEEDLE_MIN_ANGLE = 0; // in degrees
+    private static final float SIGNAL_NEEDLE_MAX_ANGLE = 180; // in degrees
+    private static final float MAX_BLUETOOTH_STRENGTH = -20;
+    private static final float MIN_BLUETOOTH_STRENGTH = -100;
+    private static final float FUEL_NEEDLE_MIN_ANGLE = -90; // in degrees
+    private static final float FUEL_NEEDLE_MAX_ANGLE = 90; // in degrees
+    private static final float MAX_BATTERY_VALUE = 100;
+    private static final long TIMER_DELAY = 500; // the delay in milliseconds before task is to be executed
+    private static final long TIMER_PERIOD = 1000; // the time in milliseconds between successive task executions
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -95,6 +96,7 @@ public class FullscreenActivity
     private TextView batteryLevelText;
 
     private String appVersion;
+    private final InfoBox infoBox = new InfoBox(UNKNOWN);
 
     Timer timer = new Timer();
 
@@ -144,11 +146,7 @@ public class FullscreenActivity
         mSensorManager.unregisterListener(this);
     }
 
-    /* Here, the movement of the slider with touch is implemented. The dimension of the display, the fingerposition in the screen by the user
-    and the control panel height are the values mostly used. For movement of the imageview (slider), the new control panel height is caluclated by reducing the control panel height by 20%
-    which limits the movement of the slider inside the control panel in a required way. Checking the values of event.getY() which is the vertical movement of the finger, the movement of
-    the slider is adjusted. But for the touch response on the screen, the variable diffFingerPosition is used to limit the touch events in the required area i.e the control panel. In one place 30%
-    of the controlPanelHeight is used because the touch movement is made limited above the navigation bar.
+    /*
      */
 
     @Override
@@ -176,17 +174,21 @@ public class FullscreenActivity
         signalNeedleImageView = (ImageView) findViewById(R.id.imgSignalNeedle);
         infoButton = (ImageView) findViewById(R.id.imgInfo);
 
+        infoButton.setOnClickListener(infoBox);
+
         controlPanel.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 final int eventId = event.getAction();
-                float fingerPosition = event.getRawY(); //the fingerposition on the screen, here only the values in Y axis
-                final float diffFingerPosition = display.heightPixels - fingerPosition; //gets the required finger position
                 final float controlpanelHeight = controlPanel.getHeight();
                 final float eventYValue = event.getY();
                 float newcontrolPanelHeight = 0;
                 float motorSpeed = 0;
+
+                /*
+                    implementation of the slider movement on touch of the controlpanel, the Y axis event values are set to the Y axis values of the slider image
+                 */
 
                 switch (eventId) {
 
@@ -273,7 +275,7 @@ public class FullscreenActivity
 
     @Override
     public void didUpdateSerialNumber(BLEDeviceInformationService device, String serialNumber) {
-        runOnUiThread(new infoBox(serialNumber));
+        infoBox.setSerialNumber(serialNumber);
     }
 
     @Override
@@ -281,10 +283,14 @@ public class FullscreenActivity
         runOnUiThread(new BatteryLevelUIChanger(percent));
     }
 
-    class infoBox implements Runnable, View.OnClickListener { // for information box
+    class InfoBox implements Runnable, View.OnClickListener { // for information box
         String serialNumber;
 
-        public infoBox(String serialNumber) {
+        public InfoBox(String serialNumber) {
+            this.serialNumber = serialNumber;
+        }
+
+        public void setSerialNumber(String serialNumber) {
             this.serialNumber = serialNumber;
         }
 
@@ -447,7 +453,7 @@ public class FullscreenActivity
     public void didStartScanning(BluetoothDevice device) {
         Log.d(TAG, "started scanning");
         showSearching(true);
-
+        infoBox.setSerialNumber(UNKNOWN);
     }
 
     @Override
@@ -458,7 +464,7 @@ public class FullscreenActivity
     @Override
     public void didDisconnect(BluetoothDevice device) {
         timer.cancel(); //stop timer
-        runOnUiThread(new infoBox("Unknown")); // if the smartplane is disconnected then, show hardware as "unknown"
+        infoBox.setSerialNumber(UNKNOWN); // if the smartplane is disconnected then, show hardware as "unknown"
     }
 
     @Override
