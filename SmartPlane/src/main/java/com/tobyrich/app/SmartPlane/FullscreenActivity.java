@@ -450,7 +450,7 @@ public class FullscreenActivity
             // update charging status at a fixed rate
             timer.scheduleAtFixedRate(chargeTimerTask, TIMER_DELAY, TIMER_PERIOD);
 
-            engineSound = MediaPlayer.create(this, R.raw.disconnected);// need to change to enginesound
+            engineSound = MediaPlayer.create(this, R.raw.engine_sound);
             engineSound.start();
 
             SignalTimerTask sigTask = new SignalTimerTask(device);

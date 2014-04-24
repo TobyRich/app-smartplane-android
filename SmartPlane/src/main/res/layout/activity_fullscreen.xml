@@ -195,11 +195,11 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="... "
             android:id="@+id/hdgValue"
-            android:layout_below="@+id/textHDG"
             android:textStyle="bold|normal"
-            android:layout_marginTop="-12dp"
-            android:layout_toLeftOf="@+id/throttleValue"
-            android:layout_marginRight="8dp" />
+            android:layout_alignTop="@+id/textHDG"
+            android:layout_alignEnd="@+id/textBattery"
+            android:layout_marginTop="6dp"
+            android:layout_marginRight="-12dp" />
 
     </RelativeLayout>
 
