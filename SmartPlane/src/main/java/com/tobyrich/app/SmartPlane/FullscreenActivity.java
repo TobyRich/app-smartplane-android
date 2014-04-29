@@ -13,6 +13,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -52,7 +53,6 @@ public class FullscreenActivity
     private static final double PITCH_ANGLE_MIN = -50;
     private static final long ANIMATION_DURATION_MILLISEC = 1000;
     private static final double SCALE_FOR_CONTROL_PANEL = 0.2; // movement of slider only in 80% of the control panel height
-    private static final double SCALE_LOWER_RANGE_OF_SLIDER = 0.1; // limiting the bottom slider movement
     private static final double SCALE_FOR_VERT_MOVEMENT_HORIZON = 4.5;
     private static final String UNKNOWN = "Unknown";
     private static final float THROTTLE_NEEDLE_MAX_ANGLE = 40; // in degrees
@@ -61,6 +61,7 @@ public class FullscreenActivity
     private static final float SIGNAL_NEEDLE_MAX_ANGLE = 180; // in degrees
     private static final float MAX_BLUETOOTH_STRENGTH = -20;
     private static final float MIN_BLUETOOTH_STRENGTH = -100;
+    private static final float MIN_POS_SLIDER = 440;
     private static final float FUEL_NEEDLE_MIN_ANGLE = -90; // in degrees
     private static final float FUEL_NEEDLE_MAX_ANGLE = 90; // in degrees
     private static final float MAX_BATTERY_VALUE = 100; // in degrees
@@ -92,6 +93,7 @@ public class FullscreenActivity
     private ImageView infoButton;
     private ImageView atcOffButton;
     private ImageView atcOnButton;
+    private ImageView throttleLock;
 
     private MediaPlayer atcSound;
     private MediaPlayer engineSound;
@@ -101,6 +103,9 @@ public class FullscreenActivity
     private TextView batteryStatus;
     private TextView batteryLevelText;
     private TextView hdgVal;
+
+    private GestureDetector gestureDetector;
+    private boolean tapped;
 
     private String appVersion;
     private final InfoBox infoBox = new InfoBox(UNKNOWN);
@@ -182,6 +187,16 @@ public class FullscreenActivity
         infoButton = (ImageView) findViewById(R.id.imgInfo);
         atcOffButton = (ImageView) findViewById(R.id.atcOff);
         atcOnButton = (ImageView) findViewById(R.id.atcOn);
+        throttleLock = (ImageView) findViewById(R.id.lockThrottle);
+
+        gestureDetector = new GestureDetector(FullscreenActivity.this, new GestureListener());
+
+        horizonImageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
 
         atcSound = MediaPlayer.create(this, R.raw.atc_sounds1); // sound for atc
 
@@ -346,7 +361,12 @@ public class FullscreenActivity
 
         @Override
         public void run() {
-            weakDevice.get().updateSignalStrength();
+            try {
+                weakDevice.get().updateSignalStrength();
+
+            } catch (NullPointerException e) {
+
+            }
         }
     }
 
@@ -359,7 +379,12 @@ public class FullscreenActivity
 
         @Override
         public void run() {
-            service.get().updateChargingStatus();
+            try {
+                service.get().updateChargingStatus();
+
+            } catch (NullPointerException e) {
+
+            }
         }
     }
 
@@ -576,6 +601,51 @@ public class FullscreenActivity
 
     }
 
+    public class GestureListener extends GestureDetector.SimpleOnGestureListener {
+        private final TextView newThrottleText = (TextView) findViewById(R.id.throttleValue);
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+
+        // event when double tap occurs
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            final ImageView newcontrolPanel = (ImageView) findViewById(R.id.imgPanel);
+            final float contrlPnlHeight = newcontrolPanel.getHeight();
+            final float newcontrolPanlHeight = (float) (contrlPnlHeight - (SCALE_FOR_CONTROL_PANEL * contrlPnlHeight));
+
+            tapped = !tapped;
+
+            // if double tapped then show the locked image, move the slider
+            // to min position, throttle needle to 0 and stop ontouch events on slider and controlpanel and motor value to 0
+            if (tapped) {
+                throttleLock.setVisibility(View.VISIBLE);
+
+                slider.setY(newcontrolPanlHeight);
+                rotateImageView(throttleNeedleImageView, 0, THROTTLE_NEEDLE_MIN_ANGLE, THROTTLE_NEEDLE_MAX_ANGLE);
+                newThrottleText.setText(String.valueOf("0" + "%"));
+
+                // turning the ontouch listener off
+                slider.setEnabled(false);
+                controlPanel.setEnabled(false);
+
+                try {
+                    mSmartplaneService.setMotor((short) 0);
+                } catch (NullPointerException exception) {
+
+                }
+
+            } else {
+                throttleLock.setVisibility(View.INVISIBLE);
+                slider.setEnabled(true);
+                controlPanel.setEnabled(true);
+            }
+
+            return true;
+        }
+    }
 
 }
 
