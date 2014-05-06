@@ -246,6 +246,14 @@
                 android:layout_gravity="center" />
 
             <ImageView
+                android:layout_width="25dp"
+                android:layout_height="600dp"
+                android:id="@+id/rulerMiddle"
+                android:layout_gravity="center"
+                android:src="@drawable/rule_middle"
+                android:scaleType="centerCrop" />
+
+            <ImageView
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:id="@+id/imgHorizonCover"

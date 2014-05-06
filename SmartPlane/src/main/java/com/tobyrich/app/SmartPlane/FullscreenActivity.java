@@ -67,6 +67,8 @@ public class FullscreenActivity
     private static final float MAX_BATTERY_VALUE = 100; // in degrees
     private static final long TIMER_DELAY = 500; // the delay in milliseconds before task is to be executed
     private static final long TIMER_PERIOD = 1000; // the time in milliseconds between successive task executions
+    private static final double RULER_MOVEMENT_SPEED = 1.4;
+    private static final int RULER_MOVEMENT_HEIGHT = 200;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -94,6 +96,7 @@ public class FullscreenActivity
     private ImageView atcOffButton;
     private ImageView atcOnButton;
     private ImageView throttleLock;
+    private ImageView rulerMiddle;
 
     private MediaPlayer atcSound;
     private MediaPlayer engineSound;
@@ -188,6 +191,7 @@ public class FullscreenActivity
         atcOffButton = (ImageView) findViewById(R.id.atcOff);
         atcOnButton = (ImageView) findViewById(R.id.atcOn);
         throttleLock = (ImageView) findViewById(R.id.lockThrottle);
+        rulerMiddle = (ImageView) findViewById(R.id.rulerMiddle);
 
         gestureDetector = new GestureDetector(FullscreenActivity.this, new GestureListener());
 
@@ -581,6 +585,11 @@ public class FullscreenActivity
                 translateHorizon.setDuration(ANIMATION_DURATION_MILLISEC);
 
                 horizonImageView.startAnimation(translateHorizon);
+
+                horizonImageView.startAnimation(translateHorizon);
+
+                //ruler movement, a bit faster than horizon movement for 3D effect
+                rulerMiddle.setY((float) (-RULER_MOVEMENT_SPEED * (horizonVerticalMovement + RULER_MOVEMENT_HEIGHT)));
 
                 horizonImageView.setRotation(-rollAngle); // set rotation of horizonimageview
 
