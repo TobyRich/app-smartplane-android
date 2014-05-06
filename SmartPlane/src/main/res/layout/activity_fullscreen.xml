@@ -29,7 +29,8 @@
             android:layout_alignEnd="@+id/textFuel"
             android:layout_toRightOf="@+id/textBattery"
             android:layout_alignBottom="@+id/textDBM"
-            android:visibility="invisible" />
+            android:visibility="visible"
+            android:layout_marginLeft="-10dp" />
 
         <ImageView
             android:layout_width="fill_parent"
@@ -253,6 +254,15 @@
                 android:layout_gravity="center"
                 android:src="@drawable/rule_middle"
                 android:scaleType="centerCrop" />
+
+            <ImageView
+                android:layout_width="433dp"
+                android:layout_height="453dp"
+                android:id="@+id/compass"
+                android:layout_gravity="center_horizontal|bottom"
+                android:src="@drawable/compass"
+                android:layout_marginBottom="-150dp"
+                android:rotation="0"/>
 
             <ImageView
                 android:layout_width="fill_parent"

@@ -17,6 +17,10 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -97,6 +101,7 @@ public class FullscreenActivity
     private ImageView atcOnButton;
     private ImageView throttleLock;
     private ImageView rulerMiddle;
+    private ImageView compass;
 
     private MediaPlayer atcSound;
     private MediaPlayer engineSound;
@@ -192,6 +197,7 @@ public class FullscreenActivity
         atcOnButton = (ImageView) findViewById(R.id.atcOn);
         throttleLock = (ImageView) findViewById(R.id.lockThrottle);
         rulerMiddle = (ImageView) findViewById(R.id.rulerMiddle);
+        compass = (ImageView) findViewById(R.id.compass);
 
         gestureDetector = new GestureDetector(FullscreenActivity.this, new GestureListener());
 
@@ -579,6 +585,8 @@ public class FullscreenActivity
                 compassAngle = (azimuthAngle + ANGLE_PER_DIRECTION) / ANGLE_PER_SEGMENT;
 
                 hdgVal.setText(compassDir[(int) compassAngle]);
+
+                compass.setRotation(azimuthAngle);
 
                 //translation animation, translating the image in the vertical direction
                 TranslateAnimation translateHorizon = new TranslateAnimation(0, 0, -(float) horizonVerticalMovement, (float) horizonVerticalMovement);
