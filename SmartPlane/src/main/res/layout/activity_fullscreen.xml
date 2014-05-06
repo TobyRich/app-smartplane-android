@@ -29,7 +29,7 @@
             android:layout_alignEnd="@+id/textFuel"
             android:layout_toRightOf="@+id/textBattery"
             android:layout_alignBottom="@+id/textDBM"
-            android:visibility="visible"
+            android:visibility="invisible"
             android:layout_marginLeft="-10dp" />
 
         <ImageView
@@ -245,7 +245,8 @@
                 android:id="@+id/imageHorizon"
                 android:scaleType="centerCrop"
                 android:src="@drawable/horizon"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:clickable="false" />
 
             <ImageView
                 android:layout_width="25dp"
@@ -300,6 +301,15 @@
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:id="@+id/revRudder"
+                android:layout_gravity="left|top"
+                android:src="@drawable/rudder"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp" />
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:id="@+id/imgInfo"
                 android:layout_gravity="right|bottom"
                 android:src="@drawable/information"
@@ -323,6 +333,27 @@
                 android:layout_gravity="left|bottom"
                 android:src="@drawable/atc_on"
                 android:clickable="false"
+                android:visibility="invisible" />
+
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rudderSwitch"
+                android:layout_gravity="left|top"
+                android:layout_marginTop="80dp"
+                android:layout_marginLeft="20dp"
+                android:visibility="invisible" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Reverse Rudder"
+                android:id="@+id/revText"
+                android:layout_gravity="left|top"
+                android:textColor="#000000"
+                android:layout_marginTop="60dp"
+                android:layout_marginLeft="20dp"
                 android:visibility="invisible" />
 
         </FrameLayout>

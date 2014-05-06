@@ -11,18 +11,17 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -102,7 +101,9 @@ public class FullscreenActivity
     private ImageView throttleLock;
     private ImageView rulerMiddle;
     private ImageView compass;
+    private ImageView revRudder;
 
+    private Switch rudderSwitch;
     private MediaPlayer atcSound;
     private MediaPlayer engineSound;
 
@@ -111,12 +112,15 @@ public class FullscreenActivity
     private TextView batteryStatus;
     private TextView batteryLevelText;
     private TextView hdgVal;
+    private TextView revRudderText;
 
     private GestureDetector gestureDetector;
     private boolean tapped;
 
     private String appVersion;
     private final InfoBox infoBox = new InfoBox(UNKNOWN);
+
+    short newRudder;
 
     Timer timer = new Timer();
 
@@ -198,6 +202,9 @@ public class FullscreenActivity
         throttleLock = (ImageView) findViewById(R.id.lockThrottle);
         rulerMiddle = (ImageView) findViewById(R.id.rulerMiddle);
         compass = (ImageView) findViewById(R.id.compass);
+        rudderSwitch = (Switch) findViewById(R.id.rudderSwitch);
+        revRudder = (ImageView) findViewById(R.id.revRudder);
+        revRudderText = (TextView) findViewById(R.id.revText);
 
         gestureDetector = new GestureDetector(FullscreenActivity.this, new GestureListener());
 
@@ -574,7 +581,7 @@ public class FullscreenActivity
                 } else if (pitchAngle >= PITCH_ANGLE_MAX) {
                     horizonVerticalMovement = SCALE_FOR_VERT_MOVEMENT_HORIZON * PITCH_ANGLE_MAX;
                 }
-                final short newRudder = (short) (rollAngle * -MAX_RUDDER_SPEED / MAX_ROLL_ANGLE);
+                newRudder= (short) (rollAngle * -MAX_RUDDER_SPEED / MAX_ROLL_ANGLE);
 
                 hdgVal = (TextView) findViewById(R.id.hdgValue);
 
@@ -601,6 +608,36 @@ public class FullscreenActivity
 
                 horizonImageView.setRotation(-rollAngle); // set rotation of horizonimageview
 
+                revRudder.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        revRudder.setVisibility(View.INVISIBLE);
+                        rudderSwitch.setVisibility(View.VISIBLE);
+                        revRudderText.setVisibility(View.VISIBLE);
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                // Hide your View after 3 seconds
+                                rudderSwitch.setVisibility(View.INVISIBLE);
+                                revRudderText.setVisibility(View.INVISIBLE);
+                                revRudder.setVisibility(View.VISIBLE);
+                            }
+                        }, 3000);
+                        return true;
+                    }
+                });
+
+                rudderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if(isChecked){
+                            newRudder = (short) -newRudder;
+                        }
+                    }
+                });
 
                 try {
 
