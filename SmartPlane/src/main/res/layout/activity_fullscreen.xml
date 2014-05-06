@@ -25,30 +25,33 @@
             android:layout_height="145dp"
             android:id="@+id/lockThrottle"
             android:src="@drawable/throttle_locked"
-            android:visibility="invisible"
+            android:layout_alignParentTop="true"
             android:layout_alignEnd="@+id/textFuel"
-            android:layout_alignTop="@+id/textBattery"
-            android:layout_alignBottom="@+id/throttleValue" />
+            android:layout_toRightOf="@+id/textBattery"
+            android:layout_alignBottom="@+id/textDBM"
+            android:visibility="invisible" />
 
         <ImageView
             android:layout_width="fill_parent"
-            android:layout_height="50dp"
+            android:layout_height="fill_parent"
             android:id="@+id/imageView"
             android:rotation="0"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             android:src="@drawable/controller"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:adjustViewBounds="false"
+            android:adjustViewBounds="true"
             android:longClickable="false"
             android:baselineAlignBottom="false"
-            android:paddingLeft="20dp" />
+            android:layout_marginBottom="5dp"
+            android:layout_toLeftOf="@+id/textSignal"
+            android:layout_alignTop="@+id/textSignal"
+            android:layout_marginLeft="120dp"
+            android:layout_marginTop="40dp" />
 
         <ImageView
             android:layout_width="150dp"
             android:layout_height="95dp"
             android:id="@+id/imgThrottleNeedle"
-            android:rotation="-135"
+            android:rotation="-140"
             android:src="@drawable/needle_right_circle_up"
             android:layout_marginLeft="14dp"
             android:adjustViewBounds="true"
@@ -236,7 +239,7 @@
 
             <ImageView
                 android:layout_width="600dp"
-                android:layout_height="600dp"
+                android:layout_height="650dp"
                 android:id="@+id/imageHorizon"
                 android:scaleType="centerCrop"
                 android:src="@drawable/horizon"

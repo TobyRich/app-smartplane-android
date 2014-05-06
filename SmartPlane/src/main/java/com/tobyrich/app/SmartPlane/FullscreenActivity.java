@@ -55,8 +55,8 @@ public class FullscreenActivity
     private static final double SCALE_FOR_CONTROL_PANEL = 0.2; // movement of slider only in 80% of the control panel height
     private static final double SCALE_FOR_VERT_MOVEMENT_HORIZON = 4.5;
     private static final String UNKNOWN = "Unknown";
-    private static final float THROTTLE_NEEDLE_MAX_ANGLE = 40; // in degrees
-    private static final float THROTTLE_NEEDLE_MIN_ANGLE = -132; // in degrees
+    private static final float THROTTLE_NEEDLE_MAX_ANGLE = 48; // in degrees
+    private static final float THROTTLE_NEEDLE_MIN_ANGLE = -140; // in degrees
     private static final float SIGNAL_NEEDLE_MIN_ANGLE = 0; // in degrees
     private static final float SIGNAL_NEEDLE_MAX_ANGLE = 180; // in degrees
     private static final float MAX_BLUETOOTH_STRENGTH = -20;
