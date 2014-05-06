@@ -119,7 +119,8 @@
             android:layout_above="@+id/imgFuelNeedle"
             android:layout_alignStart="@+id/imgSignalNeedle"
             android:textColor="#BBCC00"
-            android:typeface="sans" />
+            android:typeface="sans"
+            android:layout_marginLeft="10dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -259,6 +260,14 @@
                 android:id="@+id/imgHorizonCover"
                 android:src="@drawable/cover"
                 android:scaleType="fitXY" />
+
+            <ImageView
+                android:layout_width="180dp"
+                android:layout_height="46dp"
+                android:id="@+id/runway"
+                android:layout_gravity="center"
+                android:src="@drawable/runaway_lines"
+                android:layout_marginTop="20dp" />
 
             <TextView
                 android:layout_width="wrap_content"
