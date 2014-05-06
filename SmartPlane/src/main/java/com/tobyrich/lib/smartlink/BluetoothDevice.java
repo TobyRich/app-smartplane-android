@@ -239,6 +239,13 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
         if (mDevice.getName() == null) // some sort of error happened
             return;
 
+        // Touch-n-Go
+        if (!(rssiLow <= rssi && rssi <= rssiHigh)) {
+            // rssi outside acceptable range, ignore this result.
+            Log.w(TAG, "Rssi " + rssi + " outside range [" + rssiLow + ", " + rssiHigh + "]");
+            return;
+        }
+
         Log.d(TAG, mDevice.getName() + " found");
         if (mDevice.getName().equalsIgnoreCase("TailorToys PowerUp") || mDevice.getName().equalsIgnoreCase("TobyRich SmartPlane"))
             mDevice.connectGatt(mOwner.getApplicationContext(), false, this);
