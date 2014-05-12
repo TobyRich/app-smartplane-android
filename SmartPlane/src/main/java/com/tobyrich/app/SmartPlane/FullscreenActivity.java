@@ -69,7 +69,7 @@ public class FullscreenActivity
     private static final float FUEL_NEEDLE_MAX_ANGLE = 90; // in degrees
     private static final float MAX_BATTERY_VALUE = 100; // in degrees
     private static final long TIMER_DELAY = 500; // the delay in milliseconds before task is to be executed
-    private static final long TIMER_PERIOD = 1000; // the time in milliseconds between successive task executions
+    private static final long TIMER_PERIOD = 6000; // the time in milliseconds between successive task executions
     private static final double RULER_MOVEMENT_SPEED = 1.4;
     private static final int RULER_MOVEMENT_HEIGHT = 200;
 
@@ -305,7 +305,7 @@ public class FullscreenActivity
         }
 
         try {
-            device = new BluetoothDevice(getResources().openRawResource(R.raw.powerup_and_smartplane), this);
+            device = new BluetoothDevice(getResources().openRawResource(R.raw.smartplane), this);
             device.delegate = new WeakReference<BluetoothDevice.Delegate>(this);
             device.automaticallyReconnect = true;
             device.connect();
@@ -483,7 +483,7 @@ public class FullscreenActivity
     @Override
     public void didStartService(BluetoothDevice device, String serviceName, BLEService service) {
         showSearching(false);
-        if (serviceName.equalsIgnoreCase("smartplane") || serviceName.equalsIgnoreCase("powerup")) { // check for smartplane or powerup service
+        if (serviceName.equalsIgnoreCase("smartplane") || serviceName.equalsIgnoreCase("sml1test")) { // check for smartplane or sml1test service
 
             mSmartplaneService = (BLESmartplaneService) service;
             mSmartplaneService.delegate = new WeakReference<BLESmartplaneService.Delegate>(this);

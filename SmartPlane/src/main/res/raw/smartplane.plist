@@ -8,38 +8,20 @@
 	<integer>-55</integer>
 	<key>Services</key>
 	<dict>
-		<key>firmware</key>
+		<key>sml1test</key>
 		<dict>
 			<key>UUID</key>
-			<string>f000ffc0-0451-4000-b000-000000000000</string>
+			<string>75b64e51-f181-4ed1-921a-476090d80ba7</string>
 			<key>Primary</key>
 			<true/>
 			<key>DriverClass</key>
-			<string>BLEFirmwareUpdateService</string>
+			<string>BLESmartplaneService</string>
 			<key>Fields</key>
 			<dict>
-				<key>imgidentify</key>
-				<string>f000ffc1-0451-4000-b000-000000000000</string>
-				<key>blockrequest</key>
-				<string>f000ffc2-0451-4000-b000-000000000000</string>
-			</dict>
-		</dict>
-		<key>accelerometer</key>
-		<dict>
-			<key>UUID</key>
-			<string>75b64e51-ffa0-4ed1-921a-476090d80ba7</string>
-			<key>DriverClass</key>
-			<string>BLEAccelerometerService</string>
-			<key>Fields</key>
-			<dict>
-				<key>enable</key>
-				<string>75b64e51-ffa1-4ed1-921a-476090d80ba7</string>
-				<key>x</key>
-				<string>75b64e51-ffa3-4ed1-921a-476090d80ba7</string>
-				<key>y</key>
-				<string>75b64e51-ffa4-4ed1-921a-476090d80ba7</string>
-				<key>z</key>
-				<string>75b64e51-ffa5-4ed1-921a-476090d80ba7</string>
+				<key>engine</key>
+				<string>75b64e51-f184-4ed1-921a-476090d80ba7</string>
+				<key>rudder</key>
+				<string>75b64e51-f185-4ed1-921a-476090d80ba7</string>
 			</dict>
 		</dict>
 		<key>battery</key>

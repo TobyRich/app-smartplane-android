@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
@@ -26,10 +27,12 @@ import java.lang.ref.WeakReference;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -42,6 +45,8 @@ import static org.apache.commons.lang3.ArrayUtils.reverse;
 // because we are already checking for null pointers for delegate
 public class BluetoothDevice extends BluetoothGattCallback implements BluetoothAdapter.LeScanCallback {
 
+
+    private boolean mOperationsPermitted = false;
 
     public interface Delegate {
         public void didStartService(BluetoothDevice device, String serviceName, BLEService service);
@@ -70,8 +75,102 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothGatt mBluetoothGatt;
     private UUID[] mPrimaryServices;
+    private final Semaphore mSemaphore = new Semaphore(1); // single threaded access
 
-    private Queue<BluetoothGattCharacteristic> mReadQueue = new LinkedList<BluetoothGattCharacteristic>(); // FIFO of chars to read in order
+    protected class BleCommand implements Comparable<BleCommand>, Runnable {
+        public static final int ENABLE_NOTIFICATION = 0;
+        public static final int DISABLE_NOTIFICATION = 1;
+        public static final int WRITE = 2;
+        public static final int READ = 3;
+        public static final int DISCONNECT = 4;
+        public static final int UPDATE_RSSI = 5;
+        public static final int DISCOVER_SERVICES = 6;
+        public static final int SCAN = 7;
+        public static final int CONNECT = 8;
+        private final int operationType;
+        private final BluetoothGattCharacteristic field;
+
+        public BleCommand(int operationType, BluetoothGattCharacteristic field) {
+            this.operationType = operationType;
+            this.field = field;
+        }
+
+        @Override
+        public boolean equals(Object another) {
+            if (this == another)
+                return true;
+            if (!(another instanceof BleCommand))
+                return false;
+            BleCommand that = (BleCommand) another;
+            return this.field == that.field && this.operationType == that.operationType;
+        }
+
+        @Override
+        public String toString() {
+            String[] optype = {"NOTIF_ENABLE", "NOTIF_DISABLE", "WRITE", "READ", "DISCONNECT", "UPDATE_RSSI", "DISCOVER_SERVICES", "SCAN"};
+            String fieldname = (this.field == null) ? "--" : uuidToName.get(uuidHarmonize(this.field.getUuid().toString()));
+            return "{" + optype[this.operationType] + ": " + fieldname + "}";
+        }
+
+        @Override
+        public int compareTo(BleCommand that) {
+            if (this.field == that.field && this.operationType == that.operationType)
+                return 0;
+            if (this.operationType < that.operationType)
+                return -1;
+            else
+                return 1;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if (mBluetoothGatt == null) // got disconnected
+                    return;
+                // Acquire permission first
+                mSemaphore.acquire();
+                BluetoothGattCharacteristic c = this.field;
+                switch (this.operationType) {
+                    case READ:
+                        mBluetoothGatt.readCharacteristic(c);
+                        break;
+                    case WRITE:
+                        mBluetoothGatt.writeCharacteristic(c);
+                        break;
+                    case ENABLE_NOTIFICATION:
+                        writeNotificationDescriptor(c, true);
+                        break;
+                    case DISABLE_NOTIFICATION:
+                        writeNotificationDescriptor(c, false);
+                        break;
+                    case DISCONNECT:
+                        if (mBluetoothGatt != null) {
+                            mBluetoothGatt.disconnect();
+                        }
+                        break;
+                    case UPDATE_RSSI:
+                        if (mBluetoothGatt != null) {
+                            mBluetoothGatt.readRemoteRssi();
+                        }
+                        break;
+                    case DISCOVER_SERVICES:
+                        mBluetoothGatt.discoverServices();
+                        break;
+                    case SCAN:
+                        startScanning();
+                        break;
+                }
+            } catch (InterruptedException e) {
+                Log.e(TAG, "op queue interrupted while performing " + this);
+            } catch (NullPointerException e) {
+                //Log.e(TAG, "Tried to perform operation " + this + "on non-existent something");
+            }
+        }
+    }
+
+    // For serializing access to Bluetooth stack
+    // Not using Executors.newSingleThreadExecutor because we want to use a priority queue
+    private ThreadPoolExecutor mCommandQueue;
 
     private HashMap<String, String> uuidToName;
     private HashMap<String, String> mServiceNameToDriverClass;
@@ -89,6 +188,7 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
 
     public BluetoothDevice(InputStream plistFile, Activity owner) throws ParserConfigurationException, ParseException, SAXException, PropertyListFormatException, IOException {
         mOwner = owner;
+        mCommandQueue = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue<Runnable>());
         NSDictionary mPlist = (NSDictionary) PropertyListParser.parse(plistFile);
 
         // Collect basic settings
@@ -111,7 +211,7 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
             if (isPrimary.boolValue()) {
                 UUID uuid = UUID.fromString(service.objectForKey("UUID").toString());
                 uuidList.add(uuid);
-                Log.d(TAG, "Found primary uuid " + uuid + " for service " + serviceName);
+                Log.d(TAG, "Includes primary '" + serviceName + "' service: " + uuid);
             }
         }
 
@@ -134,14 +234,14 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
             uuidToName.put(uuid, serviceName);
             mServiceNameToDriverClass.put(serviceName, service.objectForKey("DriverClass").toString());
 
-            Log.i(TAG, "service " + serviceName + " ->" + uuid);
+            Log.i(TAG, "|--" + serviceName + " : " + uuid);
 
             // Now iterate over its characteristics
             NSDictionary fields = (NSDictionary) service.objectForKey("Fields");
             for (String charName : fields.allKeys()) {
                 String charUuid = uuidHarmonize(fields.objectForKey(charName).toString());
                 uuidToName.put(charUuid, serviceName + "/" + charName);
-                Log.i(TAG, "  char " + charName + " -> " + charUuid);
+                Log.i(TAG, "|     " + charName + " : " + charUuid);
             }
 
         }
@@ -152,9 +252,7 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
     }
 
     public void disconnect() {
-        if (mBluetoothGatt != null) {
-            mBluetoothGatt.disconnect();
-        }
+        enqueOperation(BleCommand.DISCONNECT);
     }
 
     public void updateSignalStrength() {
@@ -247,37 +345,47 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
         }
 
         Log.d(TAG, mDevice.getName() + " found");
-        if (mDevice.getName().equalsIgnoreCase("TailorToys PowerUp") || mDevice.getName().equalsIgnoreCase("TobyRich SmartPlane"))
-            mDevice.connectGatt(mOwner.getApplicationContext(), false, this);
-
-        // Android BLE api has a bug which does not filter on 128 bit UUIDs (only 16 bit works).
-        // To workaround it, we will manually check if this device is not supported, and skip it
-//        if (includesPrimaryService(scanRecord)) {
-//            // So this is a supported device, connect to it if signal strength is high enough
-//            if (rssiLow < rssi && rssi < rssiHigh) {
-//                mDevice.connectGatt(mOwner.getApplicationContext(), false, this);
-//                if (delegate.get() != null) {
-//                    delegate.get().didStartConnectingTo(this, rssi);
-//                }
-//            }
-//        } else {
-//            Log.d(TAG, "Primary service is NOT included by above device");
-//        }
+        // We are hardcoding the device name for now, because filtering scan results on 128 bit UUID
+        // currently does not work (Android bug). We will implement our own filtering later.
+        if (mDevice.getName().equalsIgnoreCase("TailorToys PowerUp") ||
+                mDevice.getName().equalsIgnoreCase("TobyRich SmartPlane")) {
+            // Connection is done on the command queue. Since this needs extra data (mDevice, mOwner etc.),
+            // we'll create a special-case subclass of BleCommand and override its run method.
+            // Using the command queue is necessary to work around Samsung bug. (check T4 on Phabricator).
+            mCommandQueue.execute(new BleCommand(BleCommand.CONNECT, null) {
+                @Override
+                public void run() {
+                    try {
+                        Log.i(TAG, "Attempting to acquire BLE lock and start connecting (" + mCommandQueue.getQueue().size() + " ops pending)");
+                        mSemaphore.acquire();
+                        mDevice.connectGatt(mOwner.getApplicationContext(), false, BluetoothDevice.this);
+                    } catch (InterruptedException e) {
+                        Log.e(TAG, "Thread interrupted while connecting");
+                    }
+                }
+            });
+        }
     }
 
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-        Log.d(TAG, "connection state changed " + status + " -> " + newState);
+        Log.d(TAG, "Connection state changed to " + newState + " (status: " + status + ")");
         switch (newState) {
             case BluetoothProfile.STATE_CONNECTED:
-                Log.d(TAG, "connected to device");
+                Log.i(TAG, "Connected to device");
                 mBluetoothAdapter.stopLeScan(this);
                 mBluetoothGatt = gatt;
-                mBluetoothGatt.discoverServices();
+                mSemaphore.release(); // because connection is also a queued operation
+                enqueOperation(BleCommand.DISCOVER_SERVICES);
                 break;
             case BluetoothProfile.STATE_DISCONNECTED:
-                mBluetoothGatt = null;
                 charToDriver.clear();
+                mCommandQueue.shutdownNow();
+                // Make a fresh command queue
+                mCommandQueue = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue<Runnable>());
+                mSemaphore.release();
+                mBluetoothGatt.close();
+                mBluetoothGatt = null;
 
                 if (delegate.get() != null) {
                     delegate.get().didDisconnect(this);
@@ -292,7 +400,7 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
 
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-        Log.d(TAG, "services discovered");
+        Log.i(TAG, "Services discovered on device:");
         List<BluetoothGattService> gattServiceList = mBluetoothGatt.getServices();
 
         charToDriver.clear(); // start afresh
@@ -312,17 +420,17 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
                         + mServiceNameToDriverClass.get(sName)).newInstance();
             } catch (InstantiationException e) {
                 e.printStackTrace();
-                return;
+                continue; // to next service
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
-                return;
+                continue;
             } catch (ClassNotFoundException e) {
-                Log.w(TAG, "No driver class " + mServiceNameToDriverClass.get(sName) + " was found");
-                return;
+                Log.w(TAG, "|---" + sName + " ?? " + mServiceNameToDriverClass.get(sName) + " ?? not found");
+                continue;
             }
 
             // ----- Now that we created the driver, process this service's fields.
-            Log.d(TAG, "service driver: " + mServiceNameToDriverClass.get(sName));
+            Log.d(TAG, "|---" + sName + " :: " + mServiceNameToDriverClass.get(sName));
 
             // Create a hashmap to store the mapping of field names to chars.
             // This will be sent to the driver so it can output data to chars directly.
@@ -337,7 +445,7 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
                     // this field was not in plist so skip it
                     continue;
                 }
-                Log.i(TAG, "found " + cName + " on device");
+                Log.d(TAG, "|       " + cName);
 
                 // Remove the service name before sending to the driver, as they only get
                 // the field names
@@ -356,52 +464,69 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
                 Log.w(TAG, "No delegate set");
             }
         }
+
+        // now perform all queued up operations
+        mSemaphore.release();
     }
 
-    protected void updateField(BluetoothGattCharacteristic c) {
-        // Android ignores read requests if any previous requests are pending. So here we serialize
-        // all read requests using a FIFO, and also ignore read requests for fields that are already
-        // pending to be read in the queue.
-        Log.d(TAG, "Adding to read queue, size " + mReadQueue.size() + "->" + (mReadQueue.size() + 1));
-        if (mReadQueue.contains(c)) {
-            Log.w(TAG, "Read queue already had char " + c);
-        } else {
-            mReadQueue.add(c);
-            kickReadQueue();
-        }
+    protected void enqueOperation(int operation, BluetoothGattCharacteristic c) {
+        // Android ignores requests if any previous requests are pending. So we must serialize
+        // all read requests using a FIFO or priority queue.
+        final BleCommand op = new BleCommand(operation, c);
+        final int size = mCommandQueue.getQueue().size();
+        if (size >= 20 && size % 20 == 0 )
+            Log.w(TAG, "op queue too large: " + mCommandQueue.getQueue().size());
+        // Sometimes for some reason, too many items get queued
+//        if (mCommandQueue.getQueue().size() > 20) {
+//            Log.w(TAG, "op queue nuked!!");
+//            mCommandQueue.getQueue().clear(); // nuke the queue
+//        }
+        mCommandQueue.execute(op); // actually queues the op, executes when BLE stack is free
     }
 
-    private void kickReadQueue() {
-        // This function will read a field if it's the only one on the queue, otherwise it'll not
-        // do anything and wait till the queue is kicked again next time (e.g. a value finished
-        // reading and was removed from the queue)
-        if (mReadQueue.size() == 1) {
-            // queue has only one item so nothing else is pending, read it
-            Log.d(TAG, "Reading from read queue (size=1)");
-            BluetoothGattCharacteristic c = mReadQueue.peek();
-            mBluetoothGatt.readCharacteristic(c);
-        } else {
-            Log.w(TAG, "Read queue was of size " + mReadQueue.size() + ", ignoring kick.");
-            if (mReadQueue.size() > 15) {
-                // queue too long, flush and start over
-                // This is not strictly necessary, but this is Android so who knows?
-                mReadQueue.clear();
-                Log.w(TAG, "Read queue was too large --> FLUSHED");
-            }
-        }
+    protected void enqueOperation(int operation) {
+        // For operations that don't need a characteristic
+        enqueOperation(operation, null);
+    }
+
+    private void writeNotificationDescriptor(BluetoothGattCharacteristic c, boolean enable) {
+        // ALL HAIL GOOGLE
+        final UUID CCC = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+        mBluetoothGatt.setCharacteristicNotification(c, enable);
+        BluetoothGattDescriptor descriptor = c.getDescriptor(CCC);
+        descriptor.setValue(enable ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : new byte[]{0x00, 0x00});
+        mBluetoothGatt.writeDescriptor(descriptor);
     }
 
     @Override
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         String charName = uuidToName.get(uuidHarmonize(characteristic.getUuid().toString()));
-        Log.d(TAG, "Received value for char " + charName);
+
         // Find which driver handles it and send it a message
         BLEService driver = charToDriver.get(characteristic);
-        Log.i(TAG, "Driver " + driver + " was found to be informed");
-        driver.didUpdateValueForCharacteristic(charName.substring(charName.indexOf("/") + 1));
-        // deque
-        mReadQueue.poll(); // remove top item
-        kickReadQueue(); // read next
+        //Log.i(TAG, "Received: " + charName + " -> " + driver.toString().substring(driver.toString().lastIndexOf(".")));
+        if (driver != null)
+            driver.didUpdateValueForCharacteristic(charName.substring(charName.indexOf("/") + 1));
+        mSemaphore.release();
+    }
+
+    @Override
+    public void onCharacteristicChanged(BluetoothGatt gatt,
+                                        BluetoothGattCharacteristic characteristic) {
+        // Happens on notification.
+        onCharacteristicRead(gatt, characteristic, 0);
+    }
+
+    @Override
+    public void onCharacteristicWrite(BluetoothGatt gatt,
+                                      BluetoothGattCharacteristic characteristic, int status) {
+        mSemaphore.release();
+    }
+
+    @Override
+    public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
+                                  int status) {
+        mSemaphore.release();
     }
 
     @Override
@@ -411,5 +536,6 @@ public class BluetoothDevice extends BluetoothGattCallback implements BluetoothA
         } catch (NullPointerException ex) {
             Log.w(TAG, "No delegate set");
         }
+        mSemaphore.release();
     }
 }
