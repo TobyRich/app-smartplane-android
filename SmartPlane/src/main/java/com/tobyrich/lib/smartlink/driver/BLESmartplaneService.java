@@ -25,60 +25,23 @@ public class BLESmartplaneService
 
     public WeakReference<Delegate> delegate;
 
-    private class TimestampedValue {
-        short value;
-        long timestamp;
-
-        public TimestampedValue(short value) {
-            this.value = value;
-            this.timestamp = SystemClock.elapsedRealtime();
-        }
-
-        public TimestampedValue() {
-            this.value = 0;
-            this.timestamp = SystemClock.elapsedRealtime();
-        }
-
-        public String toString() {
-            return "{" + this.value + ", " + (SystemClock.elapsedRealtime() - this.timestamp) + "ms ago}";
-        }
-    }
-
-    private short extrapolatedValueForNow(TimestampedValue a, TimestampedValue b) {
-        TimestampedValue t_2 = a.timestamp < b.timestamp ? a : b; // one with older timestamp
-        TimestampedValue t_1 = a.timestamp < b.timestamp ? b : a; // one with later timestamp
-        final double slope = ((double) (t_1.value - t_2.value))
-                / ((double) (t_1.timestamp - t_2.timestamp));
-        final long now = SystemClock.elapsedRealtime();
-        final long t = now - t_1.timestamp;
-        final short c = (short) (t_1.value + (slope * t));
-        //Log.i("BLESmartPlaneService", "interpolated " + t_2 + " and " + t_1 + " -> {" + c + ", t=" + (now - t_2.timestamp) + "ms after t-2}");
-        return c;
-    }
-
-    private TimestampedValue engine_t_1 = new TimestampedValue();
-    private TimestampedValue engine_t_2 = new TimestampedValue();
-    private TimestampedValue rudder_t_1 = new TimestampedValue();
-    private TimestampedValue rudder_t_2 = new TimestampedValue();
-
-    private long lastWriteTime = SystemClock.elapsedRealtime();
+    private short lastEngine = 0;
+    private short lastRudder = 0;
 
     public void setMotor(short value) {
-        // clip
         if (value > 254)
             value = 254;
         if (value < 0)
             value = 0;
-
-        // Shift
-        engine_t_2 = engine_t_1;
-        engine_t_1 = new TimestampedValue(value);
+        lastEngine = value;
     }
 
     public void setRudder(short value) {
-        // Shift
-        rudder_t_2 = rudder_t_1;
-        rudder_t_1 = new TimestampedValue(value);
+        if (value > 126)
+            value = 126;
+        if (value < -126)
+            value = -126;
+        lastRudder = value;
     }
 
     public void updateChargingStatus() {
@@ -88,45 +51,24 @@ public class BLESmartplaneService
     @Override
     protected void attached() {
         // Reset to zero
+        setWriteNeedsResponse(false, "engine");
+        setWriteNeedsResponse(false, "rudder");
         writeUint8Value((short) 0, "engine");
-        engine_t_1 = new TimestampedValue();
-        engine_t_2 = new TimestampedValue();
-
         writeInt8Value((byte) 0, "rudder");
-        rudder_t_1 = new TimestampedValue();
-        rudder_t_2 = new TimestampedValue();
 
         TimerTask k = new TimerTask() {
-            private short lastEngine = 0;
-            private short lastRudder = 0;
+            private short lastlastengine = 0;
+            private short lastlastrudder = 0;
+
             @Override
             public void run() {
-                short engine = extrapolatedValueForNow(engine_t_2, engine_t_1);
-                short rudder = extrapolatedValueForNow(rudder_t_2, rudder_t_1);
-
-                if (lastRudder != rudder) {
-                    // clip
-                    if (rudder > 126)
-                        rudder = 126;
-                    if (rudder < -126)
-                        rudder = 126;
-
-                    writeInt8Value((byte) rudder, "rudder");
-                    Log.i("smartplane timer", "RUDDER " + rudder);
-
-                    lastRudder = rudder;
+                if (lastlastrudder != lastRudder) {
+                    writeInt8Value((byte) lastRudder, "rudder");
+                    lastlastrudder = lastRudder;
                 }
-
-                if (lastEngine != engine) {
-                    // clip
-                    if (engine > 254)
-                        engine = 254;
-                    if (engine < 0)
-                        engine = 0;
-
-                    writeUint8Value(engine, "engine");
-                    Log.i("smartplane timer", "ENGINE " + engine);
-                    lastEngine = engine;
+                if (lastlastengine != lastEngine) {
+                    writeUint8Value(lastEngine, "engine");
+                    lastlastengine = lastEngine;
                 }
             }
         };

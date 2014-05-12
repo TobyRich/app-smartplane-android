@@ -70,6 +70,11 @@ public abstract class BLEService {
         return c.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
     }
 
+    protected void setWriteNeedsResponse(boolean responsNeeded, String characteristic) {
+        BluetoothGattCharacteristic c = mFields.get(characteristic);
+        c.setWriteType(responsNeeded ? BluetoothGattCharacteristic.WRITE_TYPE_SIGNED : BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+    }
+
     protected void writeUint8Value(short value, String characteristic) {
         BluetoothGattCharacteristic c = mFields.get(characteristic);
         c.setValue(value, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
