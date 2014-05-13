@@ -15,7 +15,6 @@ import java.util.logging.Handler;
  */
 public class BLESmartplaneService
         extends BLEService {
-    private static final int MAX_REFRESH_RATE_IN_HZ = 10;
 
     public interface Delegate {
         void didStartChargingBattery();
@@ -29,18 +28,24 @@ public class BLESmartplaneService
     private short lastRudder = 0;
 
     public void setMotor(short value) {
+        if (value == lastEngine)
+            return;
         if (value > 254)
             value = 254;
         if (value < 0)
             value = 0;
+        writeUint8Value(value, "engine");
         lastEngine = value;
     }
 
     public void setRudder(short value) {
+        if (value == lastRudder)
+            return;
         if (value > 126)
             value = 126;
         if (value < -126)
             value = -126;
+        writeInt8Value((byte)value, "rudder");
         lastRudder = value;
     }
 
@@ -55,26 +60,6 @@ public class BLESmartplaneService
         setWriteNeedsResponse(false, "rudder");
         writeUint8Value((short) 0, "engine");
         writeInt8Value((byte) 0, "rudder");
-
-        TimerTask k = new TimerTask() {
-            private short lastlastengine = 0;
-            private short lastlastrudder = 0;
-
-            @Override
-            public void run() {
-                if (lastlastrudder != lastRudder) {
-                    writeInt8Value((byte) lastRudder, "rudder");
-                    lastlastrudder = lastRudder;
-                }
-                if (lastlastengine != lastEngine) {
-                    writeUint8Value(lastEngine, "engine");
-                    lastlastengine = lastEngine;
-                }
-            }
-        };
-
-        Timer t = new Timer();
-        t.scheduleAtFixedRate(k, 0, 1000 / MAX_REFRESH_RATE_IN_HZ);
     }
 
     @Override
