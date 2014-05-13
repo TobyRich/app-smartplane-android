@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>rssi high</key>
-	<integer>-25</integer>
+	<integer>-10</integer>
 	<key>rssi low</key>
-	<integer>-100</integer>
+	<integer>-50</integer>
 	<key>Services</key>
 	<dict>
 		<key>firmware</key>

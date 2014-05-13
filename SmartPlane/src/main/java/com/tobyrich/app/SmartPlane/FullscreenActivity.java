@@ -19,7 +19,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.TranslateAnimation;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -581,7 +580,7 @@ public class FullscreenActivity
                 } else if (pitchAngle >= PITCH_ANGLE_MAX) {
                     horizonVerticalMovement = SCALE_FOR_VERT_MOVEMENT_HORIZON * PITCH_ANGLE_MAX;
                 }
-                newRudder= (short) (rollAngle * -MAX_RUDDER_SPEED / MAX_ROLL_ANGLE);
+                newRudder = (short) (rollAngle * -MAX_RUDDER_SPEED / MAX_ROLL_ANGLE);
 
                 hdgVal = (TextView) findViewById(R.id.hdgValue);
 
@@ -624,24 +623,17 @@ public class FullscreenActivity
                                 revRudderText.setVisibility(View.INVISIBLE);
                                 revRudder.setVisibility(View.VISIBLE);
                             }
-                        }, 3000);
+                        }, 5000);
                         return true;
-                    }
-                });
-
-                rudderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if(isChecked){
-                            newRudder = (short) -newRudder;
-                        }
                     }
                 });
 
                 try {
 
-                    mSmartplaneService.setRudder(newRudder);
+                    mSmartplaneService.setRudder(
+                            (short) (rudderSwitch.isChecked() ?
+                                    -newRudder : newRudder)
+                    );
 
                 } catch (NullPointerException e) {
                     //checking, because mSmartplaneService might not be available everytime
