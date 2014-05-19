@@ -103,6 +103,8 @@ public class FullscreenActivity
     private ImageView revRudder;
 
     private Switch rudderSwitch;
+    private Switch flassistSwitch;
+
     private MediaPlayer atcSound;
     private MediaPlayer engineSound;
 
@@ -112,6 +114,7 @@ public class FullscreenActivity
     private TextView batteryLevelText;
     private TextView hdgVal;
     private TextView revRudderText;
+    private TextView flassistText;
 
     private GestureDetector gestureDetector;
     private boolean tapped;
@@ -204,6 +207,8 @@ public class FullscreenActivity
         rudderSwitch = (Switch) findViewById(R.id.rudderSwitch);
         revRudder = (ImageView) findViewById(R.id.revRudder);
         revRudderText = (TextView) findViewById(R.id.revText);
+        flassistSwitch = (Switch) findViewById(R.id.flassistSwitch);
+        flassistText = (TextView) findViewById(R.id.flassistText);
 
         gestureDetector = new GestureDetector(FullscreenActivity.this, new GestureListener());
 
