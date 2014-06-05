@@ -30,3 +30,6 @@ proguard/
 *.iws
 *.iml
 .idea/
+
+# JVM log files
+hs_err_*.log
