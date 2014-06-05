@@ -25,12 +25,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dd.plist.PropertyListFormatException;
+
 import lib.smartlink.BLEService;
 import lib.smartlink.BluetoothDevice;
 import lib.smartlink.driver.BLEBatteryService;
 import lib.smartlink.driver.BLEDeviceInformationService;
 import lib.smartlink.driver.BLESmartplaneService;
 
+import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -44,33 +46,7 @@ import javax.xml.parsers.ParserConfigurationException;
 public class FullscreenActivity
         extends Activity
         implements BluetoothDevice.Delegate, BLESmartplaneService.Delegate, BLEDeviceInformationService.Delegate, BLEBatteryService.Delegate, SensorEventListener {
-    private static final int REQUEST_ENABLE_BT = 1;
     private static final String TAG = "SmartPlane";
-    private static final int RSSI_THRESHOLD_TO_CONNECT = -100; // dB
-
-    private static final int MAX_ROLL_ANGLE = 45;
-    private static final int MAX_RUDDER_SPEED = 127;
-    private static final int MAX_MOTOR_SPEED = 254;
-    private static final double PITCH_ANGLE_MAX = 50;
-    private static final double PITCH_ANGLE_MIN = -50;
-    private static final long ANIMATION_DURATION_MILLISEC = 1000;
-    private static final double SCALE_FOR_CONTROL_PANEL = 0.2; // movement of slider only in 80% of the control panel height
-    private static final double SCALE_FOR_VERT_MOVEMENT_HORIZON = 4.5;
-    private static final String UNKNOWN = "Unknown";
-    private static final float THROTTLE_NEEDLE_MAX_ANGLE = 48; // in degrees
-    private static final float THROTTLE_NEEDLE_MIN_ANGLE = -140; // in degrees
-    private static final float SIGNAL_NEEDLE_MIN_ANGLE = 0; // in degrees
-    private static final float SIGNAL_NEEDLE_MAX_ANGLE = 180; // in degrees
-    private static final float MAX_BLUETOOTH_STRENGTH = -20;
-    private static final float MIN_BLUETOOTH_STRENGTH = -100;
-    private static final float MIN_POS_SLIDER = 440;
-    private static final float FUEL_NEEDLE_MIN_ANGLE = -90; // in degrees
-    private static final float FUEL_NEEDLE_MAX_ANGLE = 90; // in degrees
-    private static final float MAX_BATTERY_VALUE = 100; // in degrees
-    private static final long TIMER_DELAY = 500; // the delay in milliseconds before task is to be executed
-    private static final long TIMER_PERIOD = 6000; // the time in milliseconds between successive task executions
-    private static final double RULER_MOVEMENT_SPEED = 1.4;
-    private static final int RULER_MOVEMENT_HEIGHT = 200;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -120,7 +96,7 @@ public class FullscreenActivity
     private boolean tapped;
 
     private String appVersion;
-    private final InfoBox infoBox = new InfoBox(UNKNOWN);
+    private final InfoBox infoBox = new InfoBox(Const.UNKNOWN);
 
     short newRudder;
 
@@ -259,7 +235,7 @@ public class FullscreenActivity
 
                     case MotionEvent.ACTION_MOVE:
 
-                        newcontrolPanelHeight = (float) (controlpanelHeight - (SCALE_FOR_CONTROL_PANEL * controlpanelHeight)); //this new controlpanel height which is the range for the slider to move
+                        newcontrolPanelHeight = (float) (controlpanelHeight - (Const.SCALE_FOR_CONTROL_PANEL * controlpanelHeight)); //this new controlpanel height which is the range for the slider to move
 
                         if (0 <= eventYValue && eventYValue < newcontrolPanelHeight) { // range from top of control panel to bottom of control panel
                             slider.setY(eventYValue); // movement of the slider with touch
@@ -275,13 +251,13 @@ public class FullscreenActivity
                             }
                         }
 
-                        rotateImageView(throttleNeedleImageView, motorSpeed, THROTTLE_NEEDLE_MIN_ANGLE, THROTTLE_NEEDLE_MAX_ANGLE);
+                        rotateImageView(throttleNeedleImageView, motorSpeed, Const.THROTTLE_NEEDLE_MIN_ANGLE, Const.THROTTLE_NEEDLE_MAX_ANGLE);
 
                         throttleText = (TextView) findViewById(R.id.throttleValue);
 
                         try {
                             throttleText.setText(String.valueOf((short) (motorSpeed * 100) + "%"));
-                            mSmartplaneService.setMotor((short) (motorSpeed * MAX_MOTOR_SPEED));
+                            mSmartplaneService.setMotor((short) (motorSpeed * Const.MAX_MOTOR_SPEED));
 
                         } catch (NullPointerException e) {
                             //checking, because mSmartplaneService might not be available everytime
@@ -430,7 +406,7 @@ public class FullscreenActivity
 
             signalText.setText(String.valueOf((int) (signalInDb)));
 
-            rotateImageView(signalNeedleImageView, signalStrength, SIGNAL_NEEDLE_MIN_ANGLE, SIGNAL_NEEDLE_MAX_ANGLE);
+            rotateImageView(signalNeedleImageView, signalStrength, Const.SIGNAL_NEEDLE_MIN_ANGLE, Const.SIGNAL_NEEDLE_MAX_ANGLE);
         }
     }
 
@@ -447,7 +423,7 @@ public class FullscreenActivity
 
             batteryLevelText.setText(String.valueOf((int) batteryLevel + "%"));
 
-            rotateImageView(fuelNeedleImageView, batteryLevel / MAX_BATTERY_VALUE, FUEL_NEEDLE_MIN_ANGLE, FUEL_NEEDLE_MAX_ANGLE);
+            rotateImageView(fuelNeedleImageView, batteryLevel / Const.MAX_BATTERY_VALUE, Const.FUEL_NEEDLE_MIN_ANGLE, Const.FUEL_NEEDLE_MAX_ANGLE);
         }
 
     }
@@ -486,14 +462,14 @@ public class FullscreenActivity
 
             ChargeTimerTask chargeTimerTask = new ChargeTimerTask(mSmartplaneService);
             // update charging status at a fixed rate
-            timer.scheduleAtFixedRate(chargeTimerTask, TIMER_DELAY, TIMER_PERIOD);
+            timer.scheduleAtFixedRate(chargeTimerTask, Const.TIMER_DELAY, Const.TIMER_PERIOD);
 
             engineSound = MediaPlayer.create(this, R.raw.engine_sound);
             engineSound.start();
 
             SignalTimerTask sigTask = new SignalTimerTask(device);
             // update bluetooth signal strength at a fixed rate
-            timer.scheduleAtFixedRate(sigTask, TIMER_DELAY, TIMER_PERIOD);
+            timer.scheduleAtFixedRate(sigTask, Const.TIMER_DELAY, Const.TIMER_PERIOD);
 
         }
 
@@ -512,7 +488,7 @@ public class FullscreenActivity
     public void didUpdateSignalStrength(BluetoothDevice device, float signalStrength) {
         float signalInDB = signalStrength;
         //scaling signalStrength to range from 0 to 1
-        float finalSignalStrength = ((signalStrength - MIN_BLUETOOTH_STRENGTH) / (MAX_BLUETOOTH_STRENGTH - MIN_BLUETOOTH_STRENGTH));
+        float finalSignalStrength = ((signalStrength - Const.MIN_BLUETOOTH_STRENGTH) / (Const.MAX_BLUETOOTH_STRENGTH - Const.MIN_BLUETOOTH_STRENGTH));
 
         //for signalneedle
         runOnUiThread(new SignalLevelUIChanger(finalSignalStrength, signalInDB));
@@ -523,7 +499,7 @@ public class FullscreenActivity
     public void didStartScanning(BluetoothDevice device) {
         Log.d(TAG, "started scanning");
         showSearching(true);
-        infoBox.setSerialNumber(UNKNOWN);
+        infoBox.setSerialNumber(Const.UNKNOWN);
     }
 
     @Override
@@ -534,7 +510,7 @@ public class FullscreenActivity
     @Override
     public void didDisconnect(BluetoothDevice device) {
         timer.cancel(); //stop timer
-        infoBox.setSerialNumber(UNKNOWN); // if the smartplane is disconnected then, show hardware as "unknown"
+        infoBox.setSerialNumber(Const.UNKNOWN); // if the smartplane is disconnected then, show hardware as "unknown"
     }
 
     @Override
@@ -570,14 +546,14 @@ public class FullscreenActivity
                 double horizonVerticalMovement = 0.0;
 
                 //limiting the values of pitch angle for the vertical movement of the horizon
-                if (PITCH_ANGLE_MIN < pitchAngle && pitchAngle < PITCH_ANGLE_MAX) {
-                    horizonVerticalMovement = SCALE_FOR_VERT_MOVEMENT_HORIZON * pitchAngle;
-                } else if (pitchAngle <= PITCH_ANGLE_MIN) {
-                    horizonVerticalMovement = SCALE_FOR_VERT_MOVEMENT_HORIZON * PITCH_ANGLE_MIN;
-                } else if (pitchAngle >= PITCH_ANGLE_MAX) {
-                    horizonVerticalMovement = SCALE_FOR_VERT_MOVEMENT_HORIZON * PITCH_ANGLE_MAX;
+                if (Const.PITCH_ANGLE_MIN < pitchAngle && pitchAngle < Const.PITCH_ANGLE_MAX) {
+                    horizonVerticalMovement = Const.SCALE_FOR_VERT_MOVEMENT_HORIZON * pitchAngle;
+                } else if (pitchAngle <= Const.PITCH_ANGLE_MIN) {
+                    horizonVerticalMovement = Const.SCALE_FOR_VERT_MOVEMENT_HORIZON * Const.PITCH_ANGLE_MIN;
+                } else if (pitchAngle >= Const.PITCH_ANGLE_MAX) {
+                    horizonVerticalMovement = Const.SCALE_FOR_VERT_MOVEMENT_HORIZON * Const.PITCH_ANGLE_MAX;
                 }
-                newRudder = (short) (rollAngle * -MAX_RUDDER_SPEED / MAX_ROLL_ANGLE);
+                newRudder = (short) (rollAngle * - Const.MAX_RUDDER_SPEED / Const.MAX_ROLL_ANGLE);
 
                 hdgVal = (TextView) findViewById(R.id.hdgValue);
 
@@ -593,14 +569,14 @@ public class FullscreenActivity
 
                 //translation animation, translating the image in the vertical direction
                 TranslateAnimation translateHorizon = new TranslateAnimation(0, 0, -(float) horizonVerticalMovement, (float) horizonVerticalMovement);
-                translateHorizon.setDuration(ANIMATION_DURATION_MILLISEC);
+                translateHorizon.setDuration(Const.ANIMATION_DURATION_MILLISEC);
 
                 horizonImageView.startAnimation(translateHorizon);
 
                 horizonImageView.startAnimation(translateHorizon);
 
                 //ruler movement, a bit faster than horizon movement for 3D effect
-                rulerMiddle.setY((float) (-RULER_MOVEMENT_SPEED * (horizonVerticalMovement + RULER_MOVEMENT_HEIGHT)));
+                rulerMiddle.setY((float) (-Const.RULER_MOVEMENT_SPEED * (horizonVerticalMovement + Const.RULER_MOVEMENT_HEIGHT)));
 
                 horizonImageView.setRotation(-rollAngle); // set rotation of horizonimageview
 
@@ -657,7 +633,7 @@ public class FullscreenActivity
         public boolean onDoubleTap(MotionEvent e) {
             final ImageView newcontrolPanel = (ImageView) findViewById(R.id.imgPanel);
             final float contrlPnlHeight = newcontrolPanel.getHeight();
-            final float newcontrolPanlHeight = (float) (contrlPnlHeight - (SCALE_FOR_CONTROL_PANEL * contrlPnlHeight));
+            final float newcontrolPanlHeight = (float) (contrlPnlHeight - (Const.SCALE_FOR_CONTROL_PANEL * contrlPnlHeight));
 
             tapped = !tapped;
 
@@ -667,7 +643,7 @@ public class FullscreenActivity
                 throttleLock.setVisibility(View.VISIBLE);
 
                 slider.setY(newcontrolPanlHeight);
-                rotateImageView(throttleNeedleImageView, 0, THROTTLE_NEEDLE_MIN_ANGLE, THROTTLE_NEEDLE_MAX_ANGLE);
+                rotateImageView(throttleNeedleImageView, 0, Const.THROTTLE_NEEDLE_MIN_ANGLE, Const.THROTTLE_NEEDLE_MAX_ANGLE);
                 newThrottleText.setText(String.valueOf("0" + "%"));
 
                 // turning the ontouch listener off
