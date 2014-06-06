@@ -1,4 +1,4 @@
-package com.tobyrich.app.SmartPlane;
+package com.tobyrich.app.SmartPlane.util;
 
 /*
 Copyright 2008-2012 Appcelerator, Inc.

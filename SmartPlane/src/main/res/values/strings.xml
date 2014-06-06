@@ -1,8 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Constants -->
     <string name="app_name">SmartPlane</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="minus_infinity">-\u221E</string>
+    <string name="horizon_limit">I am the last thing in horizon</string>
+    <string name="not_available">N/A</string>
+    <string name="zero_percent">0%</string>
+
+    <!-- Accessibility descriptions -->
+    <string name="desc_imgPanel">Control Panel</string>
+    <string name="desc_throttleLock">Throttle lock</string>
+    <string name="desc_throttleSlider">Throttle Slider</string>
+    <string name="desc_throttleNeedle">Throttle Needle</string>
+    <string name="desc_fuelNeedle">Fuel Needle</string>
+    <string name="desc_signalNeedle">Signal Needle</string>
+    <string name="desc_imageHorizon">Image Horizon</string>
+    <string name="desc_centralRuler">Central Ruler</string>
+    <string name="desc_compass">Compass</string>
+    <string name="desc_horizonBorder">Windshield border</string>
+    <string name="desc_runway">Runway</string>
+    <string name="desc_revRudder">Reverse rudder</string>
+    <string name="desc_info">App Info</string>
+    <string name="desc_atcOff">Air Traffic Control OFF</string>
+    <string name="desc_atcOn">Air Traffic Control ON</string>
+
+    <!-- TextViews labels -->
+    <string name="label_fuel">FUEL</string>
+    <string name="label_signal">SIGNAL</string>
+    <string name="label_battery">BATTERY</string>
+    <string name="label_signalStrength">dBm</string>
+    <string name="label_compass">HDG</string>
+    <string name="label_searching">Searching...</string>
+    <string name="label_revRudder">Reverse Rudder</string>
+    <string name="label_flightAssist">Flight Assist</string>
 
 </resources>
