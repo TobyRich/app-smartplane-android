@@ -11,6 +11,7 @@ import com.tobyrich.app.SmartPlane.util.Util;
 /**
  * Class containing various listeners that are updated by bluetooth devices
  */
+
 public class BluetoothListeners {
     public static class ChargeStatusTextChanger implements Runnable {
         Activity activity;

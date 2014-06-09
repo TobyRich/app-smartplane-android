@@ -14,11 +14,11 @@ import lib.smartlink.driver.BLESmartplaneService;
 
 public class PanelTouchListener implements View.OnTouchListener {
     private Activity activity;
-    BLESmartplaneService smartPlaneService;
+    BluetoothDelegate bluetoothDelegate;
 
-    public PanelTouchListener(Activity activity, BLESmartplaneService smartPlaneService) {
+    public PanelTouchListener(Activity activity, BluetoothDelegate bluetoothDelegate) {
         this.activity = activity;
-        this.smartPlaneService = smartPlaneService;
+        this.bluetoothDelegate = bluetoothDelegate;
     }
 
     @Override
@@ -54,15 +54,15 @@ public class PanelTouchListener implements View.OnTouchListener {
                     motorSpeed = 1; // 100% throttle
                 }
 
-                Util.rotateImageView(throttleNeedle, motorSpeed,
-                        Const.THROTTLE_NEEDLE_MIN_ANGLE, Const.THROTTLE_NEEDLE_MAX_ANGLE);
-
+                BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
                 // The smartPlaneService might not be available
-                if (smartPlaneService == null) {
+                if (smartplaneService == null) {
                     break;
                 }
 
-                smartPlaneService.setMotor((short) (motorSpeed * Const.MAX_MOTOR_SPEED));
+                smartplaneService.setMotor((short) (motorSpeed * Const.MAX_MOTOR_SPEED));
+                Util.rotateImageView(throttleNeedle, motorSpeed,
+                        Const.THROTTLE_NEEDLE_MIN_ANGLE, Const.THROTTLE_NEEDLE_MAX_ANGLE);
                 throttleText.setText(String.valueOf((short) (motorSpeed * 100) + "%"));
 
                 break;

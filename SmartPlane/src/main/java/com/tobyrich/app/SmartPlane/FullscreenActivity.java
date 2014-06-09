@@ -43,6 +43,7 @@ public class FullscreenActivity extends Activity {
 
     @Override
     protected void onPause() {
+        super.onPause();
         sensorHandler.unregisterListener();
     }
 
@@ -68,8 +69,8 @@ public class FullscreenActivity extends Activity {
         bluetoothDelegate = new BluetoothDelegate(this, infoBox);
         sensorHandler = new SensorHandler(this, bluetoothDelegate);
         sensorHandler.registerListener();
-        gestureDetector = new GestureDetector(FullscreenActivity.this,
-                new GestureListener(this, bluetoothDelegate.getSmartplaneService()));
+        gestureDetector = new GestureDetector(this,
+                new GestureListener(this, bluetoothDelegate));
 
          /* setting the trivial listeners */
         ImageView horizonImage = (ImageView) findViewById(R.id.imageHorizon);
@@ -106,7 +107,7 @@ public class FullscreenActivity extends Activity {
 
         ImageView controlPanel = (ImageView) findViewById(R.id.imgPanel);
         controlPanel.setOnTouchListener(new PanelTouchListener(this,
-                bluetoothDelegate.getSmartplaneService()));
+                bluetoothDelegate));
 
         final ImageView revRudder = (ImageView) findViewById(R.id.revRudder);
         final Switch rudderSwitch = (Switch) findViewById(R.id.rudderSwitch);
@@ -132,6 +133,8 @@ public class FullscreenActivity extends Activity {
         });
     }  // End onCreate()
 
+
+    // TODO: why?
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
@@ -143,7 +146,5 @@ public class FullscreenActivity extends Activity {
             Log.e(TAG, "Bluetooth enabling was canceled by user");
         }
     }
-
-
 }
 

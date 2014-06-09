@@ -32,6 +32,8 @@ public class BluetoothDelegate
 
     private BluetoothDevice device;
     private BLESmartplaneService smartplaneService;
+    private BLEDeviceInformationService deviceInfoService;
+    private BLEBatteryService batteryService;
 
     private Timer timer = new Timer();
 
@@ -97,6 +99,8 @@ public class BluetoothDelegate
             smartplaneService = (BLESmartplaneService) service;
             smartplaneService.delegate = new WeakReference<BLESmartplaneService.Delegate>(this);
 
+            activity.runOnUiThread(new ChargeStatusTextChanger(activity, Const.IS_NOT_CHARGING));
+
             ChargeTimerTask chargeTimerTask = new ChargeTimerTask(smartplaneService);
             timer.scheduleAtFixedRate(chargeTimerTask, Const.TIMER_DELAY, Const.TIMER_PERIOD);
 
@@ -108,15 +112,15 @@ public class BluetoothDelegate
             return;
 
         }
-
+        // TODO: why do we need this?
         if (serviceName.equalsIgnoreCase("devinfo")) { // check for devinfo service
-            BLEDeviceInformationService deviceInfoService = (BLEDeviceInformationService) service;
+            deviceInfoService = (BLEDeviceInformationService) service;
             deviceInfoService.delegate = new WeakReference<BLEDeviceInformationService.Delegate>(this);
             return;
         }
 
         if (serviceName.equalsIgnoreCase("battery")) { // check for battery service
-            BLEBatteryService batteryService = (BLEBatteryService) service;
+            batteryService = (BLEBatteryService) service;
             batteryService.delegate = new WeakReference<BLEBatteryService.Delegate>(this);
         }
 
