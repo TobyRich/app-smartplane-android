@@ -18,6 +18,12 @@ import com.tobyrich.app.SmartPlane.util.LowPassFilter;
 import lib.smartlink.driver.BLESmartplaneService;
 
 /**
+ * @author Samit Vaidya
+ * @date 04 March 2014
+ * Refactored by: Radu Hambasan
+ */
+
+/**
  * Class in charge of the accelerometer and magnetometer callbacks
  */
 
@@ -152,9 +158,6 @@ public class SensorHandler implements SensorEventListener {
             // TODO: ^ why from -horizon?
             translateHorizon.setDuration(Const.ANIMATION_DURATION_MILLISEC);
 
-            horizonImage.startAnimation(translateHorizon);
-
-            // TODO: why 2 calls to startAnimation?
             horizonImage.startAnimation(translateHorizon);
 
             // ruler movement, a bit faster than horizon movement for 3D effect

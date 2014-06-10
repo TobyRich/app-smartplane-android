@@ -3,7 +3,6 @@ package com.tobyrich.app.SmartPlane;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,16 +11,21 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import lib.smartlink.BluetoothDevice;
-
 import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.InfoBox;
 import com.tobyrich.app.SmartPlane.util.Util;
+
+import lib.smartlink.BluetoothDevice;
+
+/**
+ * @author Samit Vaidya
+ * @date 04 March 2014
+ * Refactored by: Radu Hambasan
+ */
 
 public class FullscreenActivity extends Activity {
     private static final String TAG = "SmartPlane";

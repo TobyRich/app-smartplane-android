@@ -101,22 +101,6 @@
             android:textColor="#BBCC00"
             android:typeface="sans" />
 
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/throttleCursor"
-            android:scaleType="centerCrop"
-            android:src="@drawable/controller"
-            android:adjustViewBounds="true"
-            android:longClickable="false"
-            android:baselineAlignBottom="false"
-            android:layout_marginBottom="5dp"
-            android:layout_toLeftOf="@id/textSignal"
-            android:layout_alignTop="@id/textSignal"
-            android:layout_marginLeft="120dp"
-            android:layout_marginTop="40dp"
-            android:contentDescription="@string/desc_throttleSlider"/>
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -196,6 +180,22 @@
             android:visibility="invisible"
             android:layout_marginLeft="-10dp"
             android:contentDescription="@string/desc_throttleLock"/>
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/throttleCursor"
+            android:scaleType="centerCrop"
+            android:src="@drawable/controller"
+            android:adjustViewBounds="true"
+            android:longClickable="false"
+            android:baselineAlignBottom="false"
+            android:layout_marginBottom="5dp"
+            android:layout_toLeftOf="@id/textSignal"
+            android:layout_alignTop="@id/textSignal"
+            android:layout_marginLeft="120dp"
+            android:layout_marginTop="40dp"
+            android:contentDescription="@string/desc_throttleSlider"/>
 
         <TextView
             android:layout_width="wrap_content"

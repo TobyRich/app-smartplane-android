@@ -5,6 +5,12 @@ import android.view.View;
 import android.widget.ImageView;
 
 /**
+ * @author Samit Vaidya
+ * @date 04 March 2014
+ * Refactored by: Radu Hambasan
+ */
+
+/**
  * Dialog displayed when the info button is clicked
  */
 public class InfoBox implements View.OnClickListener {

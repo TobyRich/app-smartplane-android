@@ -7,12 +7,16 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.tobyrich.app.SmartPlane.R;
 import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.Util;
 
 import lib.smartlink.driver.BLESmartplaneService;
 
+/**
+ * @author Samit Vaidya
+ * @date 04 March 2014
+ * Refactored by: Radu Hambasan
+ */
 
 public class GestureListener extends GestureDetector.SimpleOnGestureListener {
     private Activity activity;
