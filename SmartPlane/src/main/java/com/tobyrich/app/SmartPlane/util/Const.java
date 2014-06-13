@@ -54,5 +54,7 @@ public class Const {
     public static final int SENSOR_DELAY = 50 * 1000; //micro sec
     /* In flight assist mode, don't allow for more throttle */
     public static final double SCALE_FASSIST_THROTTLE = 0.77;
+    /* The rudder tends to go more to the left, so we need to account for that */
+    public static final double SCALE_LEFT_RUDDER = 0.75;
 }
 

@@ -44,7 +44,6 @@ public class SensorHandler implements SensorEventListener {
     private ImageView horizonImage;
     private ImageView centralRudder;
     private Switch rudderReverse;
-    private Switch flAssist;
 
     private float[] rotationMatrix = new float[9];
 
@@ -66,7 +65,6 @@ public class SensorHandler implements SensorEventListener {
         centralRudder = (ImageView) activity.findViewById(R.id.rulerMiddle);
         throttleNeedle = (ImageView) activity.findViewById(R.id.imgThrottleNeedle);
         rudderReverse = (Switch) activity.findViewById(R.id.rudderSwitch);
-        flAssist = (Switch) activity.findViewById(R.id.flAssistSwitch);
 
 
         sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
@@ -115,13 +113,22 @@ public class SensorHandler implements SensorEventListener {
         }
 
         short newRudder = (short) (rollAngle * -Const.MAX_RUDDER_INPUT / Const.MAX_ROLL_ANGLE);
+        if (planeState.isFlAssistEnabled()) {
+            // limit rudder for left turn
+            if (newRudder < 0) {
+                newRudder = (short) (newRudder * Const.SCALE_LEFT_RUDDER);
+            }
+            // cutoff if needed
+            if (newRudder < Const.SCALE_LEFT_RUDDER * -Const.MAX_RUDDER_INPUT) {
+                newRudder = (short) (Const.SCALE_LEFT_RUDDER * -Const.MAX_RUDDER_INPUT);
+            }
+        }
         smartplaneService.setRudder(
                 (short) (rudderReverse.isChecked() ? -newRudder : newRudder)
         );
-
         horizonImage.setRotation(-rollAngle);
         // Increase throttle when turning if flight assist is enabled
-        if (flAssist.isChecked() && !planeState.isScreenLocked()) {
+        if (planeState.isFlAssistEnabled() && !planeState.isScreenLocked()) {
             double scaler = 1 - Math.cos(rollAngle * Math.PI/2 / Const.MAX_ROLL_ANGLE);
             if (scaler > 0.3) {
                 scaler = 0.3;
