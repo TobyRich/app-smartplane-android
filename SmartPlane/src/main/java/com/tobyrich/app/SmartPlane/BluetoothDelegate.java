@@ -46,7 +46,7 @@ public class BluetoothDelegate
         this.infoBox = infoBox;
 
         try {
-            device = new BluetoothDevice(activity.getResources().openRawResource(R.raw.smartplane),
+            device = new BluetoothDevice(activity.getResources().openRawResource(R.raw.services),
                     activity);
             device.delegate = new WeakReference<BluetoothDevice.Delegate>(this);
             device.automaticallyReconnect = true;
