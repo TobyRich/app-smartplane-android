@@ -6,8 +6,8 @@ android {
 
     defaultConfig {
         minSdkVersion 18
-        versionCode 110
-        versionName "1.0-BETA"
+        versionCode 120
+        versionName "1.2-BETA"
     }
     buildTypes {
         release {
