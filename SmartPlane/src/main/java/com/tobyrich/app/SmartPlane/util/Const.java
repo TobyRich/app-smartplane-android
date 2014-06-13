@@ -44,7 +44,7 @@ public class Const {
     public static final double RULER_MOVEMENT_SPEED = 1.4;
     public static final int RULER_MOVEMENT_HEIGHT = 200;
     /* hide the revRudder view after 3000 milliseconds */
-    public static final long HIDE_REVRUDDER_DELAY = 3000;
+    public static final long HIDE_SETTINGS_DELAY = 3000;
     /* messages displayed when the charging status changes */
     public static final String IS_CHARGING = "CHARGING";
     public static final String IS_NOT_CHARGING = "IN USE";
@@ -52,5 +52,7 @@ public class Const {
     public static final int FULL_DEGREES = 360;
     public static final double TO_DEGREES = 180/Math.PI; // change radians to degrees
     public static final int SENSOR_DELAY = 50 * 1000; //micro sec
+    /* In flight assist mode, don't allow for more throttle */
+    public static final double SCALE_FASSIST_THROTTLE = 0.77;
 }
 

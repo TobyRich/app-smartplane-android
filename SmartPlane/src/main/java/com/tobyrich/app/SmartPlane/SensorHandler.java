@@ -13,6 +13,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.tobyrich.app.SmartPlane.util.Const;
+import com.tobyrich.app.SmartPlane.util.Util;
 
 import lib.smartlink.driver.BLESmartplaneService;
 
@@ -29,17 +30,21 @@ import lib.smartlink.driver.BLESmartplaneService;
 public class SensorHandler implements SensorEventListener {
 
     private final String TAG = "SensorHandler";
+    private PlaneState planeState;
     private BluetoothDelegate bluetoothDelegate;
 
     private SensorManager sensorManager;
 
     private Sensor mRotationSensor;
 
-    TextView hdgVal;
-    ImageView compass;
-    ImageView horizonImage;
-    ImageView centralRudder;
-    Switch rudderSwitch;
+    private TextView hdgVal;
+    private TextView throttleText;
+    private ImageView throttleNeedle;
+    private ImageView compass;
+    private ImageView horizonImage;
+    private ImageView centralRudder;
+    private Switch rudderReverse;
+    private Switch flAssist;
 
     private float[] rotationMatrix = new float[9];
 
@@ -49,15 +54,20 @@ public class SensorHandler implements SensorEventListener {
 
     public SensorHandler(Activity activity, BluetoothDelegate bluetoothDelegate) {
         this.bluetoothDelegate = bluetoothDelegate;
+        planeState = (PlaneState) activity.getApplicationContext();
 
         /* The data set changes rapidly, so we need to set the views here,
          * and keep the references alive for the lifetime of the app
          */
         hdgVal = (TextView) activity.findViewById(R.id.hdgValue);
+        throttleText = (TextView) activity.findViewById(R.id.throttleValue);
         compass = (ImageView) activity.findViewById(R.id.compass);
         horizonImage = (ImageView) activity.findViewById(R.id.imageHorizon);
         centralRudder = (ImageView) activity.findViewById(R.id.rulerMiddle);
-        rudderSwitch = (Switch) activity.findViewById(R.id.rudderSwitch);
+        throttleNeedle = (ImageView) activity.findViewById(R.id.imgThrottleNeedle);
+        rudderReverse = (Switch) activity.findViewById(R.id.rudderSwitch);
+        flAssist = (Switch) activity.findViewById(R.id.flAssistSwitch);
+
 
         sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager == null) {
@@ -82,7 +92,7 @@ public class SensorHandler implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) { //if the device has rotation vector sensor
+        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
 
             SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
 
@@ -95,19 +105,35 @@ public class SensorHandler implements SensorEventListener {
             pitchAngle = (float) (orientation[1] * Const.TO_DEGREES);
             rollAngle = (float) (orientation[2] * Const.TO_DEGREES);
 
+        } else {
+            return;  // TODO: get rotation matrix from accelerometer
         }
 
         BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
-        if (smartplaneService != null) {
-            short newRudder = (short) (rollAngle * -Const.MAX_RUDDER_INPUT / Const.MAX_ROLL_ANGLE);
-            smartplaneService.setRudder(
-                    (short) (rudderSwitch.isChecked() ? -newRudder : newRudder)
-            );
+        if (smartplaneService == null) {
+            return;  // we can't do anything without the smartplaneService
         }
 
-        horizonImage.setRotation(-rollAngle);
+        short newRudder = (short) (rollAngle * -Const.MAX_RUDDER_INPUT / Const.MAX_ROLL_ANGLE);
+        smartplaneService.setRudder(
+                (short) (rudderReverse.isChecked() ? -newRudder : newRudder)
+        );
 
-        /* Ignore small changes in the angles*/
+        horizonImage.setRotation(-rollAngle);
+        // Increase throttle when turning if flight assist is enabled
+        if (flAssist.isChecked() && !planeState.isScreenLocked()) {
+            double scaler = 1 - Math.cos(rollAngle * Math.PI/2 / Const.MAX_ROLL_ANGLE);
+            if (scaler > 0.3) {
+                scaler = 0.3;
+            }
+            planeState.setScaler(scaler);
+
+            float adjustedMotorSpeed = planeState.getMotorSpeed();
+            smartplaneService.setMotor((short) (adjustedMotorSpeed * Const.MAX_MOTOR_SPEED));
+            Util.rotateImageView(throttleNeedle, adjustedMotorSpeed,
+                    Const.THROTTLE_NEEDLE_MIN_ANGLE, Const.THROTTLE_NEEDLE_MAX_ANGLE);
+            throttleText.setText((short) (adjustedMotorSpeed * 100) + "%");
+        }
 
         float compassAngle;
         final String[] compassDir = {"N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"};

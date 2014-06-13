@@ -312,12 +312,12 @@
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:id="@+id/revRudder"
+                android:id="@+id/settings"
                 android:layout_gravity="left|top"
                 android:src="@drawable/rudder"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="10dp"
-                android:contentDescription="@string/desc_revRudder"/>
+                android:contentDescription="@string/desc_settings"/>
 
             <ImageView
                 android:layout_width="40dp"
@@ -373,7 +373,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="@string/label_revRudder"
-                android:id="@+id/revText"
+                android:id="@+id/revRudderText"
                 android:layout_gravity="left|top"
                 android:textColor="#000000"
                 android:layout_marginTop="60dp"

@@ -20,7 +20,7 @@
     <string name="desc_compass">Compass</string>
     <string name="desc_horizonBorder">Windshield border</string>
     <string name="desc_runway">Runway</string>
-    <string name="desc_revRudder">Reverse rudder</string>
+    <string name="desc_settings">Reverse rudder</string>
     <string name="desc_info">App Info</string>
     <string name="desc_atcOff">Air Traffic Control OFF</string>
     <string name="desc_atcOn">Air Traffic Control ON</string>

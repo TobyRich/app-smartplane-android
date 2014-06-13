@@ -11,6 +11,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -33,6 +34,7 @@ public class FullscreenActivity extends Activity {
     private BluetoothDelegate bluetoothDelegate;  // bluetooth events
     private SensorHandler sensorHandler;  // accelerometer & magnetometer
     private GestureDetector gestureDetector;  // touch events
+    private PlaneState planeState;
 
     @Override
     public void onResume() {
@@ -75,6 +77,7 @@ public class FullscreenActivity extends Activity {
         sensorHandler.registerListener();
         gestureDetector = new GestureDetector(this,
                 new GestureListener(this, bluetoothDelegate));
+        planeState = (PlaneState) getApplicationContext();
 
          /* setting the trivial listeners */
         ImageView horizonImage = (ImageView) findViewById(R.id.imageHorizon);
@@ -113,32 +116,45 @@ public class FullscreenActivity extends Activity {
         controlPanel.setOnTouchListener(new PanelTouchListener(this,
                 bluetoothDelegate));
 
-        final ImageView revRudder = (ImageView) findViewById(R.id.revRudder);
-        final Switch reverseRudder = (Switch) findViewById(R.id.rudderSwitch);
-        final TextView revRudderText = (TextView) findViewById(R.id.revText);
-
-        revRudder.setOnTouchListener(new View.OnTouchListener() {
+        final ImageView settings = (ImageView) findViewById(R.id.settings);
+        final Switch rudderReverse = (Switch) findViewById(R.id.rudderSwitch);
+        final TextView revRudderText = (TextView) findViewById(R.id.revRudderText);
+        final Switch flAssistSwitch = (Switch) findViewById(R.id.flAssistSwitch);
+        final TextView flAssistText = (TextView) findViewById(R.id.flAssistText);
+        settings.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                revRudder.setVisibility(View.INVISIBLE);
-                reverseRudder.setVisibility(View.VISIBLE);
+                settings.setVisibility(View.INVISIBLE);
+                rudderReverse.setVisibility(View.VISIBLE);
                 revRudderText.setVisibility(View.VISIBLE);
+                flAssistSwitch.setVisibility(View.VISIBLE);
+                flAssistText.setVisibility(View.VISIBLE);
+
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        reverseRudder.setVisibility(View.INVISIBLE);
+                        rudderReverse.setVisibility(View.INVISIBLE);
                         revRudderText.setVisibility(View.INVISIBLE);
-                        revRudder.setVisibility(View.VISIBLE);
+                        flAssistSwitch.setVisibility(View.INVISIBLE);
+                        flAssistText.setVisibility(View.INVISIBLE);
+                        settings.setVisibility(View.VISIBLE);
                     }
-                }, Const.HIDE_REVRUDDER_DELAY);
+                }, Const.HIDE_SETTINGS_DELAY);
                 return true;
             }
-        });
+        });  // End  settings listener
+
+        flAssistSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                planeState.enableFlightAssist(isChecked);
+            }
+        });  // end flAssist listener
+        // Default:
+        flAssistSwitch.setChecked(true);
     }  // End onCreate()
 
-
-    // TODO: why?
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
