@@ -114,20 +114,20 @@ public class FullscreenActivity extends Activity {
                 bluetoothDelegate));
 
         final ImageView revRudder = (ImageView) findViewById(R.id.revRudder);
-        final Switch rudderSwitch = (Switch) findViewById(R.id.rudderSwitch);
+        final Switch reverseRudder = (Switch) findViewById(R.id.rudderSwitch);
         final TextView revRudderText = (TextView) findViewById(R.id.revText);
 
         revRudder.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 revRudder.setVisibility(View.INVISIBLE);
-                rudderSwitch.setVisibility(View.VISIBLE);
+                reverseRudder.setVisibility(View.VISIBLE);
                 revRudderText.setVisibility(View.VISIBLE);
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        rudderSwitch.setVisibility(View.INVISIBLE);
+                        reverseRudder.setVisibility(View.INVISIBLE);
                         revRudderText.setVisibility(View.INVISIBLE);
                         revRudder.setVisibility(View.VISIBLE);
                     }

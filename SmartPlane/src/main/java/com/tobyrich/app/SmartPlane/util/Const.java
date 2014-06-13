@@ -50,5 +50,11 @@ public class Const {
     public static final String IS_NOT_CHARGING = "IN USE";
     /* 360 degrees to be added to a negative angle, etc. TODO: find better name */
     public static final int FULL_DEGREES = 360;
+    /* Ignore changes less than MIN_AZIMUTH_CHANGE */
+    public static final int MIN_AZIMUTH_CHANGE = 5;
+    public static final int MIN_PITCH_CHANGE = 1;
+    public static final int MIN_ROLL_CHANGE = 1;
+    /* Delay between sensor readings in microseconds */
+    public static final int SENSOR_DELAY = 50000;
 }
 

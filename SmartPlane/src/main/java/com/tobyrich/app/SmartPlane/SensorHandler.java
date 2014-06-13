@@ -48,6 +48,10 @@ public class SensorHandler implements SensorEventListener {
     private float[] inclinationMatrix = new float[9];
     private float[] newOrientation = new float[3];
 
+    private int _rollAngle = 0;
+    private int _pitchAngle = 0;
+    private int _azimuthAngle = 0;
+
 
     public SensorHandler(Activity activity, BluetoothDelegate bluetoothDelegate) {
         this.bluetoothDelegate = bluetoothDelegate;
@@ -83,8 +87,8 @@ public class SensorHandler implements SensorEventListener {
 
     public void registerListener() {
         if (accelerometer != null && magnetometer != null) {
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
-            sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
+            sensorManager.registerListener(this, accelerometer, Const.SENSOR_DELAY);
+            sensorManager.registerListener(this, magnetometer, Const.SENSOR_DELAY);
         } else {
             Log.e(TAG, "no Accelerometer/Magnetometer!");
         }
@@ -92,13 +96,6 @@ public class SensorHandler implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        final String[] compassDir = {"N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"};
-        /* TODO: explain the following two members better */
-        // degrees between segments in between north, south, east and west
-        final int DEGREES_PER_SEGMENT = Const.FULL_DEGREES / 8;
-        // degrees between N, NE, E, SE, S, SW, W , NW, N
-        final float DEGREES_PER_DIRECTION = (DEGREES_PER_SEGMENT / 2);
-
         switch (event.sensor.getType()) {
             case Sensor.TYPE_ACCELEROMETER:
                 gravity = event.values;
@@ -115,21 +112,58 @@ public class SensorHandler implements SensorEventListener {
         }
 
         // if the device is in free fall, getRotationMatrix returns false
-        if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, gravity, geomagnetic)) {
-            SensorManager.getOrientation(rotationMatrix, newOrientation);
+        if (!SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, gravity, geomagnetic)) {
+            return;
+        }
+        SensorManager.getOrientation(rotationMatrix, newOrientation);
 
-            // smooth the orientation
-            newOrientation = LowPassFilter.filter(newOrientation, prevOrientation);
-            // cache it
-            prevOrientation = newOrientation;
+        // smooth the orientation
+        newOrientation = LowPassFilter.filter(newOrientation, prevOrientation);
+        // cache it
+        prevOrientation = newOrientation;
 
-            final int rollAngle = (int) Math.toDegrees(newOrientation[2]); //radian to degrees
-            final int pitchAngle = (int) Math.toDegrees(newOrientation[1]);
-            int azimuthAngle = (int) Math.toDegrees(newOrientation[0]);
+        final int rollAngle = (int) Math.toDegrees(newOrientation[2]); //radian to degrees
+        final int pitchAngle = (int) Math.toDegrees(newOrientation[1]);
+        int azimuthAngle = (int) Math.toDegrees(newOrientation[0]);
+
+        if (rollAngle != _rollAngle) {
+            BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
+            if (smartplaneService != null) {
+                short newRudder = (short) (rollAngle * -Const.MAX_RUDDER_INPUT / Const.MAX_ROLL_ANGLE);
+                smartplaneService.setRudder(
+                        (short) (rudderSwitch.isChecked() ? -newRudder : newRudder)
+                );
+            }
+        }
+        // handle the roll first since it affects the rudder!!
+        if (Math.abs(rollAngle - _rollAngle) >= Const.MIN_ROLL_CHANGE) {
+            _rollAngle = rollAngle;
+            horizonImage.setRotation(-rollAngle);
+        }
+
+        /* Ignore small changes in the angles*/
+        if (Math.abs(azimuthAngle - _azimuthAngle) >= Const.MIN_AZIMUTH_CHANGE) {
+            _azimuthAngle = azimuthAngle;
             float compassAngle;
+            final String[] compassDir = {"N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"};
+           /* TODO: explain the following two members better */
+            // degrees between segments in between north, south, east and west
+            final int DEGREES_PER_SEGMENT = Const.FULL_DEGREES / 8;
+            // degrees between N, NE, E, SE, S, SW, W , NW, N
+            final float DEGREES_PER_DIRECTION = (DEGREES_PER_SEGMENT / 2);
 
+            if (azimuthAngle < 0) {
+                // scaling angle from 0 to 360
+                azimuthAngle += Const.FULL_DEGREES;
+            }
+            compassAngle = (azimuthAngle + DEGREES_PER_DIRECTION) / DEGREES_PER_SEGMENT;
+            hdgVal.setText(compassDir[(int) compassAngle]);
+            compass.setRotation(azimuthAngle);
+        }
+
+        if (Math.abs(pitchAngle - _pitchAngle) >= Const.MIN_PITCH_CHANGE) {
+            _pitchAngle = pitchAngle;
             double horizonVerticalMovement = 0.0;
-
             //limiting the values of pitch angle for the vertical movement of the horizon
             if (Const.PITCH_ANGLE_MIN < pitchAngle && pitchAngle < Const.PITCH_ANGLE_MAX) {
                 horizonVerticalMovement = Const.SCALE_FOR_VERT_MOVEMENT_HORIZON * pitchAngle;
@@ -138,42 +172,16 @@ public class SensorHandler implements SensorEventListener {
             } else if (pitchAngle >= Const.PITCH_ANGLE_MAX) {
                 horizonVerticalMovement = Const.SCALE_FOR_VERT_MOVEMENT_HORIZON * Const.PITCH_ANGLE_MAX;
             }
-            short newRudder = (short) (rollAngle * -Const.MAX_RUDDER_INPUT / Const.MAX_ROLL_ANGLE);
-
-            if (azimuthAngle < 0) {
-                // scaling angle from 0 to 360
-                azimuthAngle += Const.FULL_DEGREES;
-            }
-
-            compassAngle = (azimuthAngle + DEGREES_PER_DIRECTION) / DEGREES_PER_SEGMENT;
-
-
-            hdgVal.setText(compassDir[(int) compassAngle]);
-
-            compass.setRotation(azimuthAngle);
-
             // translation animation, translating the image in the vertical direction
             TranslateAnimation translateHorizon = new TranslateAnimation(0, 0,
-                    -(float) horizonVerticalMovement, (float) horizonVerticalMovement);
-            // TODO: ^ why from -horizon?
+                    -(float) horizonVerticalMovement, 0);
+
             translateHorizon.setDuration(Const.ANIMATION_DURATION_MILLISEC);
 
             horizonImage.startAnimation(translateHorizon);
-
             // ruler movement, a bit faster than horizon movement for 3D effect
             centralRudder.setY((float) (-Const.RULER_MOVEMENT_SPEED * (horizonVerticalMovement + Const.RULER_MOVEMENT_HEIGHT)));
-
-            horizonImage.setRotation(-rollAngle);
-
-
-            BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
-            if (smartplaneService != null) {
-                smartplaneService.setRudder(
-                        (short) (rudderSwitch.isChecked() ? -newRudder : newRudder)
-                );
-            }
         }
-
     }
 
     @Override
