@@ -31,8 +31,8 @@ public class PlaneState extends Application{
     public float getMotorSpeed() {
         if (flAssistEnabled) {
             float adjustedMotorSpeed = (float) (motorSpeed * (1 + scaler));
-            if (adjustedMotorSpeed > 100)
-                adjustedMotorSpeed = 100;
+            if (adjustedMotorSpeed > 1)
+                adjustedMotorSpeed = 1;
             return adjustedMotorSpeed;
         } else {
             return motorSpeed;
