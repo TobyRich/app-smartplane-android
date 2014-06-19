@@ -1,6 +1,7 @@
 package com.tobyrich.app.SmartPlane;
 
 import android.app.Application;
+import android.net.Uri;
 
 import com.tobyrich.app.SmartPlane.util.Const;
 

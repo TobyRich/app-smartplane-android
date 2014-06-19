@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -25,7 +27,9 @@ import lib.smartlink.BluetoothDevice;
 /**
  * @author Samit Vaidya
  * @date 04 March 2014
- * Refactored by: Radu Hambasan
+ *
+ * @edit Radu Hambasan
+ * @date 19 Jun 2014
  */
 
 public class FullscreenActivity extends Activity {
@@ -80,6 +84,14 @@ public class FullscreenActivity extends Activity {
         planeState = (PlaneState) getApplicationContext();
 
          /* setting the trivial listeners */
+        ImageView socialShare = (ImageView) findViewById(R.id.socialShare);
+        socialShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Util.showSocialShareDialog(FullscreenActivity.this);
+            }
+        });
+
         ImageView horizonImage = (ImageView) findViewById(R.id.imageHorizon);
         horizonImage.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -157,14 +169,36 @@ public class FullscreenActivity extends Activity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            BluetoothDevice device = bluetoothDelegate.getBluetoothDevice();
-            if (device != null) {
-                device.connect(); // start scanning and connect
-            }
-        } else {
-            Log.e(TAG, "Bluetooth enabling was canceled by user");
-        }
+        switch (requestCode) {
+            case 1:  // XXX: Internally, lib-smartlink uses 1
+                if (resultCode == RESULT_OK) {
+                    BluetoothDevice device = bluetoothDelegate.getBluetoothDevice();
+                    if (device != null) {
+                        device.connect(); // start scanning and connect
+                    }
+                } else {
+                    Log.e(TAG, "Bluetooth enabling was canceled by user");
+                }
+                return;
+            case Util.PHOTO_REQUEST_CODE:
+                if (resultCode == RESULT_CANCELED)
+                    return;
+
+                Uri photoUri = Util.photoUri;
+                if (photoUri == null) {
+                    Util.inform(FullscreenActivity.this,
+                            getString(R.string.social_share_picture_problem));
+                    return;
+                }
+                Util.socialShare(this, photoUri);
+                return;
+            case Util.SHARE_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    Util.inform(this, getString(R.string.social_share_success));
+                } else {
+                    Log.e(TAG, "Sharing not successful");
+                }
+                return;
+        }  // end switch
     }
 }
-

@@ -332,6 +332,16 @@
                 android:contentDescription="@string/desc_info"/>
 
             <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:id="@+id/socialShare"
+                android:layout_gravity="right|top"
+                android:src="@drawable/social_share"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="15dp"
+                android:contentDescription="@string/desc_socialShare"/>
+
+            <ImageView
                 android:layout_width="69dp"
                 android:layout_height="69dp"
                 android:id="@+id/atcOff"

@@ -7,6 +7,13 @@
     <string name="horizon_limit">I am the last thing in horizon</string>
     <string name="not_available">N/A</string>
     <string name="zero_percent">0%</string>
+    <string name="social_share_message">I flew #SmartPlane and it was awesome!</string>
+    <string name="shareWithPictureMessage">Would you like to add a photo?</string>
+    <string name="shareWithPictureYes">Add photo</string>
+    <string name="shareWithPictureNo">Just text</string>
+    <string name="social_share_success">Sharing successful.</string>
+    <string name="social_share_picture_problem">Error while taking picture.</string>
+    <string name="social_share_title"> </string>
 
     <!-- Accessibility descriptions -->
     <string name="desc_imgPanel">Control Panel</string>
@@ -24,6 +31,7 @@
     <string name="desc_info">App Info</string>
     <string name="desc_atcOff">Air Traffic Control OFF</string>
     <string name="desc_atcOn">Air Traffic Control ON</string>
+    <string name="desc_socialShare">Share Button</string>
 
     <!-- TextViews labels -->
     <string name="label_fuel">FUEL</string>
@@ -31,7 +39,7 @@
     <string name="label_battery">BATTERY</string>
     <string name="label_signalStrength">dBm</string>
     <string name="label_compass">HDG</string>
-    <string name="label_searching">Searching...</string>
+    <string name="label_searching">Searching&#8230;</string>
     <string name="label_revRudder">Reverse Rudder</string>
     <string name="label_flightAssist">Flight Assist</string>
 

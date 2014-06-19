@@ -1,12 +1,24 @@
 package com.tobyrich.app.SmartPlane.util;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.tobyrich.app.SmartPlane.PlaneState;
 import com.tobyrich.app.SmartPlane.R;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Radu Hambasan
@@ -14,6 +26,13 @@ import com.tobyrich.app.SmartPlane.R;
  * Class which contains useful methods
  */
 public class Util {
+    private static final String TAG = "Util";
+    public static final int PHOTO_REQUEST_CODE = 723;
+    public static final int SHARE_REQUEST_CODE = 724;
+
+    /* If not null, it contains the uri of a photo that can be shared */
+    public static Uri photoUri;
+
     /**
      * @param context the context in which the message will be displayed
      * @param message the message that will be displayed
@@ -55,6 +74,53 @@ public class Util {
                 activity.findViewById(R.id.progressBar).setVisibility(visibility);
             }
         });
+    }
+
+    public static void takePicture(Activity activity) {
+        PlaneState planeState = (PlaneState) activity.getApplicationContext();
+        photoUri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                new ContentValues());
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+        activity.startActivityForResult(cameraIntent, PHOTO_REQUEST_CODE);
+    }
+
+    public static void socialShare(Activity activity, Uri photoUri) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        if (photoUri != null) {
+            shareIntent.setType("image/*");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, photoUri);
+        } else {
+            shareIntent.setType("text/plain");
+        }
+        shareIntent.putExtra(Intent.EXTRA_TEXT, activity.getString(R.string.social_share_message));
+        Intent mailer = Intent.createChooser(shareIntent, "Share");
+        activity.startActivityForResult(mailer, SHARE_REQUEST_CODE);
+    }
+
+    public static void showSocialShareDialog(final Activity activity) {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        Util.takePicture(activity);
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        Util.socialShare(activity, null);
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        String shareWithPictureMessage = activity.getString(R.string.shareWithPictureMessage);
+        String shareWithPictureYes = activity.getString(R.string.shareWithPictureYes);
+        String shareWithPictureNo = activity.getString(R.string.shareWithPictureNo);
+        builder.setMessage(shareWithPictureMessage)
+                .setPositiveButton(shareWithPictureYes, dialogClickListener)
+                .setNegativeButton(shareWithPictureNo, dialogClickListener).show();
     }
 }
 
