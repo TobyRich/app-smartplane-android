@@ -28,7 +28,7 @@ public class PlaneState extends Application{
     /**
      * If flight assist is enabled, it returns the scaled motorSpeed.
      */
-    public float getMotorSpeed() {
+    public float getAdjustedMotorSpeed() {
         if (flAssistEnabled) {
             float adjustedMotorSpeed = (float) (motorSpeed * (1 + scaler));
             if (adjustedMotorSpeed > 1)

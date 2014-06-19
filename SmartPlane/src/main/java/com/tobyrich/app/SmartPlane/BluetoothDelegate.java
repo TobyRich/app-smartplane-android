@@ -113,7 +113,7 @@ public class BluetoothDelegate
             return;
 
         }
-        // TODO: why do we need this?
+
         if (serviceName.equalsIgnoreCase("devinfo")) { // check for devinfo service
             deviceInfoService = (BLEDeviceInformationService) service;
             deviceInfoService.delegate = new WeakReference<BLEDeviceInformationService.Delegate>(this);

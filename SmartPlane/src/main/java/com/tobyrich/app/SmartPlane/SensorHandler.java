@@ -107,10 +107,6 @@ public class SensorHandler implements SensorEventListener {
             return;  // TODO: get rotation matrix from accelerometer
         }
 
-        BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
-        if (smartplaneService == null) {
-            return;  // we can't do anything without the smartplaneService
-        }
 
         short newRudder = (short) (rollAngle * -Const.MAX_RUDDER_INPUT / Const.MAX_ROLL_ANGLE);
         if (planeState.isFlAssistEnabled()) {
@@ -123,9 +119,12 @@ public class SensorHandler implements SensorEventListener {
                 newRudder = (short) (Const.SCALE_LEFT_RUDDER * -Const.MAX_RUDDER_INPUT);
             }
         }
-        smartplaneService.setRudder(
-                (short) (rudderReverse.isChecked() ? -newRudder : newRudder)
-        );
+        BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
+        if (smartplaneService != null) {
+            smartplaneService.setRudder(
+                    (short) (rudderReverse.isChecked() ? -newRudder : newRudder)
+            );
+        }
         horizonImage.setRotation(-rollAngle);
         // Increase throttle when turning if flight assist is enabled
         if (planeState.isFlAssistEnabled() && !planeState.isScreenLocked()) {
@@ -135,11 +134,13 @@ public class SensorHandler implements SensorEventListener {
             }
             planeState.setScaler(scaler);
 
-            float adjustedMotorSpeed = planeState.getMotorSpeed();
-            smartplaneService.setMotor((short) (adjustedMotorSpeed * Const.MAX_MOTOR_SPEED));
+            float adjustedMotorSpeed = planeState.getAdjustedMotorSpeed();
             Util.rotateImageView(throttleNeedle, adjustedMotorSpeed,
                     Const.THROTTLE_NEEDLE_MIN_ANGLE, Const.THROTTLE_NEEDLE_MAX_ANGLE);
             throttleText.setText((short) (adjustedMotorSpeed * 100) + "%");
+            if (smartplaneService != null) {
+                smartplaneService.setMotor((short) (adjustedMotorSpeed * Const.MAX_MOTOR_SPEED));
+            }
         }
 
         float compassAngle;
