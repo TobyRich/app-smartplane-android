@@ -43,6 +43,7 @@ public class PlaneState extends Application{
     public void setMotorSpeed(float motorSpeed) {
         this.motorSpeed = motorSpeed;
     }
+    public float getMotorSpeed() { return this.motorSpeed; }
 
     public void enableFlightAssist(boolean flAssistEnabled) {
         // Cutoff speed for flight assist

@@ -36,6 +36,7 @@ public class BluetoothDelegate
     private BLEDeviceInformationService deviceInfoService;
     private BLEBatteryService batteryService;
 
+    private PlaneState planeState;
     private Timer timer = new Timer();
 
     // Resources acquired in constructor
@@ -45,6 +46,7 @@ public class BluetoothDelegate
     public BluetoothDelegate(Activity activity, InfoBox infoBox) {
         this.activity = activity;
         this.infoBox = infoBox;
+        this.planeState = (PlaneState) activity.getApplicationContext();
 
         try {
             device = new BluetoothDevice(activity.getResources().openRawResource(R.raw.services),
@@ -86,7 +88,23 @@ public class BluetoothDelegate
 
     @Override
     public void didUpdateBatteryLevel(float percent) {
-        activity.runOnUiThread(new BatteryLevelUIChanger(activity, percent));
+        final float R_batt = 0.520f;  // Ohm
+        /* 0.5 Amps is the current through the motor at MAX_MOTOR_SPEED */
+        final float I_motor = (planeState.getAdjustedMotorSpeed() / Const.MAX_MOTOR_SPEED) * 0.5f;  // Amps
+        /* We don't consider the contribution of the rudder & chip if the motor is off */
+        final float I_rudder = I_motor == 0 ? 0 : 0.013f;  // estimate
+        final float I_chip = I_motor == 0 ? 0 : 0.019f;  // estimate
+
+        final float Vdrop = (I_motor + I_rudder + I_chip) * R_batt;
+        /* The voltage takes values between 3.0V and 3.75V */
+        final float Vmeasured = 3.0f + (0.75f * percent / 100.0f);
+        final float Vbatt = Vmeasured + Vdrop;
+
+        int adjustedPercent = Math.round(100.0f * ((Vbatt - 3.0f) / 0.75f));
+        if (adjustedPercent > 100)
+            adjustedPercent = 100;
+
+        activity.runOnUiThread(new BatteryLevelUIChanger(activity, adjustedPercent));
     }
 
     @Override
