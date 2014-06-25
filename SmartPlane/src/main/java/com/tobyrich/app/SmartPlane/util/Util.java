@@ -7,18 +7,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.tobyrich.app.SmartPlane.PlaneState;
 import com.tobyrich.app.SmartPlane.R;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * @author Radu Hambasan
@@ -107,8 +102,11 @@ public class Util {
                         Util.takePicture(activity);
                         break;
 
-                    case DialogInterface.BUTTON_NEGATIVE:
+                    case DialogInterface.BUTTON_NEUTRAL:
                         Util.socialShare(activity, null);
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
                         break;
                 }
             }
@@ -118,9 +116,11 @@ public class Util {
         String shareWithPictureMessage = activity.getString(R.string.shareWithPictureMessage);
         String shareWithPictureYes = activity.getString(R.string.shareWithPictureYes);
         String shareWithPictureNo = activity.getString(R.string.shareWithPictureNo);
+        String shareWithPictureCancel = activity.getString(R.string.shareWithPictureCancel);
         builder.setMessage(shareWithPictureMessage)
                 .setPositiveButton(shareWithPictureYes, dialogClickListener)
-                .setNegativeButton(shareWithPictureNo, dialogClickListener).show();
+                .setNeutralButton(shareWithPictureNo, dialogClickListener)
+                .setNegativeButton(shareWithPictureCancel, dialogClickListener).show();
     }
 }
 
