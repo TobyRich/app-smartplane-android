@@ -92,8 +92,16 @@ public class SensorHandler implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
 
-            SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
-
+            if (event.values.length > 4) {
+                Log.d(TAG, "Sensor vector > 4");
+                // On some Samsung devices, an exception is thrown if this vector > 4
+                // Truncate the array, since we only care about the first 4 values anyway
+                float[] truncatedRotationVector = new float[9];
+                System.arraycopy(event.values, 0, truncatedRotationVector, 0, 4);
+                SensorManager.getRotationMatrixFromVector(rotationMatrix, truncatedRotationVector);
+            } else {
+                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+            }
             // Transform rotation matrix into azimuth/pitch/roll
             float[] orientation = new float[3];
             SensorManager.getOrientation(rotationMatrix, orientation);
