@@ -29,17 +29,15 @@ package com.tobyrich.app.SmartPlane.util;
 
 /**
  * @author Radu Hambasan
- * @date 05 Jun 2014
+ * @date 07 Jul 2014
  *
+ * <p/>
  * Wrapper class for constants that are app-relevant..
  */
 
 /* TODO: document each constant better */
 
 public class Const {
-    public static final int REQUEST_ENABLE_BT = 1;
-    public static final int RSSI_THRESHOLD_TO_CONNECT = -100;  // dB
-
     public static final int MAX_ROLL_ANGLE = 45;
     /* input to the rudder is between -128 and 127,
      * 0 would center it, 127 turns it fully right,
@@ -54,16 +52,15 @@ public class Const {
     public static final float SCALE_FOR_CURSOR_RANGE = 0.8f;
     public static final double SCALE_FOR_VERT_MOVEMENT_HORIZON = 4.5;
     public static final String UNKNOWN = "Unknown";
-    public static final float THROTTLE_NEEDLE_MAX_ANGLE = 48; // in degrees
-    public static final float THROTTLE_NEEDLE_MIN_ANGLE = -140; // in degrees
-    public static final float SIGNAL_NEEDLE_MIN_ANGLE = 0; // in degrees
-    public static final float SIGNAL_NEEDLE_MAX_ANGLE = 180; // in degrees
+    public static final float THROTTLE_NEEDLE_MAX_ANGLE = 48;  // in degrees
+    public static final float THROTTLE_NEEDLE_MIN_ANGLE = -140;  // in degrees
+    public static final float SIGNAL_NEEDLE_MIN_ANGLE = 0;  // in degrees
+    public static final float SIGNAL_NEEDLE_MAX_ANGLE = 180;  // in degrees
     public static final float MAX_BLUETOOTH_STRENGTH = -20;
     public static final float MIN_BLUETOOTH_STRENGTH = -100;
-    public static final float MIN_POS_SLIDER = 440;
-    public static final float FUEL_NEEDLE_MIN_ANGLE = -90; // in degrees
-    public static final float FUEL_NEEDLE_MAX_ANGLE = 90; // in degrees
-    public static final float MAX_BATTERY_VALUE = 100; // in degrees
+    public static final float FUEL_NEEDLE_MIN_ANGLE = -90;  // in degrees
+    public static final float FUEL_NEEDLE_MAX_ANGLE = 90;  // in degrees
+    public static final float MAX_BATTERY_VALUE = 100;  // in degrees
     /* the delay in milliseconds before task is to be executed */
     public static final long TIMER_DELAY = 500;
     /* the time in milliseconds between successive task executions */
@@ -77,8 +74,8 @@ public class Const {
     public static final String IS_NOT_CHARGING = "IN USE";
     /* 360 degrees to be added to a negative angle, etc. TODO: find better name */
     public static final int FULL_DEGREES = 360;
-    public static final double TO_DEGREES = 180/Math.PI; // change radians to degrees
-    public static final int SENSOR_DELAY = 50 * 1000; //micro sec
+    public static final double TO_DEGREES = 180 / Math.PI;  // change radians to degrees
+    public static final int SENSOR_DELAY = 20 * 1000;  // micro sec
     /* In flight assist mode, don't allow for more throttle */
     public static final double SCALE_FASSIST_THROTTLE = 0.77;
     /* The rudder tends to go more to the left, so we need to account for that */
