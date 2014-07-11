@@ -30,6 +30,7 @@ package com.tobyrich.app.SmartPlane;
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.util.Log;
+import android.widget.TextView;
 
 
 import com.tobyrich.app.SmartPlane.util.Const;
@@ -46,7 +47,7 @@ import lib.smartlink.driver.BLEDeviceInformationService;
 import lib.smartlink.driver.BLESmartplaneService;
 
 import static com.tobyrich.app.SmartPlane.BluetoothTasks.*;
-import static com.tobyrich.app.SmartPlane.BluetoothListeners.*;
+import static com.tobyrich.app.SmartPlane.UIChangers.*;
 
 /**
  * Class responsible for callbacks from bluetooth devices
@@ -192,6 +193,7 @@ public class BluetoothDelegate
     @Override
     public void didStartConnectingTo(BluetoothDevice device, float signalStrength) {
         Log.d(TAG, "did start connecting to " + device.toString());
+        activity.runOnUiThread(new SearchingStatusChanger(activity));
     }
 
     @Override
