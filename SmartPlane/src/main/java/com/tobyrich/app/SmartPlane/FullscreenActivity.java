@@ -89,8 +89,6 @@ public class FullscreenActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
-        Util.inform(this, "Pull Up to Start the Motor");
-
         String appVersion = "";
         try {
             appVersion = this.getPackageManager().getPackageInfo(this.getPackageName(), 0).versionName;
