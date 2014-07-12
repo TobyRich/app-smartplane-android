@@ -5,8 +5,8 @@ android {
     buildToolsVersion '19.1.0'
     defaultConfig {
         minSdkVersion 18
-        versionCode 140
-        versionName '1.5-BETA'
+        versionCode 200
+        versionName '2.0-BETA'
     }
     buildTypes {
         release {

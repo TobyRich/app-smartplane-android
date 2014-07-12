@@ -56,12 +56,17 @@ public class Util {
     public static Uri photoUri;
 
     /**
-     * @param context the context in which the message will be displayed
+     * @param activity the activity where we want to show the toast
      * @param message the message that will be displayed
      *                Display a toast to the user.
      */
-    public static void inform(Context context, String message) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+    public static void inform(final Activity activity, final String message) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**

@@ -40,7 +40,7 @@ import com.tobyrich.app.SmartPlane.util.Util;
  * Class containing various listeners that are notified by bluetooth devices
  */
 
-public class BluetoothListeners {
+public class UIChangers {
     public static class ChargeStatusTextChanger implements Runnable {
         Activity activity;
         String chargeStatus;
@@ -100,5 +100,20 @@ public class BluetoothListeners {
                     Const.FUEL_NEEDLE_MIN_ANGLE, Const.FUEL_NEEDLE_MAX_ANGLE);
         }
 
+    }
+
+    public static class SearchingStatusChanger implements Runnable {
+        Activity activity;
+
+        public SearchingStatusChanger(Activity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void run() {
+            TextView txtSeaching = (TextView) activity.findViewById(R.id.txtSearching);
+            String txtConnecting = activity.getString(R.string.label_connecting);
+            txtSeaching.setText(txtConnecting);
+        }
     }
 }

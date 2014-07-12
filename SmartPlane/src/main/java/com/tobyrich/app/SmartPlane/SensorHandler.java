@@ -40,6 +40,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.tobyrich.app.SmartPlane.util.Const;
+import com.tobyrich.app.SmartPlane.util.SmoothingEngine;
 import com.tobyrich.app.SmartPlane.util.Util;
 
 import lib.smartlink.driver.BLESmartplaneService;
@@ -63,6 +64,8 @@ public class SensorHandler implements SensorEventListener {
     private SensorManager sensorManager;
 
     private Sensor mRotationSensor;
+    private Sensor mAccelerometerSensor;
+    private Sensor mMagnetometerSensor;
 
     private TextView hdgVal;
     private TextView throttleText;
@@ -72,7 +75,10 @@ public class SensorHandler implements SensorEventListener {
     private ImageView centralRudder;
     private Switch rudderReverse;
 
-    private float[] rotationMatrix = new float[9];
+    SmoothingEngine smoothingEngine = new SmoothingEngine();
+    // data that needs to be available across multiple calls
+    private float[] mGravity = new float[3];
+    private float[] mGeomagnetic = new float[3];
 
     public SensorHandler(Activity activity, BluetoothDelegate bluetoothDelegate) {
         this.bluetoothDelegate = bluetoothDelegate;
@@ -97,6 +103,8 @@ public class SensorHandler implements SensorEventListener {
         }
 
         mRotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        mAccelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mMagnetometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     }
 
     public void unregisterListener() {
@@ -107,38 +115,31 @@ public class SensorHandler implements SensorEventListener {
         if (mRotationSensor != null) {
             sensorManager.registerListener(this, mRotationSensor, Const.SENSOR_DELAY);
         } else {
-            Log.e(TAG, "no Rotation Vector Sensor!");
+            Log.w(TAG, "No rotation sensor. Falling back on acc & compass.");
+
+            if (mAccelerometerSensor != null) {
+                sensorManager.registerListener(this, mAccelerometerSensor, Const.SENSOR_DELAY);
+            } else {
+                Log.w(TAG, "No accelerometer found (fatal).");
+            }
+
+            if (mMagnetometerSensor != null) {
+                sensorManager.registerListener(this, mMagnetometerSensor, Const.SENSOR_DELAY);
+            } else {
+                Log.w(TAG, "No compass found.");
+            }
         }
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        float azimuthAngle;
-        float rollAngle;
-        float pitchAngle;
-        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-            if (event.values.length > 4) {
-                // On some Samsung devices, an exception is thrown if this vector > 4
-                // Truncate the array, since we only care about the first 4 values anyway
-                float[] truncatedRotationVector = new float[9];
-                System.arraycopy(event.values, 0, truncatedRotationVector, 0, 4);
-                SensorManager.getRotationMatrixFromVector(rotationMatrix, truncatedRotationVector);
-            } else {
-                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
-            }
-            // Transform rotation matrix into azimuth/pitch/roll
-            float[] orientation = new float[3];
-            SensorManager.getOrientation(rotationMatrix, orientation);
-
-            // Convert radians to degrees
-            azimuthAngle = (float) (orientation[0] * Const.TO_DEGREES);
-            pitchAngle = (float) (orientation[1] * Const.TO_DEGREES);
-            rollAngle = (float) (orientation[2] * Const.TO_DEGREES);
-
-        } else {
-            return;  // TODO: get rotation matrix from accelerometer
+        float[] angles = getAnglesFromSensor(event);
+        if (angles == null) {
+            return;  // not enough data
         }
-
+        float azimuthAngle = angles[0];
+        float pitchAngle = angles[1];
+        float rollAngle = angles[2];
 
         short newRudder = (short) (rollAngle * -Const.MAX_RUDDER_INPUT / Const.MAX_ROLL_ANGLE);
         if (planeState.isFlAssistEnabled()) {
@@ -151,6 +152,7 @@ public class SensorHandler implements SensorEventListener {
                 newRudder = (short) (Const.SCALE_LEFT_RUDDER * -Const.MAX_RUDDER_INPUT);
             }
         }
+        @SuppressWarnings("SpellCheckingInspection")
         BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
         if (smartplaneService != null) {
             smartplaneService.setRudder(
@@ -207,11 +209,100 @@ public class SensorHandler implements SensorEventListener {
 
         horizonImage.startAnimation(translateHorizon);
         // ruler movement, a bit faster than horizon movement for 3D effect
-        centralRudder.setY((float) (-Const.RULER_MOVEMENT_SPEED * (horizonVerticalMovement + Const.RULER_MOVEMENT_HEIGHT)));
+        centralRudder.setY((float) (-Const.RULER_MOVEMENT_SPEED *
+                (horizonVerticalMovement + Const.RULER_MOVEMENT_HEIGHT)));
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
+    /* We handle three main cases:
+     * -high-end phones have ROTATION_VECTOR sensor, which fuses together accelerometer,
+     * gyroscope and compass (no smoothing necessary).
+     * -low-end phones have only accelerometer and compass, in which case we need to compute
+     * the orientation based on acceleration (not so precise).
+     * -some phones may not even have compass
+     * For phones without ROTATION_VECTOR sensor, smoothing is necessary
+     */
+    private float[] getAnglesFromSensor(SensorEvent event) {
+        if (event.values.length < 3) {
+            return null;  // we need at least 3 values
+        }
+        // On some devices, event.values.length > 3, which would cause an Exception
+        float[] safeValues = new float[3];
+        if (event.values.length > 3) {
+            System.arraycopy(event.values, 0, safeValues, 0, 3);
+        } else {
+            safeValues = event.values;
+        }
+
+        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+            float[] rotationMatrix = new float[9];
+            SensorManager.getRotationMatrixFromVector(rotationMatrix, safeValues);
+
+            // Transform rotation matrix into azimuth/pitch/roll
+            float[] orientation = new float[3];
+            SensorManager.getOrientation(rotationMatrix, orientation);
+
+            float[] angles = new float[3];
+            // Convert radians to degrees
+            angles[0] = (float) (orientation[0] * Const.TO_DEGREES);  // azimuth
+            angles[1] = (float) (orientation[1] * Const.TO_DEGREES);  // pitch
+            angles[2] = (float) (orientation[2] * Const.TO_DEGREES);  // roll
+
+            return angles;
+        } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER &&
+                mMagnetometerSensor == null) {
+            float[] smoothValues = smoothingEngine.smooth(safeValues);
+            // acceleration on the three axes
+            float x = smoothValues[0];
+            float y = smoothValues[1];
+            float z = smoothValues[2];
+
+            float[] angles = new float[3];
+            angles[0] = 0;  // azimuth
+            /* get euler angles from acceleration */
+            // the pitch angle increases too fast without compass, so we need to scale it down
+            final float REDUCE_PITCH = 0.5f;
+            angles[1] = (float) (-Math.atan2(y, Math.sqrt(x * x + z * z)) * Const.TO_DEGREES * REDUCE_PITCH);
+            // noinspection SuspiciousNameCombination
+            angles[2] = (float) (-Math.atan2(x, Math.sqrt(y * y + z * z)) * Const.TO_DEGREES);
+
+            return angles;
+        } else if (mMagnetometerSensor != null){
+            switch (event.sensor.getType()) {
+                case Sensor.TYPE_ACCELEROMETER:
+                    mGravity = safeValues;
+                    break;
+                case Sensor.TYPE_MAGNETIC_FIELD:
+                    mGeomagnetic = safeValues;
+                    break;
+                default:
+                    break;
+            }
+            float[] rotationMatrix = new float[9];
+            float[] inclinationMatrix = new float[9];
+            // if the device is in free fall, getRotationMatrix returns false
+            if (!SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix,
+                    mGravity, mGeomagnetic)) {
+                return null;
+            }
+
+            float[] orientation = new float[3];
+            SensorManager.getOrientation(rotationMatrix, orientation);
+
+            // smooth the orientation
+            float[] smoothOrientation = smoothingEngine.smooth(orientation);
+
+            float[] angles = new float[3];
+            angles[0] = (float) (smoothOrientation[0] * Const.TO_DEGREES);
+            angles[1] = (float) (smoothOrientation[1] * Const.TO_DEGREES);
+            angles[2] = (float) (smoothOrientation[2] * Const.TO_DEGREES);
+
+            return angles;
+        }
+
+        return null;
+    }
 }
