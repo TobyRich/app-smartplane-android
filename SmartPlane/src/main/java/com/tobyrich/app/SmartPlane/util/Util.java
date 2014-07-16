@@ -37,10 +37,13 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tobyrich.app.SmartPlane.PlaneState;
 import com.tobyrich.app.SmartPlane.R;
+
+import org.w3c.dom.Text;
 
 /**
  * @author Radu Hambasan
@@ -92,12 +95,11 @@ public class Util {
         activity.findViewById(R.id.txtSearching).post(new Runnable() {
             @Override
             public void run() {
-                activity.findViewById(R.id.txtSearching).setVisibility(visibility);
-            }
-        });
-        activity.findViewById(R.id.progressBar).post(new Runnable() {
-            @Override
-            public void run() {
+                TextView msgSearching = (TextView) activity.findViewById(R.id.txtSearching);
+                String defaultSearchingMsg = activity.getString(R.string.label_searching);
+                msgSearching.setText(defaultSearchingMsg);
+                msgSearching.setVisibility(visibility);
+
                 activity.findViewById(R.id.progressBar).setVisibility(visibility);
             }
         });
