@@ -34,6 +34,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
@@ -44,6 +45,11 @@ import com.tobyrich.app.SmartPlane.PlaneState;
 import com.tobyrich.app.SmartPlane.R;
 
 import org.w3c.dom.Text;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 /**
  * @author Radu Hambasan
@@ -106,7 +112,6 @@ public class Util {
     }
 
     public static void takePicture(Activity activity) {
-        PlaneState planeState = (PlaneState) activity.getApplicationContext();
         photoUri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 new ContentValues());
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -156,5 +161,32 @@ public class Util {
                 .setNeutralButton(shareWithPictureNo, dialogClickListener)
                 .setNegativeButton(shareWithPictureCancel, dialogClickListener).show();
     }
+
+    public static String readUrl(String url) {
+        BufferedReader reader = null;
+
+        try {
+            URL _url = new URL(url);
+            reader = new BufferedReader(new InputStreamReader(_url.openStream()));
+            StringBuilder buffer = new StringBuilder();
+            int nrRead;
+            char[] readChars = new char[1024];
+            while((nrRead = reader.read(readChars)) != -1) {
+                buffer.append(readChars, 0, nrRead);
+            }
+            return  buffer.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }  // end readURL()
 }
 
