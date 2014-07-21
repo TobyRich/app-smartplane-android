@@ -72,6 +72,8 @@ public class FullscreenActivity extends Activity {
 
     private boolean[] initializedScreen = {false, false, false};
 
+    // sound played when the user presses the "Control Tower" button
+    private MediaPlayer atcSound;
     private BluetoothDelegate bluetoothDelegate;  // bluetooth events
     private SensorHandler sensorHandler;  // accelerometer & magnetometer
     private GestureDetector gestureDetector;  // touch events
@@ -189,18 +191,16 @@ public class FullscreenActivity extends Activity {
             }
         });
 
-        // sound played when the user presses the "Control Tower" button
-        final MediaPlayer atcSound = MediaPlayer.create(this, R.raw.atc_sounds1);
-
         final ImageView atcOffButton = (ImageView) findViewById(R.id.atcOff);
         final ImageView atcOnButton = (ImageView) findViewById(R.id.atcOn);
 
+        atcSound = MediaPlayer.create(this, R.raw.atc_sounds1);
         atcOffButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 atcOnButton.setVisibility(View.VISIBLE);
                 v.setVisibility(View.GONE);
-                atcSound.start();
+                if (atcSound != null) atcSound.start();
             }
         });
 
@@ -209,7 +209,7 @@ public class FullscreenActivity extends Activity {
             public void onClick(View v) {
                 atcOffButton.setVisibility(View.VISIBLE);
                 v.setVisibility(View.GONE);
-                atcSound.pause();
+                if (atcSound != null) atcSound.pause();
             }
         });
 
@@ -262,6 +262,9 @@ public class FullscreenActivity extends Activity {
                     return;
                 }
 
+                if (atcSound != null && atcSound.isPlaying()) {
+                    atcSound.pause();
+                }
                 if (isChecked) {
                     atcOff.setVisibility(View.VISIBLE);
                     atcOn.setVisibility(View.GONE);
