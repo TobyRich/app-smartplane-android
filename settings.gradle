@@ -1,1 +1,2 @@
-include ':SmartPlane'
+include ':SmartPlane', ':indicator-library'
+include ':library'

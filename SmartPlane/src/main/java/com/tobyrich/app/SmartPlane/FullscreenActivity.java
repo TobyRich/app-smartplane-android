@@ -54,6 +54,7 @@ import android.widget.TextView;
 import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.MeteoTask;
 import com.tobyrich.app.SmartPlane.util.Util;
+import com.viewpagerindicator.CirclePageIndicator;
 
 import lib.smartlink.BluetoothDisabledException;
 
@@ -108,11 +109,14 @@ public class FullscreenActivity extends Activity {
 
         // Instantiate a ViewPager and a PagerAdapter
         ViewPager screenPager = (ViewPager) findViewById(R.id.screenPager);
-        PagerAdapter pageAdapter = new ScreenSlideAdapter();
-        screenPager.setAdapter(pageAdapter);
+        screenPager.setAdapter(new ScreenSlideAdapter());
+
+        CirclePageIndicator screenIndicator =
+                (CirclePageIndicator) findViewById(R.id.screenIndicator);
+        screenIndicator.setViewPager(screenPager);
+
         screenPager.setCurrentItem(1);  // horizon screen
         screenPager.setOffscreenPageLimit(2);
-
     }
 
     @Override

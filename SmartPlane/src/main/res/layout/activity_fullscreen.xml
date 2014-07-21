@@ -228,15 +228,30 @@
         android:layout_height="fill_parent"
         android:layout_above="@id/controlPanel">
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/screenPager"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/screenPager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <com.viewpagerindicator.CirclePageIndicator
+                android:id="@+id/screenIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="5dp"
+                android:padding="10dip" />
+        </RelativeLayout>
 
         <ImageView
             android:id="@+id/imgHorizonCover"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
+            android:layout_gravity="right|center_vertical"
             android:contentDescription="@string/desc_horizonBorder"
             android:scaleType="fitXY"
             android:src="@drawable/cover" />
