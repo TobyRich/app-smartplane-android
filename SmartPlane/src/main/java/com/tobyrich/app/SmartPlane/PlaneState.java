@@ -37,23 +37,23 @@ import com.tobyrich.app.SmartPlane.util.Const;
  *
  * Singleton handling data shared at global level
  */
+
+/* TODO: define a better interface */
 public class PlaneState extends Application{
+    public boolean rudderReversed = false;
+    public boolean screenLocked = false;
+
     private float motorSpeed;
     private double scaler = 0;
     private boolean flAssistEnabled = false;
-    private boolean screenLocked = false;
 
     public void setScaler(double scaler) {
         this.scaler = scaler;
     }
-    public boolean isScreenLocked() {
-        return this.screenLocked;
-    }
-    public void setScreenLock(boolean screenLocked) {
-        this.screenLocked = screenLocked;
-    }
+
     /**
-     * If flight assist is enabled, it returns the scaled motorSpeed.
+     * @return If flight assist is enabled, it returns the scaled motorSpeed,
+     * otherwise, just the motorSpeed.
      */
     public float getAdjustedMotorSpeed() {
         if (flAssistEnabled) {
@@ -69,6 +69,7 @@ public class PlaneState extends Application{
     public void setMotorSpeed(float motorSpeed) {
         this.motorSpeed = motorSpeed;
     }
+    @SuppressWarnings("UnusedDeclaration")
     public float getMotorSpeed() { return this.motorSpeed; }
 
     public void enableFlightAssist(boolean flAssistEnabled) {

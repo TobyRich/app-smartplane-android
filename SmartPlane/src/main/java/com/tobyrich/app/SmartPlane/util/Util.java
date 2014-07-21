@@ -30,21 +30,16 @@ package com.tobyrich.app.SmartPlane.util;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tobyrich.app.SmartPlane.PlaneState;
 import com.tobyrich.app.SmartPlane.R;
-
-import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,7 +52,6 @@ import java.net.URL;
  * Class which contains useful methods
  */
 public class Util {
-    private static final String TAG = "Util";
     public static final int PHOTO_REQUEST_CODE = 723;
     public static final int SHARE_REQUEST_CODE = 724;
 
@@ -102,11 +96,11 @@ public class Util {
             @Override
             public void run() {
                 TextView msgSearching = (TextView) activity.findViewById(R.id.txtSearching);
-                String defaultSearchingMsg = activity.getString(R.string.label_searching);
+                final String defaultSearchingMsg = activity.getString(R.string.label_searching);
                 msgSearching.setText(defaultSearchingMsg);
                 msgSearching.setVisibility(visibility);
 
-                activity.findViewById(R.id.progressBar).setVisibility(visibility);
+                activity.findViewById(R.id.searchProgressBar).setVisibility(visibility);
             }
         });
     }

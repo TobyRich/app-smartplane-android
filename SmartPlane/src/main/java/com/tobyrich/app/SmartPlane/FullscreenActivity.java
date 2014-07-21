@@ -29,17 +29,21 @@ package com.tobyrich.app.SmartPlane;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -47,7 +51,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.tobyrich.app.SmartPlane.util.Const;
-import com.tobyrich.app.SmartPlane.util.InfoBox;
 import com.tobyrich.app.SmartPlane.util.MeteoTask;
 import com.tobyrich.app.SmartPlane.util.Util;
 
@@ -58,10 +61,16 @@ import lib.smartlink.BluetoothDevice;
  * @date 04 March 2014
  * @edit Radu Hambasan
  * @date 19 Jun 2014
+ * @edit Radu Hambasan
+ * @date 17 Jul 2014
  */
 
 public class FullscreenActivity extends Activity {
     private static final String TAG = "SmartPlane";
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int NUM_SCREENS = 3;
+
+    private boolean[] initializedScreen = {false, false, false};
 
     private BluetoothDelegate bluetoothDelegate;  // bluetooth events
     private SensorHandler sensorHandler;  // accelerometer & magnetometer
@@ -76,13 +85,17 @@ public class FullscreenActivity extends Activity {
         ViewTreeObserver viewTree = findViewById(R.id.controlPanel).getViewTreeObserver();
         viewTree.addOnGlobalLayoutListener(new GlobalLayoutListener(this));
 
-        sensorHandler.registerListener();
+        if (sensorHandler != null) {
+            sensorHandler.registerListener();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        sensorHandler.unregisterListener();
+        if (sensorHandler != null) {
+            sensorHandler.unregisterListener();
+        }
     }
 
     @Override
@@ -90,19 +103,69 @@ public class FullscreenActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
-        String appVersion = "";
-        try {
-            appVersion = this.getPackageManager().getPackageInfo(this.getPackageName(), 0).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.w(TAG, "Could not locate package; needed to set appVersion.");
-            e.printStackTrace();
-        }
+        // Instantiate a ViewPager and a PagerAdapter
+        ViewPager screenPager = (ViewPager) findViewById(R.id.screenPager);
+        PagerAdapter pageAdapter = new ScreenSlideAdapter();
+        screenPager.setAdapter(pageAdapter);
+        screenPager.setCurrentItem(1);  // horizon screen
+        screenPager.setOffscreenPageLimit(2);
 
-        ImageView infoButton = (ImageView) findViewById(R.id.imgInfo);
-        InfoBox infoBox = new InfoBox(Const.UNKNOWN, infoButton, appVersion);
-        infoButton.setOnClickListener(infoBox);
+    }
 
-        bluetoothDelegate = new BluetoothDelegate(this, infoBox);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case 1:  // XXX: Internally, lib-smartlink uses 1
+                if (resultCode == RESULT_OK) {
+                    BluetoothDevice device = bluetoothDelegate.getBluetoothDevice();
+                    if (device != null) {
+                        device.connect(); // start scanning and connect
+                    }
+                } else {
+                    Log.e(TAG, "Bluetooth enabling was canceled by user");
+                }
+                return;
+            case Util.PHOTO_REQUEST_CODE:
+                if (resultCode == RESULT_CANCELED)
+                    return;
+
+                Uri photoUri = Util.photoUri;
+                if (photoUri == null) {
+                    Util.inform(FullscreenActivity.this,
+                            getString(R.string.social_share_picture_problem));
+                    return;
+                }
+                Util.socialShare(this, photoUri);
+                return;
+            case Util.SHARE_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    Util.inform(this, getString(R.string.social_share_success));
+                } else {
+                    Log.e(TAG, "Sharing not successful");
+                }
+                // noinspection UnnecessaryReturnStatement
+                return;
+        }  // end switch
+    }
+
+    @Override
+    public void onBackPressed() { //change functionality of back button
+        new AlertDialog.Builder(this)
+                .setMessage("Are you sure you want to exit?")
+                .setNegativeButton(android.R.string.no, null)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        //This resets all cached data from the app and breaks the connection.
+                        //The app itself is only minimized, but not closed.
+                        int pid = android.os.Process.myPid();
+                        android.os.Process.killProcess(pid);
+                    }
+                }).create().show();
+    }
+
+    private void initializeMainScreen() {
+        bluetoothDelegate = new BluetoothDelegate(this);
         sensorHandler = new SensorHandler(this, bluetoothDelegate);
         sensorHandler.registerListener();
         gestureDetector = new GestureDetector(this,
@@ -153,95 +216,124 @@ public class FullscreenActivity extends Activity {
         ImageView controlPanel = (ImageView) findViewById(R.id.imgPanel);
         controlPanel.setOnTouchListener(new PanelTouchListener(this,
                 bluetoothDelegate));
+    }
 
-        final ImageView settings = (ImageView) findViewById(R.id.settings);
+    public void initializeSettingsScreen() {
+        /* setting the version data at the bottom of the screen */
+        String appVersion = "uknown";
+        try {
+            appVersion = this.getPackageManager()
+                    .getPackageInfo(this.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Could not locate package; needed to set appVersion.");
+            e.printStackTrace();
+        }
+
+        ((TextView) findViewById(R.id.softwareInfoData)).setText("Software: " + appVersion);
+
+        /* setting the switch listeners */
         final Switch rudderReverse = (Switch) findViewById(R.id.rudderSwitch);
-        final TextView revRudderText = (TextView) findViewById(R.id.revRudderText);
-        final Switch flAssistSwitch = (Switch) findViewById(R.id.flAssistSwitch);
-        final TextView flAssistText = (TextView) findViewById(R.id.flAssistText);
-        settings.setOnTouchListener(new View.OnTouchListener() {
+        rudderReverse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                settings.setVisibility(View.INVISIBLE);
-                rudderReverse.setVisibility(View.VISIBLE);
-                revRudderText.setVisibility(View.VISIBLE);
-                flAssistSwitch.setVisibility(View.VISIBLE);
-                flAssistText.setVisibility(View.VISIBLE);
-
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        rudderReverse.setVisibility(View.INVISIBLE);
-                        revRudderText.setVisibility(View.INVISIBLE);
-                        flAssistSwitch.setVisibility(View.INVISIBLE);
-                        flAssistText.setVisibility(View.INVISIBLE);
-                        settings.setVisibility(View.VISIBLE);
-                    }
-                }, Const.HIDE_SETTINGS_DELAY);
-                return true;
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                planeState.rudderReversed = isChecked;
             }
-        });  // End  settings listener
+        });
 
+        final Switch flAssistSwitch = (Switch) findViewById(R.id.flAssistSwitch);
         flAssistSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 planeState.enableFlightAssist(isChecked);
             }
-        });  // end flAssist listener
+        });
         // Default:
-        flAssistSwitch.setChecked(true);
-    }  // End onCreate()
+        flAssistSwitch.setChecked(Const.DEFAULT_FLIGHT_ASSIST);
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case 1:  // XXX: Internally, lib-smartlink uses 1
-                if (resultCode == RESULT_OK) {
-                    BluetoothDevice device = bluetoothDelegate.getBluetoothDevice();
-                    if (device != null) {
-                        device.connect(); // start scanning and connect
-                    }
-                } else {
-                    Log.e(TAG, "Bluetooth enabling was canceled by user");
-                }
-                return;
-            case Util.PHOTO_REQUEST_CODE:
-                if (resultCode == RESULT_CANCELED)
-                    return;
+        final Switch towerSwitch = (Switch) findViewById(R.id.towerSwitch);
+        towerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                ImageView atcOn = (ImageView) findViewById(R.id.atcOn);
+                ImageView atcOff = (ImageView) findViewById(R.id.atcOff);
 
-                Uri photoUri = Util.photoUri;
-                if (photoUri == null) {
-                    Util.inform(FullscreenActivity.this,
-                            getString(R.string.social_share_picture_problem));
+                if ((atcOn == null) || (atcOff == null)) {
+                    Log.e(TAG, "Main screen was destroyed.");
                     return;
                 }
-                Util.socialShare(this, photoUri);
-                return;
-            case Util.SHARE_REQUEST_CODE:
-                if (resultCode == RESULT_OK) {
-                    Util.inform(this, getString(R.string.social_share_success));
+
+                if (isChecked) {
+                    atcOff.setVisibility(View.VISIBLE);
+                    atcOn.setVisibility(View.GONE);
                 } else {
-                    Log.e(TAG, "Sharing not successful");
+                    atcOn.setVisibility(View.GONE);
+                    atcOff.setVisibility(View.GONE);
                 }
-                return;
-        }  // end switch
-    }
+            }  // end onCheckedChanged()
+        });
 
-    @Override
-    public void onBackPressed() { //change functionality of back button
-        new AlertDialog.Builder(this)
-                .setMessage("Are you sure you want to exit?")
-                .setNegativeButton(android.R.string.no, null)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+    }  // end initializeSettintsScreen()
 
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        //This resets all cached data from the app and breaks the connection.
-                        //The app itself is only minimized, but not closed.
-                        int pid = android.os.Process.myPid();
-                        android.os.Process.killProcess(pid);
+    private class ScreenSlideAdapter extends PagerAdapter {
+        @Override
+        public int getCount() {
+            return NUM_SCREENS;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup collection, int position) {
+            LayoutInflater inflater = (LayoutInflater) collection.getContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            int layout_id = 1;
+            switch (position) {
+                case 0:
+                    layout_id = R.layout.weather_center;
+                    break;
+                case 1:
+                    layout_id = R.layout.horizon_screen;
+                    break;
+                case 2:
+                    layout_id = R.layout.plane_settings;
+                    break;
+            }
+            @SuppressWarnings("ResourceType")
+            View screen = inflater.inflate(layout_id, null);
+            collection.addView(screen, 0);
+
+            switch (position) {
+                case 0:
+                    if (!initializedScreen[0]) {
+                        initializedScreen[0] = true;
+                        new MeteoTask(FullscreenActivity.this).execute();
                     }
-                }).create().show();
-    }
+                    break;
+                case 1:
+                    if (!initializedScreen[1]) {
+                        initializedScreen[1] = true;
+                        initializeMainScreen();
+                    }
+                    break;
+                case 2:
+                    if (!initializedScreen[2]) {
+                        initializedScreen[2] = true;
+                        initializeSettingsScreen();
+                    }
+                    break;
+            }
+            return screen;
+        }
 
+        @Override
+        public void destroyItem(ViewGroup collection, int position, Object o) {
+            View screen = (View) o;
+            collection.removeView(screen);
+            initializedScreen[position] = false;
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+    }
 }

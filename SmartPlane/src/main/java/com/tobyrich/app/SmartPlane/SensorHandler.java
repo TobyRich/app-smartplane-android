@@ -36,7 +36,6 @@ import android.hardware.SensorManager;
 import android.util.Log;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.tobyrich.app.SmartPlane.util.Const;
@@ -73,7 +72,6 @@ public class SensorHandler implements SensorEventListener {
     private ImageView compass;
     private ImageView horizonImage;
     private ImageView centralRudder;
-    private Switch rudderReverse;
 
     SmoothingEngine smoothingEngine = new SmoothingEngine();
     // data that needs to be available across multiple calls
@@ -93,8 +91,6 @@ public class SensorHandler implements SensorEventListener {
         horizonImage = (ImageView) activity.findViewById(R.id.imageHorizon);
         centralRudder = (ImageView) activity.findViewById(R.id.rulerMiddle);
         throttleNeedle = (ImageView) activity.findViewById(R.id.imgThrottleNeedle);
-        rudderReverse = (Switch) activity.findViewById(R.id.rudderSwitch);
-
 
         sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager == null) {
@@ -156,12 +152,12 @@ public class SensorHandler implements SensorEventListener {
         BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
         if (smartplaneService != null) {
             smartplaneService.setRudder(
-                    (short) (rudderReverse.isChecked() ? -newRudder : newRudder)
+                    (short) (planeState.rudderReversed ? -newRudder : newRudder)
             );
         }
         horizonImage.setRotation(-rollAngle);
         // Increase throttle when turning if flight assist is enabled
-        if (planeState.isFlAssistEnabled() && !planeState.isScreenLocked()) {
+        if (planeState.isFlAssistEnabled() && !planeState.screenLocked) {
             double scaler = 1 - Math.cos(rollAngle * Math.PI/2 / Const.MAX_ROLL_ANGLE);
             if (scaler > 0.3) {
                 scaler = 0.3;

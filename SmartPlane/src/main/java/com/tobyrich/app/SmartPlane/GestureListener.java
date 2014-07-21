@@ -95,12 +95,12 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
             if (smartplaneService != null) {
                 smartplaneService.setMotor((short) 0);
             }
-            planeState.setScreenLock(true);
+            planeState.screenLocked = true;
         } else {
             throttleLock.setVisibility(View.INVISIBLE);
             slider.setEnabled(true);
             controlPanel.setEnabled(true);
-            planeState.setScreenLock(false);
+            planeState.screenLocked = false;
             planeState.setMotorSpeed(0);
         }
 

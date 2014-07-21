@@ -32,9 +32,7 @@ import android.media.MediaPlayer;
 import android.util.Log;
 import android.widget.TextView;
 
-
 import com.tobyrich.app.SmartPlane.util.Const;
-import com.tobyrich.app.SmartPlane.util.InfoBox;
 import com.tobyrich.app.SmartPlane.util.Util;
 
 import java.lang.ref.WeakReference;
@@ -61,19 +59,18 @@ public class BluetoothDelegate
 
     private BluetoothDevice device;
     private BLESmartplaneService smartplaneService;
+    @SuppressWarnings("FieldCanBeLocal")
     private BLEDeviceInformationService deviceInfoService;
+    @SuppressWarnings("FieldCanBeLocal")
     private BLEBatteryService batteryService;
 
     private PlaneState planeState;
-    private Timer timer = new Timer();
+    private Timer timer;
 
-    // Resources acquired in constructor
     private Activity activity;
-    private InfoBox infoBox;
 
-    public BluetoothDelegate(Activity activity, InfoBox infoBox) {
+    public BluetoothDelegate(Activity activity) {
         this.activity = activity;
-        this.infoBox = infoBox;
         this.planeState = (PlaneState) activity.getApplicationContext();
 
         try {
@@ -111,7 +108,13 @@ public class BluetoothDelegate
 
     @Override
     public void didUpdateSerialNumber(BLEDeviceInformationService device, String serialNumber) {
-        infoBox.setSerialNumber(serialNumber);
+        final String hardwareDataInfo = "Hardware: " + serialNumber;
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((TextView) activity.findViewById(R.id.hardwareInfoData)).setText(hardwareDataInfo);
+            }
+        });
     }
 
     @Override
@@ -148,6 +151,11 @@ public class BluetoothDelegate
             smartplaneService.delegate = new WeakReference<BLESmartplaneService.Delegate>(this);
 
             activity.runOnUiThread(new ChargeStatusTextChanger(activity, Const.IS_NOT_CHARGING));
+
+            // if disconnected, or not initialized
+            if (timer == null) {
+                timer = new Timer();
+            }
 
             ChargeTimerTask chargeTimerTask = new ChargeTimerTask(smartplaneService);
             timer.scheduleAtFixedRate(chargeTimerTask, Const.TIMER_DELAY, Const.TIMER_PERIOD);
@@ -188,7 +196,6 @@ public class BluetoothDelegate
     public void didStartScanning(BluetoothDevice device) {
         Log.d(TAG, "started scanning");
         Util.showSearching(activity, true);
-        infoBox.setSerialNumber(Const.UNKNOWN);
     }
 
     @Override
@@ -200,8 +207,16 @@ public class BluetoothDelegate
     @Override
     public void didDisconnect(BluetoothDevice device) {
         timer.cancel(); //stop timer
+        timer = null;
         // if the smartplane is disconnected, show hardware as "unknown"
-        infoBox.setSerialNumber(Const.UNKNOWN);
+        final String hardwareDataInfo = "Hardware: unknown";
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((TextView) activity.findViewById(R.id.hardwareInfoData)).setText(hardwareDataInfo);
+            }
+        });
+         Util.showSearching(activity, true);
     }
 
 }

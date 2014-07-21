@@ -1,409 +1,247 @@
-<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fullscreen_content"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fullscreen_content"
     tools:context=".FullscreenActivity">
 
     <RelativeLayout
+        android:id="@+id/controlPanel"
         android:layout_width="fill_parent"
         android:layout_height="190dp"
-        android:id="@+id/controlPanel"
         android:layout_alignParentBottom="true">
 
         <ImageView
+            android:id="@+id/imgPanel"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/imgPanel"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/panel_640x342"
+            android:contentDescription="@string/desc_imgPanel"
             android:scaleType="centerCrop"
-            android:contentDescription="@string/desc_imgPanel"/>
-
+            android:src="@drawable/panel_640x342" />
 
 
         <ImageView
+            android:id="@+id/imgThrottleNeedle"
             android:layout_width="150dp"
             android:layout_height="95dp"
-            android:id="@+id/imgThrottleNeedle"
-            android:rotation="-140"
-            android:src="@drawable/needle_right_circle_up"
-            android:layout_marginLeft="14dp"
-            android:adjustViewBounds="true"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
             android:layout_marginBottom="6dp"
-            android:contentDescription="@string/desc_throttleNeedle"/>
+            android:layout_marginLeft="14dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/desc_throttleNeedle"
+            android:rotation="-140"
+            android:src="@drawable/needle_right_circle_up" />
 
         <ImageView
+            android:id="@+id/imgFuelNeedle"
             android:layout_width="105dp"
             android:layout_height="wrap_content"
-            android:id="@+id/imgFuelNeedle"
-            android:rotation="-90"
             android:layout_above="@id/imgThrottleNeedle"
-            android:layout_toRightOf="@id/imgThrottleNeedle"
+            android:layout_marginBottom="-38dp"
             android:layout_marginLeft="70dp"
-            android:src="@drawable/needle_right_circle_up"
+            android:layout_toRightOf="@id/imgThrottleNeedle"
             android:adjustViewBounds="true"
             android:contentDescription="@string/desc_fuelNeedle"
-            android:layout_marginBottom="-38dp" />
+            android:rotation="-90"
+            android:src="@drawable/needle_right_circle_up" />
 
         <ImageView
+            android:id="@+id/imgSignalNeedle"
             android:layout_width="wrap_content"
             android:layout_height="70dp"
-            android:id="@+id/imgSignalNeedle"
-            android:rotation= "0"
-            android:src="@drawable/needle_right_circle_up"
             android:layout_alignBottom="@id/imgThrottleNeedle"
             android:layout_alignEnd="@id/imgFuelNeedle"
-            android:layout_marginLeft="0dp"
-            android:adjustViewBounds="true"
             android:layout_marginBottom="5dp"
+            android:layout_marginLeft="0dp"
             android:layout_marginRight="2dp"
-            android:contentDescription="@string/desc_signalNeedle"/>
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/desc_signalNeedle"
+            android:rotation="0"
+            android:src="@drawable/needle_right_circle_up" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/zero_percent"
             android:id="@+id/throttleValue"
-            android:layout_marginRight="53dp"
-            android:textStyle="bold|normal"
-            android:layout_alignEnd="@id/imgThrottleNeedle"
-            android:layout_alignBottom="@id/imgSignalNeedle"
-            android:layout_marginBottom="10dp" />
-
-        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/imgSignalNeedle"
+            android:layout_alignEnd="@id/imgThrottleNeedle"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="53dp"
+            android:text="@string/zero_percent"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/minus_infinity"
+            android:textStyle="bold|normal" />
+
+        <TextView
             android:id="@+id/signalValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_above="@id/throttleValue"
             android:layout_alignStart="@id/imgSignalNeedle"
-            android:layout_marginLeft="1dp"
-            android:textStyle="bold|normal"
             android:layout_marginBottom="-1.5dp"
-            android:singleLine="false" />
+            android:layout_marginLeft="1dp"
+            android:singleLine="false"
+            android:text="@string/minus_infinity"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold|normal" />
 
         <TextView
+            android:id="@+id/textSignal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_signal"
-            android:id="@+id/textSignal"
-            android:textStyle="bold|normal"
-            android:textSize="12sp"
             android:layout_alignBottom="@id/imgFuelNeedle"
             android:layout_alignEnd="@id/signalValue"
             android:layout_marginRight="-4dp"
+            android:text="@string/label_signal"
             android:textColor="#BBCC00"
+            android:textSize="12sp"
+            android:textStyle="bold|normal"
             android:typeface="sans" />
 
         <TextView
+            android:id="@+id/batteryLevelText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/not_available"
-            android:id="@+id/batteryLevelText"
-            android:singleLine="false"
-            android:textStyle="bold|normal"
-            android:layout_alignStart="@id/signalValue"
             android:layout_above="@id/imgSignalNeedle"
+            android:layout_alignStart="@id/signalValue"
             android:layout_marginBottom="8dp"
-            android:layout_marginLeft="5dp" />
+            android:layout_marginLeft="5dp"
+            android:singleLine="false"
+            android:text="@string/not_available"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold|normal" />
 
         <TextView
+            android:id="@+id/textDBM"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/label_signalStrength"
-            android:id="@+id/textDBM"
             android:layout_alignBottom="@id/imgSignalNeedle"
             android:layout_alignStart="@id/textSignal"
-            android:textSize="12sp"
+            android:layout_marginBottom="8dp"
             android:layout_marginLeft="18dp"
-            android:layout_marginBottom="8dp" />
+            android:text="@string/label_signalStrength"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textSize="12sp" />
 
         <TextView
+            android:id="@+id/textFuel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_fuel"
-            android:id="@+id/textFuel"
-            android:textStyle="bold|normal"
-            android:textSize="12sp"
             android:layout_above="@id/imgFuelNeedle"
             android:layout_alignStart="@id/imgSignalNeedle"
+            android:layout_marginLeft="10dp"
+            android:text="@string/label_fuel"
             android:textColor="#BBCC00"
-            android:typeface="sans"
-            android:layout_marginLeft="10dp" />
+            android:textSize="12sp"
+            android:textStyle="bold|normal"
+            android:typeface="sans" />
 
         <TextView
+            android:id="@+id/textBattery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/label_battery"
-            android:id="@+id/textBattery"
             android:layout_alignBottom="@id/textFuel"
             android:layout_alignStart="@id/imgThrottleNeedle"
-            android:textStyle="bold|normal"
-            android:textSize="12sp"
-            android:textColor="#BBCC00"
-            android:typeface="sans"
             android:layout_marginBottom="4dp"
-            android:layout_marginLeft="6dp" />
+            android:layout_marginLeft="6dp"
+            android:text="@string/label_battery"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#BBCC00"
+            android:textSize="12sp"
+            android:textStyle="bold|normal"
+            android:typeface="sans" />
 
         <TextView
+            android:id="@+id/textHDG"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/label_compass"
-            android:id="@+id/textHDG"
-            android:layout_alignTop="@id/imgFuelNeedle"
             android:layout_alignEnd="@id/textBattery"
+            android:layout_alignTop="@id/imgFuelNeedle"
             android:layout_marginRight="20dp"
-            android:textSize="12sp"
-            android:textStyle="bold|normal"
+            android:layout_marginTop="15dp"
+            android:text="@string/label_compass"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="#BBCC00"
-            android:layout_marginTop="15dp" />
+            android:textSize="12sp"
+            android:textStyle="bold|normal" />
 
         <ImageView
+            android:id="@+id/lockThrottle"
             android:layout_width="200dp"
             android:layout_height="145dp"
-            android:id="@+id/lockThrottle"
-            android:src="@drawable/throttle_locked"
-            android:layout_alignParentTop="true"
-            android:layout_alignEnd="@id/textFuel"
-            android:layout_toRightOf="@id/textBattery"
             android:layout_alignBottom="@id/textDBM"
-            android:visibility="invisible"
+            android:layout_alignEnd="@id/textFuel"
+            android:layout_alignParentTop="true"
             android:layout_marginLeft="-10dp"
-            android:contentDescription="@string/desc_throttleLock"/>
+            android:layout_toRightOf="@id/textBattery"
+            android:contentDescription="@string/desc_throttleLock"
+            android:src="@drawable/throttle_locked"
+            android:visibility="invisible" />
 
         <ImageView
+            android:id="@+id/throttleCursor"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/throttleCursor"
-            android:scaleType="centerCrop"
-            android:src="@drawable/controller"
-            android:adjustViewBounds="true"
-            android:longClickable="false"
-            android:baselineAlignBottom="false"
-            android:layout_marginBottom="5dp"
-            android:layout_toLeftOf="@id/textSignal"
             android:layout_alignTop="@id/textSignal"
+            android:layout_marginBottom="5dp"
             android:layout_marginLeft="120dp"
             android:layout_marginTop="40dp"
-            android:contentDescription="@string/desc_throttleSlider"/>
+            android:layout_toLeftOf="@id/textSignal"
+            android:adjustViewBounds="true"
+            android:baselineAlignBottom="false"
+            android:contentDescription="@string/desc_throttleSlider"
+            android:longClickable="false"
+            android:scaleType="centerCrop"
+            android:src="@drawable/throttle_slider" />
 
         <TextView
+            android:id="@+id/batteryStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:id="@+id/batteryStatus"
-            android:layout_below="@id/textBattery"
             android:layout_alignEnd="@id/throttleValue"
-            android:textSize="13sp"
-            android:textStyle="bold|normal"
+            android:layout_below="@id/textBattery"
             android:layout_marginRight="6dp"
             android:layout_marginTop="-6dp"
-            android:text="@string/not_available" />
+            android:text="@string/not_available"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textSize="13sp"
+            android:textStyle="bold|normal" />
 
         <TextView
+            android:id="@+id/hdgValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/not_available"
-            android:id="@+id/hdgValue"
-            android:textStyle="bold|normal"
-            android:layout_alignTop="@id/textHDG"
             android:layout_alignEnd="@id/textBattery"
+            android:layout_alignTop="@id/textHDG"
+            android:layout_marginRight="-12dp"
             android:layout_marginTop="6dp"
-            android:layout_marginRight="-12dp" />
+            android:text="@string/not_available"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold|normal" />
 
     </RelativeLayout>
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/artificialHorizon"
         android:layout_above="@id/controlPanel">
 
-        <TextView
+        <android.support.v4.view.ViewPager
+            android:id="@+id/screenPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:id="@+id/imgHorizonCover"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/horizon_limit"
-            android:id="@+id/textView"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="false"
-            android:layout_alignParentLeft="false"
-            android:gravity="center" />
+            android:layout_height="fill_parent"
+            android:contentDescription="@string/desc_horizonBorder"
+            android:scaleType="fitXY"
+            android:src="@drawable/cover" />
 
-        <FrameLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+    </FrameLayout>
 
-            <ImageView
-                android:layout_width="600dp"
-                android:layout_height="650dp"
-                android:id="@+id/imageHorizon"
-                android:scaleType="centerCrop"
-                android:src="@drawable/horizon"
-                android:layout_gravity="center"
-                android:clickable="false"
-                android:contentDescription="@string/desc_imageHorizon"/>
-
-            <ImageView
-                android:layout_width="25dp"
-                android:layout_height="600dp"
-                android:id="@+id/rulerMiddle"
-                android:layout_gravity="center"
-                android:src="@drawable/rule_middle"
-                android:scaleType="centerCrop"
-                android:contentDescription="@string/desc_centralRuler"/>
-
-            <ImageView
-                android:layout_width="433dp"
-                android:layout_height="453dp"
-                android:id="@+id/compass"
-                android:layout_gravity="center_horizontal|bottom"
-                android:src="@drawable/compass"
-                android:layout_marginBottom="-150dp"
-                android:rotation="0"
-                android:contentDescription="@string/desc_compass" />
-
-            <ImageView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/imgHorizonCover"
-                android:src="@drawable/cover"
-                android:scaleType="fitXY"
-                android:contentDescription="@string/desc_horizonBorder"/>
-
-            <ImageView
-                android:layout_width="180dp"
-                android:layout_height="46dp"
-                android:id="@+id/runway"
-                android:layout_gravity="center"
-                android:src="@drawable/runaway_lines"
-                android:layout_marginTop="20dp"
-                android:contentDescription="@string/desc_runway"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="@string/label_searching"
-                android:id="@+id/txtSearching"
-                android:layout_gravity="center"
-                android:textColor="#2b2b2b"
-                android:textSize="30sp" />
-
-            <ProgressBar
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/progressBar"
-                android:layout_gravity="center_horizontal|bottom"
-                android:layout_marginBottom="70dp" />
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:id="@+id/settings"
-                android:layout_gravity="left|top"
-                android:src="@drawable/rudder"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="10dp"
-                android:contentDescription="@string/desc_settings"/>
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:id="@+id/imgInfo"
-                android:layout_gravity="right|bottom"
-                android:src="@drawable/information"
-                android:layout_marginBottom="15dp"
-                android:layout_marginRight="22dp"
-                android:clickable="true"
-                android:focusableInTouchMode="false"
-                android:contentDescription="@string/desc_info"/>
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:id="@+id/socialShare"
-                android:layout_gravity="right|top"
-                android:src="@drawable/social_share"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="15dp"
-                android:contentDescription="@string/desc_socialShare"/>
-
-            <ImageView
-                android:layout_width="69dp"
-                android:layout_height="69dp"
-                android:id="@+id/atcOff"
-                android:layout_gravity="left|bottom"
-                android:src="@drawable/atc_off"
-                android:clickable="false"
-                android:contentDescription="@string/desc_atcOff"/>
-
-            <ImageView
-                android:layout_width="69dp"
-                android:layout_height="69dp"
-                android:id="@+id/atcOn"
-                android:layout_gravity="left|bottom"
-                android:src="@drawable/atc_on"
-                android:clickable="false"
-                android:visibility="invisible"
-                android:contentDescription="@string/desc_atcOn"/>
-
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/rudderSwitch"
-                android:layout_gravity="left|top"
-                android:layout_marginTop="80dp"
-                android:layout_marginLeft="20dp"
-                android:visibility="invisible" />
-
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/flAssistSwitch"
-                android:layout_gravity="left|top"
-                android:layout_marginTop="80dp"
-                android:layout_marginLeft="230dp"
-                android:visibility="invisible" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/label_revRudder"
-                android:id="@+id/revRudderText"
-                android:layout_gravity="left|top"
-                android:textColor="#000000"
-                android:layout_marginTop="60dp"
-                android:layout_marginLeft="20dp"
-                android:visibility="invisible" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/label_flightAssist"
-                android:id="@+id/flAssistText"
-                android:layout_gravity="left|top"
-                android:textColor="#000000"
-                android:layout_marginTop="60dp"
-                android:layout_marginLeft="230dp"
-                android:visibility="invisible" />
-
-
-        </FrameLayout>
-    </RelativeLayout>
 
 </RelativeLayout>

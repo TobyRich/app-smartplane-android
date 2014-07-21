@@ -51,7 +51,6 @@ public class Const {
     /* don't let the cursor go below 80% of panel height */
     public static final float SCALE_FOR_CURSOR_RANGE = 0.8f;
     public static final double SCALE_FOR_VERT_MOVEMENT_HORIZON = 4.5;
-    public static final String UNKNOWN = "Unknown";
     public static final float THROTTLE_NEEDLE_MAX_ANGLE = 48;  // in degrees
     public static final float THROTTLE_NEEDLE_MIN_ANGLE = -140;  // in degrees
     public static final float SIGNAL_NEEDLE_MIN_ANGLE = 0;  // in degrees
@@ -67,8 +66,6 @@ public class Const {
     public static final long TIMER_PERIOD = 6000;
     public static final double RULER_MOVEMENT_SPEED = 1.4;
     public static final int RULER_MOVEMENT_HEIGHT = 200;
-    /* hide the revRudder view after 3000 milliseconds */
-    public static final long HIDE_SETTINGS_DELAY = 3000;
     /* messages displayed when the charging status changes */
     public static final String IS_CHARGING = "CHARGING";
     public static final String IS_NOT_CHARGING = "IN USE";
@@ -80,5 +77,6 @@ public class Const {
     public static final double SCALE_FASSIST_THROTTLE = 0.77;
     /* The rudder tends to go more to the left, so we need to account for that */
     public static final double SCALE_LEFT_RUDDER = 0.75;
+    public static final boolean DEFAULT_FLIGHT_ASSIST = true;
 }
 
