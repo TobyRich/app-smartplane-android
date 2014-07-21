@@ -40,6 +40,7 @@ import java.util.Timer;
 
 import lib.smartlink.BLEService;
 import lib.smartlink.BluetoothDevice;
+import lib.smartlink.BluetoothDisabledException;
 import lib.smartlink.driver.BLEBatteryService;
 import lib.smartlink.driver.BLEDeviceInformationService;
 import lib.smartlink.driver.BLESmartplaneService;
@@ -54,7 +55,6 @@ import static com.tobyrich.app.SmartPlane.UIChangers.*;
 public class BluetoothDelegate
         implements BluetoothDevice.Delegate, BLESmartplaneService.Delegate,
         BLEDeviceInformationService.Delegate, BLEBatteryService.Delegate {
-    // members specific to this class
     private final String TAG = "BluetoothDelegate";
 
     private BluetoothDevice device;
@@ -78,21 +78,19 @@ public class BluetoothDelegate
                     activity);
             device.delegate = new WeakReference<BluetoothDevice.Delegate>(this);
             device.automaticallyReconnect = true;
-            device.connect();
         } catch (IllegalArgumentException e) {
             Log.wtf(TAG, "Could not create BluetoothDevice (maybe invalid plist?)");
             e.printStackTrace();
         }
     }
 
-    public BluetoothDevice getBluetoothDevice() {
-        return device;
-    }
-
     public BLESmartplaneService getSmartplaneService() {
         return smartplaneService;
     }
 
+    public void connect() throws BluetoothDisabledException {
+        device.connect();
+    }
 
     @Override
     public void didStartChargingBattery() {
@@ -140,6 +138,7 @@ public class BluetoothDelegate
 
     @Override
     public void didStartService(BluetoothDevice device, String serviceName, BLEService service) {
+        Log.i(TAG, "did start service: " + service.toString());
         // We are no longer "searching" for the device
         Util.showSearching(activity, false);
         Util.inform(activity, "Pull Up to Start the Motor");
@@ -194,18 +193,19 @@ public class BluetoothDelegate
 
     @Override
     public void didStartScanning(BluetoothDevice device) {
-        Log.d(TAG, "started scanning");
+        Log.i(TAG, "started scanning");
         Util.showSearching(activity, true);
     }
 
     @Override
     public void didStartConnectingTo(BluetoothDevice device, float signalStrength) {
-        Log.d(TAG, "did start connecting to " + device.toString());
+        Log.i(TAG, "did start connecting to " + device.toString());
         activity.runOnUiThread(new SearchingStatusChanger(activity));
     }
 
     @Override
     public void didDisconnect(BluetoothDevice device) {
+        Log.i(TAG, "did disconnect from" + device.toString());
         timer.cancel(); //stop timer
         timer = null;
         // if the smartplane is disconnected, show hardware as "unknown"
@@ -216,7 +216,7 @@ public class BluetoothDelegate
                 ((TextView) activity.findViewById(R.id.hardwareInfoData)).setText(hardwareDataInfo);
             }
         });
-         Util.showSearching(activity, true);
+        Util.showSearching(activity, true);
     }
 
 }

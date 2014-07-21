@@ -29,6 +29,7 @@ package com.tobyrich.app.SmartPlane;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -54,7 +55,7 @@ import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.MeteoTask;
 import com.tobyrich.app.SmartPlane.util.Util;
 
-import lib.smartlink.BluetoothDevice;
+import lib.smartlink.BluetoothDisabledException;
 
 /**
  * @author Samit Vaidya
@@ -66,7 +67,7 @@ import lib.smartlink.BluetoothDevice;
  */
 
 public class FullscreenActivity extends Activity {
-    private static final String TAG = "SmartPlane";
+    private static final String TAG = "FullscreenActivity";
     @SuppressWarnings("FieldCanBeLocal")
     private final int NUM_SCREENS = 3;
 
@@ -117,11 +118,12 @@ public class FullscreenActivity extends Activity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case 1:  // XXX: Internally, lib-smartlink uses 1
+            case Util.BT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
-                    BluetoothDevice device = bluetoothDelegate.getBluetoothDevice();
-                    if (device != null) {
-                        device.connect(); // start scanning and connect
+                    try {
+                        bluetoothDelegate.connect();
+                    } catch(BluetoothDisabledException ex) {
+                        Log.wtf(TAG, "user enabled BT, but we still couldn't connect");
                     }
                 } else {
                     Log.e(TAG, "Bluetooth enabling was canceled by user");
@@ -168,6 +170,13 @@ public class FullscreenActivity extends Activity {
 
     private void initializeMainScreen() {
         bluetoothDelegate = new BluetoothDelegate(this);
+        try {
+            bluetoothDelegate.connect();
+        } catch (BluetoothDisabledException ex) {
+            Intent enableBtIntent =
+                    new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, Util.BT_REQUEST_CODE);
+        }
         sensorHandler = new SensorHandler(this, bluetoothDelegate);
         sensorHandler.registerListener();
         gestureDetector = new GestureDetector(this,
@@ -314,12 +323,14 @@ public class FullscreenActivity extends Activity {
                     if (!initializedScreen[1]) {
                         initializedScreen[1] = true;
                         initializeMainScreen();
+                        Log.i(TAG, "initializing main screen");
                     }
                     break;
                 case 2:
                     if (!initializedScreen[2]) {
                         initializedScreen[2] = true;
                         initializeSettingsScreen();
+                        Log.i(TAG, "initializing settings screen");
                     }
                     break;
             }

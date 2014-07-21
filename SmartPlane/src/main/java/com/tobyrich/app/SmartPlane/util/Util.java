@@ -52,6 +52,7 @@ import java.net.URL;
  * Class which contains useful methods
  */
 public class Util {
+    public static final int BT_REQUEST_CODE = 722;
     public static final int PHOTO_REQUEST_CODE = 723;
     public static final int SHARE_REQUEST_CODE = 724;
 
@@ -182,5 +183,11 @@ public class Util {
             }
         }
     }  // end readURL()
+
+    public static class BluetoothNotEnabledException extends Exception {
+        public BluetoothNotEnabledException(String msg) {
+            super(msg);
+        }
+    }
 }
 
