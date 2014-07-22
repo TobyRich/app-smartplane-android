@@ -34,6 +34,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -43,6 +44,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -81,6 +83,8 @@ public class FullscreenActivity extends Activity {
     private GestureDetector gestureDetector;  // touch events
     private PlaneState planeState;  // singleton with variables used app-wide
 
+    AudioManager audioManager ;
+
     @Override
     public void onResume() {
         super.onResume();
@@ -107,6 +111,8 @@ public class FullscreenActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
+        audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+
         // Instantiate a ViewPager and a PagerAdapter
         ViewPager screenPager = (ViewPager) findViewById(R.id.screenPager);
         screenPager.setAdapter(new ScreenSlideAdapter());
@@ -114,6 +120,7 @@ public class FullscreenActivity extends Activity {
         CirclePageIndicator screenIndicator =
                 (CirclePageIndicator) findViewById(R.id.screenIndicator);
         screenIndicator.setViewPager(screenPager);
+        screenIndicator.setAudioManager(audioManager);
 
         screenPager.setCurrentItem(1);  // horizon screen
         screenPager.setOffscreenPageLimit(2);
@@ -232,6 +239,7 @@ public class FullscreenActivity extends Activity {
     }
 
     public void initializeSettingsScreen() {
+        final float FX_VOLUME = 10.0f;
         /* setting the version data at the bottom of the screen */
         String appVersion = "uknown";
         try {
@@ -249,6 +257,7 @@ public class FullscreenActivity extends Activity {
         rudderReverse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, FX_VOLUME);
                 planeState.rudderReversed = isChecked;
             }
         });
@@ -257,6 +266,7 @@ public class FullscreenActivity extends Activity {
         flAssistSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, FX_VOLUME);
                 planeState.enableFlightAssist(isChecked);
             }
         });
@@ -267,6 +277,7 @@ public class FullscreenActivity extends Activity {
         towerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, FX_VOLUME);
                 ImageView atcOn = (ImageView) findViewById(R.id.atcOn);
                 ImageView atcOff = (ImageView) findViewById(R.id.atcOff);
 

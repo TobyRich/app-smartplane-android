@@ -35,7 +35,8 @@
             android:id="@+id/rudderSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentRight="true"
+            android:soundEffectsEnabled="true"/>
     </RelativeLayout>
 
     <View
@@ -69,7 +70,8 @@
             android:id="@+id/flAssistSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentRight="true"
+            android:soundEffectsEnabled="true"/>
     </RelativeLayout>
 
     <View

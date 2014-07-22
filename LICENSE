@@ -58,6 +58,11 @@ can be found at:
         
         http://www.apache.org/licenses/LICENSE-2.0
 
+Changes made to the original project:
+ - Simplified project, and removed all indicators except CircleIndicator
+ - Removed numerous methods from CircleIndicator
+ - added an AudioManager field to the CircleIndicator
+
 --------------------------------------------------------------------------------
 *All graphic assets are licensed by TobyRich GmbH under the
 Creative Commons Attribution-NonCommercial 4.0 International License. This

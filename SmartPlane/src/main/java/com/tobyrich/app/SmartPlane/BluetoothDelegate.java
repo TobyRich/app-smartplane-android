@@ -117,6 +117,7 @@ public class BluetoothDelegate
 
     @Override
     public void didUpdateBatteryLevel(float percent) {
+        Log.i(TAG, "did update battery level");
         final float R_batt = 0.520f;  // Ohm
         /* 0.5 Amps is the current through the motor at MAX_MOTOR_SPEED */
         final float I_motor = (planeState.getAdjustedMotorSpeed() / Const.MAX_MOTOR_SPEED) * 0.5f;  // Amps

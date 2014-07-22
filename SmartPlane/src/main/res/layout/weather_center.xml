@@ -23,6 +23,7 @@
         android:textColor="@color/dark_green"
         android:layout_marginTop="40dp"
         android:lineSpacingMultiplier="1.5"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:visibility="gone" />
 
     <ProgressBar
