@@ -210,7 +210,11 @@ public class BluetoothDelegate
         if (timer != null) {
             timer.cancel();
         }
+        // resetting all fields
         timer = null;
+        smartplaneService = null;
+        batteryService = null;
+        deviceInfoService = null;
         // if the smartplane is disconnected, show hardware as "unknown"
         final String hardwareDataInfo = "Hardware: unknown";
         activity.runOnUiThread(new Runnable() {
