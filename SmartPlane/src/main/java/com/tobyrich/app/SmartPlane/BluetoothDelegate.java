@@ -207,7 +207,9 @@ public class BluetoothDelegate
     @Override
     public void didDisconnect(BluetoothDevice device) {
         Log.i(TAG, "did disconnect from" + device.toString());
-        timer.cancel(); //stop timer
+        if (timer != null) {
+            timer.cancel();
+        }
         timer = null;
         // if the smartplane is disconnected, show hardware as "unknown"
         final String hardwareDataInfo = "Hardware: unknown";
