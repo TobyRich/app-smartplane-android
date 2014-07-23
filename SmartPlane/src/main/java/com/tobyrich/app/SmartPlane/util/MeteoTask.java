@@ -14,6 +14,7 @@ import com.tobyrich.app.SmartPlane.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 /**
  * @author Radu Hambasan
@@ -43,6 +44,9 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
     public void onPreExecute() {
         activity.findViewById(R.id.weather_data).setVisibility(View.GONE);
         activity.findViewById(R.id.weatherProgressBar).setVisibility(View.VISIBLE);
+
+        activity.findViewById(R.id.horizon_wind_txt).setVisibility(View.GONE);
+        activity.findViewById(R.id.horizon_temp_txt).setVisibility(View.GONE);
     }
 
     @Override
@@ -128,25 +132,37 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
 
     @Override
     public void onPostExecute(MeteoData result) {
-        String message;
+        String weather_message;
+
         if (result != null) {
             final double KELVIN_TO_CELSIUS = 273.15;
             double celsius_temp = (result.temperature - KELVIN_TO_CELSIUS);
             /* truncate to 2 decimal places */
             celsius_temp = Math.round(100 * celsius_temp) / 100;
 
-            message = "Humidity: " + result.humidity + "%" + "\n" +
+            weather_message = "Humidity: " + result.humidity + "%" + "\n" +
                     "Pressure: " + result.pressure + " hPa" + "\n" +
                     "Temperature: " + result.temperature + "K / " + celsius_temp + "\u2103" + "\n" +
-                    "Wind speed: " + result.wind_speed + " km/h " + "\n" +
+                    "Wind speed: " + result.wind_speed + " kmph " + "\n" +
                     "Wind orientation: " + result.wind_deg + "\u00b0" + "\n" +
                     "Weather forecast: " + result.weather_descr + "\n";
+
+            String wind_txt = "W: " + result.wind_deg + "\u00b0 / " + result.wind_speed + "kmph";
+            String temp_txt = "T: " + result.temperature + "K / " +  celsius_temp + "\u2103";
+
+            TextView wind_txt_vw = (TextView) activity.findViewById(R.id.horizon_wind_txt);
+            wind_txt_vw.setText(wind_txt);
+            wind_txt_vw.setVisibility(View.VISIBLE);
+
+            TextView temp_txt_vw = (TextView) activity.findViewById(R.id.horizon_temp_txt);
+            temp_txt_vw.setText(temp_txt);
+            temp_txt_vw.setVisibility(View.VISIBLE);
         } else {
-            message = "Weather center unavailable.\n(no internet connection)";
+            weather_message = "Weather center unavailable.\n(no internet connection)";
         }
 
         TextView weather_data = (TextView) activity.findViewById(R.id.weather_data);
-        weather_data.setText(message);
+        weather_data.setText(weather_message);
         weather_data.setVisibility(View.VISIBLE);
         activity.findViewById(R.id.weatherProgressBar).setVisibility(View.GONE);
     }
