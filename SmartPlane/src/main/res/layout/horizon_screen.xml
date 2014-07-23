@@ -96,6 +96,16 @@
             android:src="@drawable/atc_on"
             android:visibility="invisible" />
 
+        <ImageView
+            android:id="@+id/checklist"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="15dp"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="15dp"
+            android:contentDescription="@string/desc_checklist"
+            android:src="@drawable/checklist" />
+
         <TextView
             android:id="@+id/horizon_wind_txt"
             android:layout_width="wrap_content"
@@ -113,7 +123,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top|left"
             android:layout_marginLeft="15dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="28dp"
             android:textColor="@color/very_dark_green"
             android:textSize="16sp"
             android:visibility="gone" />

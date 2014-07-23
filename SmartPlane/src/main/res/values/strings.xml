@@ -34,6 +34,7 @@
     <string name="desc_atcOff">Air Traffic Control OFF</string>
     <string name="desc_atcOn">Air Traffic Control ON</string>
     <string name="desc_socialShare">Share Button</string>
+    <string name="desc_checklist">Checklist</string>
 
     <!-- TextViews labels -->
     <string name="label_fuel">FUEL</string>
@@ -48,5 +49,27 @@
     <string name="label_weatherCenter">Weather Center</string>
     <string name="label_settings">Settings</string>
     <string name="label_tower">ATC Tower</string>
+
+    <!-- Checklist items -->
+    <string name="checklist_title">Flight checklist</string>
+    <string name="checklist_text">
+    \ <u>BEFORE TAKEOFF</u>\n <!-- notice the \ at the beginning -->
+    Check Weather Center\n
+    Other air traffic\n
+    Turn on plane\n
+    Connection established\n
+    Rudder left/right\n
+    Throttle check\n
+    Check fuel\n
+    Tower on/off\n\n
+    <u>AFTER LANDING</u>\n
+    Check fuel\n
+    Turn off plane\n\n
+    <u>CHARGING / RE-FUELING</u>\n
+    Turn on plane\n
+    Plug in cable\n
+    Check LED\n
+    </string>
+
 
 </resources>

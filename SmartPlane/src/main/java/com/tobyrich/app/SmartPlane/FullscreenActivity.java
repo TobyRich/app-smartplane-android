@@ -29,6 +29,7 @@ package com.tobyrich.app.SmartPlane;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -83,7 +84,7 @@ public class FullscreenActivity extends Activity {
     private GestureDetector gestureDetector;  // touch events
     private PlaneState planeState;  // singleton with variables used app-wide
 
-    AudioManager audioManager ;
+    AudioManager audioManager;
 
     @Override
     public void onResume() {
@@ -133,7 +134,7 @@ public class FullscreenActivity extends Activity {
                 if (resultCode == RESULT_OK) {
                     try {
                         bluetoothDelegate.connect();
-                    } catch(BluetoothDisabledException ex) {
+                    } catch (BluetoothDisabledException ex) {
                         Log.wtf(TAG, "user enabled BT, but we still couldn't connect");
                     }
                 } else {
@@ -236,6 +237,22 @@ public class FullscreenActivity extends Activity {
         ImageView controlPanel = (ImageView) findViewById(R.id.imgPanel);
         controlPanel.setOnTouchListener(new PanelTouchListener(this,
                 bluetoothDelegate));
+
+        final ImageView checklist_vw = (ImageView) findViewById(R.id.checklist);
+        checklist_vw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dialog checklist = new Dialog(FullscreenActivity.this);
+                checklist.setContentView(R.layout.checklist_layout);
+                checklist.setCancelable(true);
+                checklist.setCanceledOnTouchOutside(true);
+
+                String checklist_title = getString(R.string.checklist_title);
+                checklist.setTitle(checklist_title);
+
+                checklist.show();
+            }
+        });
     }
 
     public void initializeSettingsScreen() {
