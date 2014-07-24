@@ -34,6 +34,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -73,7 +74,7 @@ import lib.smartlink.BluetoothDisabledException;
 public class FullscreenActivity extends Activity {
     private static final String TAG = "FullscreenActivity";
     @SuppressWarnings("FieldCanBeLocal")
-    private final int NUM_SCREENS = 3;
+    private static final int NUM_SCREENS = 3;
 
     private boolean[] initializedScreen = {false, false, false};
 
@@ -84,7 +85,8 @@ public class FullscreenActivity extends Activity {
     private GestureDetector gestureDetector;  // touch events
     private PlaneState planeState;  // singleton with variables used app-wide
 
-    AudioManager audioManager;
+    private AudioManager audioManager;
+    private SharedPreferences buttonConfig;  // cached button configuration
 
     @Override
     public void onResume() {
@@ -125,6 +127,8 @@ public class FullscreenActivity extends Activity {
 
         screenPager.setCurrentItem(1);  // horizon screen
         screenPager.setOffscreenPageLimit(2);
+
+        buttonConfig = this.getSharedPreferences("button_config", MODE_PRIVATE);
     }
 
     @Override
@@ -258,7 +262,7 @@ public class FullscreenActivity extends Activity {
     public void initializeSettingsScreen() {
         final float FX_VOLUME = 10.0f;
         /* setting the version data at the bottom of the screen */
-        String appVersion = "uknown";
+        String appVersion = getString(R.string.unknown);
         try {
             appVersion = this.getPackageManager()
                     .getPackageInfo(this.getPackageName(), 0).versionName;
@@ -276,8 +280,14 @@ public class FullscreenActivity extends Activity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, FX_VOLUME);
                 planeState.rudderReversed = isChecked;
+
+                buttonConfig.edit().putBoolean("rudderReversed", isChecked).apply();
             }
         });
+
+        boolean isRudderReversed = buttonConfig.getBoolean("rudderReversed",
+                Const.DEFAULT_RUDDER_REVERSE);
+        rudderReverse.setChecked(isRudderReversed);
 
         final Switch flAssistSwitch = (Switch) findViewById(R.id.flAssistSwitch);
         flAssistSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -285,10 +295,14 @@ public class FullscreenActivity extends Activity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, FX_VOLUME);
                 planeState.enableFlightAssist(isChecked);
+
+                buttonConfig.edit().putBoolean("flAssist", isChecked).apply();
             }
         });
-        // Default:
-        flAssistSwitch.setChecked(Const.DEFAULT_FLIGHT_ASSIST);
+
+        boolean enableFlAssist = buttonConfig.getBoolean("flAssist",
+                Const.DEFAULT_FLIGHT_ASSIST);
+        flAssistSwitch.setChecked(enableFlAssist);
 
         final Switch towerSwitch = (Switch) findViewById(R.id.towerSwitch);
         towerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -306,6 +320,7 @@ public class FullscreenActivity extends Activity {
                 if (atcSound != null && atcSound.isPlaying()) {
                     atcSound.pause();
                 }
+
                 if (isChecked) {
                     atcOff.setVisibility(View.VISIBLE);
                     atcOn.setVisibility(View.GONE);
@@ -313,8 +328,14 @@ public class FullscreenActivity extends Activity {
                     atcOn.setVisibility(View.GONE);
                     atcOff.setVisibility(View.GONE);
                 }
+
+                buttonConfig.edit().putBoolean("atcTower", isChecked).apply();
             }  // end onCheckedChanged()
         });
+
+        boolean enableAtcTower = buttonConfig.getBoolean("atcTower",
+                Const.DEFAULT_ATC_TOWER);
+        towerSwitch.setChecked(enableAtcTower);
 
     }  // end initializeSettintsScreen()
 

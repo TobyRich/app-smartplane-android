@@ -17,6 +17,7 @@
     <string name="social_share_title"> </string>
     <string name="info_softwareData">Software: unknown</string>
     <string name="info_hardwareData">Hardware: unknown</string>
+    <string name="unknown">unknown</string>
 
     <!-- Accessibility descriptions -->
     <string name="desc_imgPanel">Control Panel</string>

@@ -78,5 +78,7 @@ public class Const {
     /* The rudder tends to go more to the left, so we need to account for that */
     public static final double SCALE_LEFT_RUDDER = 0.75;
     public static final boolean DEFAULT_FLIGHT_ASSIST = true;
+    public static final boolean DEFAULT_RUDDER_REVERSE = false;
+    public static final boolean DEFAULT_ATC_TOWER = true;
 }
 
