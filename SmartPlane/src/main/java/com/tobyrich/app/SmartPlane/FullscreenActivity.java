@@ -246,7 +246,7 @@ public class FullscreenActivity extends Activity {
         checklist_vw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Dialog checklist = new Dialog(FullscreenActivity.this);
+                final Dialog checklist = new Dialog(FullscreenActivity.this);
                 checklist.setContentView(R.layout.checklist_layout);
                 checklist.setCancelable(true);
                 checklist.setCanceledOnTouchOutside(true);
@@ -254,9 +254,19 @@ public class FullscreenActivity extends Activity {
                 String checklist_title = getString(R.string.checklist_title);
                 checklist.setTitle(checklist_title);
 
+                // dismiss the dialog on touch
+                checklist.findViewById(R.id.checklist_linearlayout)
+                        .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        checklist.dismiss();
+                    }
+                });
+
                 checklist.show();
             }
         });
+
     }
 
     public void initializeSettingsScreen() {
