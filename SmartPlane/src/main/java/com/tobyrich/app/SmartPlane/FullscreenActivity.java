@@ -123,7 +123,6 @@ public class FullscreenActivity extends Activity {
         CirclePageIndicator screenIndicator =
                 (CirclePageIndicator) findViewById(R.id.screenIndicator);
         screenIndicator.setViewPager(screenPager);
-        screenIndicator.setAudioManager(audioManager);
 
         screenPager.setCurrentItem(1);  // horizon screen
         screenPager.setOffscreenPageLimit(2);

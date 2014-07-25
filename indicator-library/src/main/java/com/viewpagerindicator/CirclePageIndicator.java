@@ -28,7 +28,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.view.ViewPager;
@@ -56,7 +56,7 @@ public class CirclePageIndicator extends View implements PageIndicator {
     private int mOrientation;
     private boolean mCentered;
 
-    private AudioManager mAudioManager;
+    private MediaPlayer mSlideSound;
 
     public CirclePageIndicator(Context context) {
         this(context, null);
@@ -93,6 +93,7 @@ public class CirclePageIndicator extends View implements PageIndicator {
         mPaintFill.setStyle(Style.FILL);
         mPaintFill.setColor(a.getColor(R.styleable.CirclePageIndicator_fillColor, defaultFillColor));
         mRadius = a.getDimension(R.styleable.CirclePageIndicator_radius, defaultRadius);
+        mSlideSound = MediaPlayer.create(this.getContext(), R.raw.slider);
 
         Drawable background = a.getDrawable(R.styleable.CirclePageIndicator_android_background);
         if (background != null) {
@@ -243,11 +244,10 @@ public class CirclePageIndicator extends View implements PageIndicator {
 
     @Override
     public void onPageSelected(int position) {
-        if (mAudioManager != null) {
-            final float FX_VOLUME = 10.0f;
-            /* Disable for now, until we find a better sound */
-            // mAudioManager.playSoundEffect(EFFECT, FX_VOLUME);
+        if (mSlideSound != null) {
+            mSlideSound.start();
         }
+
         if (mScrollState == ViewPager.SCROLL_STATE_IDLE) {
             mCurrentPage = position;
             invalidate();
@@ -376,9 +376,5 @@ public class CirclePageIndicator extends View implements PageIndicator {
                 return new SavedState[size];
             }
         };
-    }
-
-    public void setAudioManager(AudioManager audioManager) {
-        mAudioManager = audioManager;
     }
 }
