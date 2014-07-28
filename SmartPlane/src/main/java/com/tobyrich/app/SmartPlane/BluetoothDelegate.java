@@ -28,6 +28,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.tobyrich.app.SmartPlane;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.widget.TextView;
@@ -35,6 +37,7 @@ import android.widget.TextView;
 import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.Util;
 
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Timer;
 
@@ -43,6 +46,7 @@ import lib.smartlink.BluetoothDevice;
 import lib.smartlink.BluetoothDisabledException;
 import lib.smartlink.driver.BLEBatteryService;
 import lib.smartlink.driver.BLEDeviceInformationService;
+import lib.smartlink.driver.BLEFirmwareUploadService;
 import lib.smartlink.driver.BLESmartplaneService;
 
 import static com.tobyrich.app.SmartPlane.BluetoothTasks.*;
@@ -54,7 +58,8 @@ import static com.tobyrich.app.SmartPlane.UIChangers.*;
 
 public class BluetoothDelegate
         implements BluetoothDevice.Delegate, BLESmartplaneService.Delegate,
-        BLEDeviceInformationService.Delegate, BLEBatteryService.Delegate {
+        BLEDeviceInformationService.Delegate, BLEBatteryService.Delegate,
+        BLEFirmwareUploadService.Delegate {
     private final String TAG = "BluetoothDelegate";
 
     private BluetoothDevice device;
@@ -63,14 +68,19 @@ public class BluetoothDelegate
     private BLEDeviceInformationService deviceInfoService;
     @SuppressWarnings("FieldCanBeLocal")
     private BLEBatteryService batteryService;
+    @SuppressWarnings("FieldCanBeLocal")
+    private BLEFirmwareUploadService firmwareUploadService;
 
     private PlaneState planeState;
     private Timer timer;
 
     private Activity activity;
+    private ProgressDialog updateDialog;
 
     public BluetoothDelegate(Activity activity) {
         this.activity = activity;
+        updateDialog = new ProgressDialog(activity);
+
         this.planeState = (PlaneState) activity.getApplicationContext();
 
         try {
@@ -180,6 +190,19 @@ public class BluetoothDelegate
             batteryService.delegate = new WeakReference<BLEBatteryService.Delegate>(this);
         }
 
+        if (serviceName.equalsIgnoreCase("firmware")) {
+            //noinspection ConstantConditions
+            firmwareUploadService = (BLEFirmwareUploadService) service;
+            firmwareUploadService.delegate =
+                    new WeakReference<BLEFirmwareUploadService.Delegate>(this);
+            InputStream imgA_inputStream = activity.getResources()
+                    .openRawResource(R.raw.smartplane_204_a);
+            InputStream imgB_InputStream = activity.getResources()
+                    .openRawResource(R.raw.smartplane_204_b);
+            firmwareUploadService.uploadFirmware(imgA_inputStream);
+            firmwareUploadService.uploadFirmware(imgB_InputStream);
+        }
+
     }
 
     @Override
@@ -220,10 +243,64 @@ public class BluetoothDelegate
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ((TextView) activity.findViewById(R.id.hardwareInfoData)).setText(hardwareDataInfo);
+                ((TextView) activity.findViewById(R.id.hardwareInfoData))
+                        .setText(hardwareDataInfo);
             }
         });
         Util.showSearching(activity, true);
     }
 
+    @Override
+    public void didGetFirmwareRejected(BLEFirmwareUploadService bleFirmwareUploadService,
+                                       String s) {
+        Log.i(TAG, "Firmware was rejected: " + s);
+    }
+
+    @Override
+    public void didUploadFirmwareUpto(BLEFirmwareUploadService bleFirmwareUploadService,
+                                      final float v) {
+        Log.i("Progress!!", "Made progress: " + v);
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateDialog.setProgress((int) v);
+            }
+        });
+    }
+
+    @Override
+    public void didFinishUploadingFirmware(BLEFirmwareUploadService bleFirmwareUploadService) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateDialog.dismiss();
+            }
+        });
+    }
+
+    @Override
+    public void didReceiveFirmwareVersion(BLEFirmwareUploadService bleFirmwareUploadService,
+                                          String s) {
+        Log.i(TAG, "received firmware version: " + s);
+    }
+
+    @Override
+    public boolean shouldStartUploadingFirmware(BLEFirmwareUploadService bleFirmwareUploadService,
+                                                String s) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateDialog.setTitle("Uploading firmware");
+                updateDialog.setMessage("Preparing the plane for its maiden flight...");
+                updateDialog.setCancelable(false);
+                updateDialog.setIndeterminate(false);
+                updateDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                updateDialog.setMax(100);
+                updateDialog.show();
+            }
+        });
+
+        return true;
+    }
 }
