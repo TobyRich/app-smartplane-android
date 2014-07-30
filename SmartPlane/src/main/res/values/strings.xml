@@ -14,10 +14,11 @@
     <string name="shareWithPictureCancel">Cancel</string>
     <string name="social_share_success">Sharing successful.</string>
     <string name="social_share_picture_problem">Error while taking picture.</string>
-    <string name="social_share_title"> </string>
+    <string name="social_share_title"></string>
     <string name="info_softwareData">Software: unknown</string>
     <string name="info_hardwareData">Hardware: unknown</string>
     <string name="unknown">unknown</string>
+    <string name="refresh">Refresh</string>
 
     <!-- Accessibility descriptions -->
     <string name="desc_imgPanel">Control Panel</string>
@@ -36,6 +37,7 @@
     <string name="desc_atcOn">Air Traffic Control ON</string>
     <string name="desc_socialShare">Share Button</string>
     <string name="desc_checklist">Checklist</string>
+    <string name="desc_dogfight_planes">Dogfight planes</string>
 
     <!-- TextViews labels -->
     <string name="label_fuel">FUEL</string>
@@ -43,18 +45,18 @@
     <string name="label_battery">BATTERY</string>
     <string name="label_signalStrength">dBm</string>
     <string name="label_compass">HDG</string>
-    <string name="label_searching">Searching&#8230;</string>
-    <string name="label_connecting">Connecting&#8230;</string>
+    <string name="label_searching">Searching…</string>
+    <string name="label_connecting">Connecting…</string>
     <string name="label_revRudder">Reverse Rudder</string>
     <string name="label_flightAssist">Flight Assist</string>
     <string name="label_weatherCenter">Weather Center</string>
     <string name="label_settings">Settings</string>
     <string name="label_tower">ATC Tower</string>
+    <string name="label_dogfight">Dogfight</string>
 
     <!-- Checklist items -->
     <string name="checklist_title">Flight checklist</string>
-    <string name="checklist_text">
-    \ <u>BEFORE TAKEOFF</u>\n <!-- notice the \ at the beginning -->
+    <string name="checklist_text">    \ <u>BEFORE TAKEOFF</u>\n  <!-- notice the \ at the beginning -->
     Check Weather Center\n
     Other air traffic\n
     Turn on plane\n
@@ -62,15 +64,16 @@
     Rudder left/right\n
     Throttle check\n
     Check fuel\n
-    Tower on/off\n\n
-    <u>AFTER LANDING</u>\n
+    Tower on/off\n\n <u>AFTER LANDING</u>\n
     Check fuel\n
-    Turn off plane\n\n
-    <u>CHARGING / RE-FUELING</u>\n
+    Turn off plane\n\n <u>CHARGING / RE-FUELING</u>\n
     Turn on plane\n
     Plug in cable\n
-    Check LED\n
-    </string>
-
+    Check LED\n</string>
+    <string name="dogfight_no_BT">Bluetooth must be enabled.</string>
+    <string name="dogfight_choose_device">Choose your opponent</string>
+    <string name="title_activity_dogfight">DogfightActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 </resources>

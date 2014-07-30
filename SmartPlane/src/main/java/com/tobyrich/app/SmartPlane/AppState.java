@@ -31,6 +31,9 @@ import android.app.Application;
 
 import com.tobyrich.app.SmartPlane.util.Const;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /**
  * @author Radu Hambasan
  * @date Jun 13 2014
@@ -39,13 +42,20 @@ import com.tobyrich.app.SmartPlane.util.Const;
  */
 
 /* TODO: define a better interface */
-public class PlaneState extends Application{
+public class AppState extends Application{
     public boolean rudderReversed = false;
     public boolean screenLocked = false;
+    public boolean isBTEnabled = false;
 
     private float motorSpeed;
     private double scaler = 0;
     private boolean flAssistEnabled = false;
+
+
+    // used when talking to another phone
+    public boolean isConnected = false;
+    public InputStream  devInput;
+    public OutputStream devOutput;
 
     public void setScaler(double scaler) {
         this.scaler = scaler;

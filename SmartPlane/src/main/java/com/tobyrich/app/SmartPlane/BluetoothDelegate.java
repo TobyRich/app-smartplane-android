@@ -64,14 +64,14 @@ public class BluetoothDelegate
     @SuppressWarnings("FieldCanBeLocal")
     private BLEBatteryService batteryService;
 
-    private PlaneState planeState;
+    private AppState appState;
     private Timer timer;
 
     private Activity activity;
 
     public BluetoothDelegate(Activity activity) {
         this.activity = activity;
-        this.planeState = (PlaneState) activity.getApplicationContext();
+        this.appState = (AppState) activity.getApplicationContext();
 
         try {
             device = new BluetoothDevice(activity.getResources().openRawResource(R.raw.services),
@@ -120,7 +120,7 @@ public class BluetoothDelegate
         Log.i(TAG, "did update battery level");
         final float R_batt = 0.520f;  // Ohm
         /* 0.5 Amps is the current through the motor at MAX_MOTOR_SPEED */
-        final float I_motor = (planeState.getAdjustedMotorSpeed() / Const.MAX_MOTOR_SPEED) * 0.5f;  // Amps
+        final float I_motor = (appState.getAdjustedMotorSpeed() / Const.MAX_MOTOR_SPEED) * 0.5f;  // Amps
         /* We don't consider the contribution of the rudder & chip if the motor is off */
         final float I_rudder = I_motor == 0 ? 0 : 0.013f;  // estimate
         final float I_chip = I_motor == 0 ? 0 : 0.019f;  // estimate

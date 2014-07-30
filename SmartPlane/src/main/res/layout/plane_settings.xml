@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:soundEffectsEnabled="true"/>
+            android:soundEffectsEnabled="true" />
     </RelativeLayout>
 
     <View
@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:soundEffectsEnabled="true"/>
+            android:soundEffectsEnabled="true" />
     </RelativeLayout>
 
     <View
@@ -107,6 +107,41 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:checked="true" />
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/tower_dogfight_line"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/tower_setting_item"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="2dp"
+        android:background="#c0c0c0" />
+
+    <RelativeLayout
+        android:id="@+id/dogfight_setting_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tower_dogfight_line"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/dogfightText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_dogfight"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <Switch
+            android:id="@+id/dogfightSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:checked="false" />
     </RelativeLayout>
 
     <RelativeLayout

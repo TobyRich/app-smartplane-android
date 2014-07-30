@@ -3,5 +3,6 @@
     <color name="black_overlay">#66000000</color>
     <color name="dark_green">#668CD186</color>
     <color name="very_dark_green">#FF17780E</color>
+    <color name="black">#FF000000</color>
 
 </resources>

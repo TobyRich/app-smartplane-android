@@ -46,7 +46,7 @@ import lib.smartlink.driver.BLESmartplaneService;
 
 public class PanelTouchListener implements View.OnTouchListener {
     private Activity activity;
-    private PlaneState planeState;
+    private AppState appState;
     private BluetoothDelegate bluetoothDelegate;
 
     ImageView slider;
@@ -58,7 +58,7 @@ public class PanelTouchListener implements View.OnTouchListener {
 
     public PanelTouchListener(Activity activity, BluetoothDelegate bluetoothDelegate) {
         this.activity = activity;
-        this.planeState = (PlaneState) activity.getApplicationContext();
+        this.appState = (AppState) activity.getApplicationContext();
         this.bluetoothDelegate = bluetoothDelegate;
 
         slider = (ImageView) activity.findViewById(R.id.throttleCursor);
@@ -105,12 +105,12 @@ public class PanelTouchListener implements View.OnTouchListener {
         }
 
         // Adjust if flight assist is on
-        if (planeState.isFlAssistEnabled()) {
+        if (appState.isFlAssistEnabled()) {
             motorSpeed *= Const.SCALE_FASSIST_THROTTLE;
         }
 
-        planeState.setMotorSpeed(motorSpeed);
-        float adjustedMotorSpeed = planeState.getAdjustedMotorSpeed();
+        appState.setMotorSpeed(motorSpeed);
+        float adjustedMotorSpeed = appState.getAdjustedMotorSpeed();
 
         Util.rotateImageView(throttleNeedle, adjustedMotorSpeed,
                 Const.THROTTLE_NEEDLE_MIN_ANGLE, Const.THROTTLE_NEEDLE_MAX_ANGLE);

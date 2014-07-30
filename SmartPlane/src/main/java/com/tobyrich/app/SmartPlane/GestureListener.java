@@ -48,12 +48,12 @@ import lib.smartlink.driver.BLESmartplaneService;
 public class GestureListener extends GestureDetector.SimpleOnGestureListener {
     private Activity activity;
     private BluetoothDelegate bluetoothDelegate;
-    private PlaneState planeState;
+    private AppState appState;
     private boolean tapped;
 
     public GestureListener(Activity activity, BluetoothDelegate bluetoothDelegate) {
         this.activity = activity;
-        planeState = (PlaneState) activity.getApplicationContext();
+        appState = (AppState) activity.getApplicationContext();
         this.bluetoothDelegate = bluetoothDelegate;
         tapped = false;
     }
@@ -95,13 +95,13 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
             if (smartplaneService != null) {
                 smartplaneService.setMotor((short) 0);
             }
-            planeState.screenLocked = true;
+            appState.screenLocked = true;
         } else {
             throttleLock.setVisibility(View.INVISIBLE);
             slider.setEnabled(true);
             controlPanel.setEnabled(true);
-            planeState.screenLocked = false;
-            planeState.setMotorSpeed(0);
+            appState.screenLocked = false;
+            appState.setMotorSpeed(0);
         }
 
         return true;

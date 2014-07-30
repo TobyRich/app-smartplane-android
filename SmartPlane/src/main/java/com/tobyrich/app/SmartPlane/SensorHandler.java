@@ -57,7 +57,7 @@ import lib.smartlink.driver.BLESmartplaneService;
 public class SensorHandler implements SensorEventListener {
 
     private final String TAG = "SensorHandler";
-    private PlaneState planeState;
+    private AppState appState;
     private BluetoothDelegate bluetoothDelegate;
 
     private SensorManager sensorManager;
@@ -80,7 +80,7 @@ public class SensorHandler implements SensorEventListener {
 
     public SensorHandler(Activity activity, BluetoothDelegate bluetoothDelegate) {
         this.bluetoothDelegate = bluetoothDelegate;
-        planeState = (PlaneState) activity.getApplicationContext();
+        appState = (AppState) activity.getApplicationContext();
 
         /* The data set changes rapidly, so we need to set the views here,
          * and keep the references alive for the lifetime of the app
@@ -138,7 +138,7 @@ public class SensorHandler implements SensorEventListener {
         float rollAngle = angles[2];
 
         short newRudder = (short) (rollAngle * -Const.MAX_RUDDER_INPUT / Const.MAX_ROLL_ANGLE);
-        if (planeState.isFlAssistEnabled()) {
+        if (appState.isFlAssistEnabled()) {
             // limit rudder for left turn
             if (newRudder < 0) {
                 newRudder = (short) (newRudder * Const.SCALE_LEFT_RUDDER);
@@ -152,19 +152,19 @@ public class SensorHandler implements SensorEventListener {
         BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
         if (smartplaneService != null) {
             smartplaneService.setRudder(
-                    (short) (planeState.rudderReversed ? -newRudder : newRudder)
+                    (short) (appState.rudderReversed ? -newRudder : newRudder)
             );
         }
         horizonImage.setRotation(-rollAngle);
         // Increase throttle when turning if flight assist is enabled
-        if (planeState.isFlAssistEnabled() && !planeState.screenLocked) {
+        if (appState.isFlAssistEnabled() && !appState.screenLocked) {
             double scaler = 1 - Math.cos(rollAngle * Math.PI/2 / Const.MAX_ROLL_ANGLE);
             if (scaler > 0.3) {
                 scaler = 0.3;
             }
-            planeState.setScaler(scaler);
+            appState.setScaler(scaler);
 
-            float adjustedMotorSpeed = planeState.getAdjustedMotorSpeed();
+            float adjustedMotorSpeed = appState.getAdjustedMotorSpeed();
             Util.rotateImageView(throttleNeedle, adjustedMotorSpeed,
                     Const.THROTTLE_NEEDLE_MIN_ANGLE, Const.THROTTLE_NEEDLE_MAX_ANGLE);
             throttleText.setText((short) (adjustedMotorSpeed * 100) + "%");

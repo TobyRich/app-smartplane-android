@@ -55,6 +55,7 @@ public class Util {
     public static final int BT_REQUEST_CODE = 722;
     public static final int PHOTO_REQUEST_CODE = 723;
     public static final int SHARE_REQUEST_CODE = 724;
+    public static final int DOGFIGHT_REQUEST_CODE = 725;
 
     /* If not null, it contains the uri of a photo that can be shared */
     public static Uri photoUri;

@@ -46,7 +46,6 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -54,7 +53,10 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.tobyrich.app.SmartPlane.dogfight.DogfightActivity;
+import com.tobyrich.app.SmartPlane.dogfight.DogfightButtonListener;
 import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.MeteoTask;
 import com.tobyrich.app.SmartPlane.util.Util;
@@ -83,7 +85,7 @@ public class FullscreenActivity extends Activity {
     private BluetoothDelegate bluetoothDelegate;  // bluetooth events
     private SensorHandler sensorHandler;  // accelerometer & magnetometer
     private GestureDetector gestureDetector;  // touch events
-    private PlaneState planeState;  // singleton with variables used app-wide
+    private AppState appState;  // singleton with variables used app-wide
 
     private AudioManager audioManager;
     private SharedPreferences buttonConfig;  // cached button configuration
@@ -137,10 +139,12 @@ public class FullscreenActivity extends Activity {
                 if (resultCode == RESULT_OK) {
                     try {
                         bluetoothDelegate.connect();
+                        appState.isBTEnabled = true;
                     } catch (BluetoothDisabledException ex) {
                         Log.wtf(TAG, "user enabled BT, but we still couldn't connect");
                     }
                 } else {
+                    appState.isBTEnabled = false;
                     Log.e(TAG, "Bluetooth enabling was canceled by user");
                 }
                 return;
@@ -164,6 +168,13 @@ public class FullscreenActivity extends Activity {
                 }
                 // noinspection UnnecessaryReturnStatement
                 return;
+            case Util.DOGFIGHT_REQUEST_CODE:
+                if (resultCode == DogfightActivity.RESULT_CONNECTED) {
+                    Toast.makeText(this, "FUCKING CONNECTED", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT).show();
+                }
+                return;
         }  // end switch
     }
 
@@ -184,10 +195,13 @@ public class FullscreenActivity extends Activity {
     }
 
     private void initializeMainScreen() {
+        appState = (AppState) getApplicationContext();
         bluetoothDelegate = new BluetoothDelegate(this);
         try {
             bluetoothDelegate.connect();
+            appState.isBTEnabled = true;
         } catch (BluetoothDisabledException ex) {
+            appState.isBTEnabled = false;
             Intent enableBtIntent =
                     new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, Util.BT_REQUEST_CODE);
@@ -196,7 +210,6 @@ public class FullscreenActivity extends Activity {
         sensorHandler.registerListener();
         gestureDetector = new GestureDetector(this,
                 new GestureListener(this, bluetoothDelegate));
-        planeState = (PlaneState) getApplicationContext();
 
          /* setting the trivial listeners */
         ImageView socialShare = (ImageView) findViewById(R.id.socialShare);
@@ -288,7 +301,7 @@ public class FullscreenActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, FX_VOLUME);
-                planeState.rudderReversed = isChecked;
+                appState.rudderReversed = isChecked;
 
                 buttonConfig.edit().putBoolean("rudderReversed", isChecked).apply();
             }
@@ -303,7 +316,7 @@ public class FullscreenActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, FX_VOLUME);
-                planeState.enableFlightAssist(isChecked);
+                appState.enableFlightAssist(isChecked);
 
                 buttonConfig.edit().putBoolean("flAssist", isChecked).apply();
             }
@@ -345,6 +358,9 @@ public class FullscreenActivity extends Activity {
         boolean enableAtcTower = buttonConfig.getBoolean("atcTower",
                 Const.DEFAULT_ATC_TOWER);
         towerSwitch.setChecked(enableAtcTower);
+
+        final Switch dogfightSwitch = (Switch) findViewById(R.id.dogfightSwitch);
+        dogfightSwitch.setOnCheckedChangeListener(new DogfightButtonListener(this));
 
     }  // end initializeSettintsScreen()
 
