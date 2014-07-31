@@ -40,6 +40,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -55,8 +56,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tobyrich.app.SmartPlane.dogfight.DogfightActivity;
 import com.tobyrich.app.SmartPlane.dogfight.DogfightButtonListener;
+import com.tobyrich.app.SmartPlane.dogfight.DogfightData;
+import com.tobyrich.app.SmartPlane.dogfight.DogfightModeSelectActivity;
+import com.tobyrich.app.SmartPlane.dogfight.InputEventHandler;
+import com.tobyrich.app.SmartPlane.dogfight.OutputChannel;
 import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.MeteoTask;
 import com.tobyrich.app.SmartPlane.util.Util;
@@ -86,7 +90,9 @@ public class FullscreenActivity extends Activity {
     private SensorHandler sensorHandler;  // accelerometer & magnetometer
     private GestureDetector gestureDetector;  // touch events
     private AppState appState;  // singleton with variables used app-wide
+    private OutputChannel outChannel;
 
+    private Vibrator vibrator;
     private AudioManager audioManager;
     private SharedPreferences buttonConfig;  // cached button configuration
 
@@ -116,6 +122,7 @@ public class FullscreenActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
+        vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
 
         // Instantiate a ViewPager and a PagerAdapter
@@ -169,13 +176,33 @@ public class FullscreenActivity extends Activity {
                 // noinspection UnnecessaryReturnStatement
                 return;
             case Util.DOGFIGHT_REQUEST_CODE:
-                if (resultCode == DogfightActivity.RESULT_CONNECTED) {
-                    Toast.makeText(this, "FUCKING CONNECTED", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT).show();
-                }
-                return;
+                handleDogfight(resultCode);
         }  // end switch
+    }
+
+    private void handleDogfight(int resultCode) {
+        switch (resultCode) {
+            case DogfightModeSelectActivity.CLIENT_ONLINE_RESULT_CODE:
+                Toast.makeText(this, "Client online", Toast.LENGTH_LONG).show();
+                bluetoothDelegate.disconnect();
+                sensorHandler.unregisterListener();
+                outChannel = new OutputChannel(this);
+                ImageView shootBtn = (ImageView) findViewById(R.id.shootButton);
+                shootBtn.setVisibility(View.VISIBLE);
+                shootBtn.setOnClickListener(new ShootButtonListener());
+                break;
+            case DogfightModeSelectActivity.SERVER_ONLINE_RESULT_CODE:
+                Toast.makeText(this, "Server online", Toast.LENGTH_LONG).show();
+                (new InputEventHandler(this, new ClientEventListener())).start();
+                break;
+            case DogfightModeSelectActivity.ERROR_RESULT_CODE:
+                Toast.makeText(this, "Error while connecting...", Toast.LENGTH_LONG).show();
+                ((Switch) findViewById(R.id.dogfightSwitch)).setChecked(false);
+                break;
+            default:
+                Log.wtf(TAG, "Unexpected dogfight result code");
+                break;
+        }
     }
 
     @Override
@@ -364,6 +391,10 @@ public class FullscreenActivity extends Activity {
 
     }  // end initializeSettintsScreen()
 
+    private void handleHit() {
+        vibrator.vibrate(200);
+    }
+
     private class ScreenSlideAdapter extends PagerAdapter {
         @Override
         public int getCount() {
@@ -427,5 +458,33 @@ public class FullscreenActivity extends Activity {
             return view == object;
         }
 
+    }
+
+    class ClientEventListener implements InputEventHandler.InputEventListener {
+        private static final String TAG = "ClientEventListener";
+        @Override
+        public void onInputEvent(DogfightData data) {
+            if (data.hit) {
+                FullscreenActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleHit();
+                    }
+                });
+            }
+        }
+        @Override
+        public void onListeningStop() {
+            Log.i(TAG, "Listening stopped");
+        }
+    }
+
+    class ShootButtonListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            DogfightData data = new DogfightData();
+            data.hit = true;
+            outChannel.postData(data);
+        }
     }
 }

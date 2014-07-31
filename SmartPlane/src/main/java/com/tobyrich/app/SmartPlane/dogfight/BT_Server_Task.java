@@ -63,6 +63,8 @@ public class BT_Server_Task extends AsyncTask<Void, Void, Boolean> {
             _appState.devInput = _inputStream;
             _appState.devOutput = _outputStream;
             _appState.isConnected = true;
+            _activity.setResult(DogfightActivity.RESULT_CONNECTED);
+            _activity.finish();
         } else {
             Log.e(TAG, "A connection was attempted, but failed.");
             new BT_Server_Task(_activity, _bluetoothAdapter).execute();

@@ -226,4 +226,12 @@ public class BluetoothDelegate
         Util.showSearching(activity, true);
     }
 
+    public void disconnect() {
+        device.disconnect();
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+        }
+    }
+
 }

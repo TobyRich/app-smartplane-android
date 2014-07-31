@@ -14,11 +14,13 @@
     <string name="shareWithPictureCancel">Cancel</string>
     <string name="social_share_success">Sharing successful.</string>
     <string name="social_share_picture_problem">Error while taking picture.</string>
-    <string name="social_share_title"></string>
     <string name="info_softwareData">Software: unknown</string>
     <string name="info_hardwareData">Hardware: unknown</string>
     <string name="unknown">unknown</string>
     <string name="refresh">Refresh</string>
+    <string name="select_mode_title">Select mode</string>
+    <string name="select_mode_server">Let them find me!</string>
+    <string name="select_mode_client">Find opponent!</string>
 
     <!-- Accessibility descriptions -->
     <string name="desc_imgPanel">Control Panel</string>
@@ -38,6 +40,7 @@
     <string name="desc_socialShare">Share Button</string>
     <string name="desc_checklist">Checklist</string>
     <string name="desc_dogfight_planes">Dogfight planes</string>
+    <string name="desc_shoot_button">Shoot button</string>
 
     <!-- TextViews labels -->
     <string name="label_fuel">FUEL</string>
@@ -71,9 +74,9 @@
     Plug in cable\n
     Check LED\n</string>
     <string name="dogfight_no_BT">Bluetooth must be enabled.</string>
-    <string name="dogfight_choose_device">Choose your opponent</string>
+    <string name="dogfight_mode_client_instruction">Choose your opponent</string>
+    <string name="dogfight_mode_server_instruction">Waiting for your opponent&#8230;</string>
     <string name="title_activity_dogfight">DogfightActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_activity_modeselectdogfight">Select mode</string>
 
 </resources>

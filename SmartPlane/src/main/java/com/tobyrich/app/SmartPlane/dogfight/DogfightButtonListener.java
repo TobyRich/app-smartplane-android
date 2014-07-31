@@ -31,14 +31,16 @@ public class DogfightButtonListener implements CompoundButton.OnCheckedChangeLis
             return;
         }
         if (!isChecked) {
-            // handle dogfight disable
+            _appState.devInput = null;
+            _appState.devOutput = null;
+            _appState.isConnected = false;
             return;
         }
 
         _appState.isConnected = false;
         _appState.devInput = null;
         _appState.devOutput = null;
-        Intent dogfightActivity = new Intent(_activity, DogfightActivity.class);
+        Intent dogfightActivity = new Intent(_activity, DogfightModeSelectActivity.class);
         _activity.startActivityForResult(dogfightActivity, Util.DOGFIGHT_REQUEST_CODE);
     }
 }

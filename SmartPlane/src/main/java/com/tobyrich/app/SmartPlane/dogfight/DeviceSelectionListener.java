@@ -18,7 +18,7 @@ import java.util.ArrayList;
  */
 public class DeviceSelectionListener implements AdapterView.OnItemClickListener{
     public static final String TAG = "DeviceSelection";
-    private static final int SERVER_TIMEOUT = 5000;  // ms
+    private static final int SERVER_TIMEOUT = 10000;  // ms
 
     final Activity _activity;
     BluetoothAdapter _bluetoothAdapter;

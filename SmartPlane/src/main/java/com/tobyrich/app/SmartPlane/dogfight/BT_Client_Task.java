@@ -59,6 +59,7 @@ class BT_Client_Task extends AsyncTask<Void, Void, Boolean> {
             return true;
         } catch (IOException e) {
             e.printStackTrace();
+            _bluetoothAdapter.startDiscovery();
             return false;
         }
     }
