@@ -16,6 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.Serializable;
+
 /**
  * @author Radu Hambasan
  * @date 16 Jul 2014
@@ -165,5 +167,14 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
         weather_data.setText(weather_message);
         weather_data.setVisibility(View.VISIBLE);
         activity.findViewById(R.id.weatherProgressBar).setVisibility(View.GONE);
+    }
+
+    public void testfoo(Serializable bar) {
+
+    }
+
+    public void anothertest() {
+        String a = "";
+        testfoo(a);
     }
 }

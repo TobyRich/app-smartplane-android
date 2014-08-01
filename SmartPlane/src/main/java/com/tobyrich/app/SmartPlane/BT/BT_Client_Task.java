@@ -1,4 +1,4 @@
-package com.tobyrich.app.SmartPlane.dogfight;
+package com.tobyrich.app.SmartPlane.BT;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.tobyrich.app.SmartPlane.AppState;
+import com.tobyrich.app.SmartPlane.dogfight.DogfightActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +18,7 @@ import java.io.OutputStream;
  * @author Radu Hambasan
  * @date 30 Jul 2014
  */
-class BT_Client_Task extends AsyncTask<Void, Void, Boolean> {
+public class BT_Client_Task extends AsyncTask<Void, Void, Boolean> {
     BluetoothAdapter _bluetoothAdapter;
     BluetoothSocket _socket;
     InputStream _inputStream;

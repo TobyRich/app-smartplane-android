@@ -1,4 +1,4 @@
-package com.tobyrich.app.SmartPlane.dogfight;
+package com.tobyrich.app.SmartPlane.BT;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.tobyrich.app.SmartPlane.AppState;
+import com.tobyrich.app.SmartPlane.dogfight.DogfightActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +36,6 @@ public class BT_Server_Task extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPreExecute() {
-
         Log.d(TAG, "starting BT server");
     }
 

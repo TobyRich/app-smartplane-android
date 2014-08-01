@@ -6,9 +6,7 @@ import java.io.Serializable;
  * @author Radu Hambasan
  * @date 31 Jul 2014
  */
-public class DogfightData implements Serializable{
-    public boolean hit;
-    public DogfightData() {
-        hit = false;
-    }
+public class TEvent implements Serializable{
+    public String address;
+    public int value;
 }

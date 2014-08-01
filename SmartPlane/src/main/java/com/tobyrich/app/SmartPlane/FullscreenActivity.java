@@ -56,11 +56,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tobyrich.app.SmartPlane.BT.BluetoothTransportLayer;
 import com.tobyrich.app.SmartPlane.dogfight.DogfightButtonListener;
-import com.tobyrich.app.SmartPlane.dogfight.DogfightData;
+import com.tobyrich.app.SmartPlane.dogfight.TEvent;
 import com.tobyrich.app.SmartPlane.dogfight.DogfightModeSelectActivity;
-import com.tobyrich.app.SmartPlane.dogfight.InputEventHandler;
-import com.tobyrich.app.SmartPlane.dogfight.OutputChannel;
+import com.tobyrich.app.SmartPlane.dogfight.TransportLayer;
 import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.MeteoTask;
 import com.tobyrich.app.SmartPlane.util.Util;
@@ -90,7 +90,7 @@ public class FullscreenActivity extends Activity {
     private SensorHandler sensorHandler;  // accelerometer & magnetometer
     private GestureDetector gestureDetector;  // touch events
     private AppState appState;  // singleton with variables used app-wide
-    private OutputChannel outChannel;
+    private TransportLayer transportLayer;
 
     private Vibrator vibrator;
     private AudioManager audioManager;
@@ -186,14 +186,17 @@ public class FullscreenActivity extends Activity {
                 Toast.makeText(this, "Client online", Toast.LENGTH_LONG).show();
                 bluetoothDelegate.disconnect();
                 sensorHandler.unregisterListener();
-                outChannel = new OutputChannel(this);
+                transportLayer = new BluetoothTransportLayer(appState.devInput,
+                        appState.devOutput);
                 ImageView shootBtn = (ImageView) findViewById(R.id.shootButton);
                 shootBtn.setVisibility(View.VISIBLE);
                 shootBtn.setOnClickListener(new ShootButtonListener());
                 break;
             case DogfightModeSelectActivity.SERVER_ONLINE_RESULT_CODE:
                 Toast.makeText(this, "Server online", Toast.LENGTH_LONG).show();
-                (new InputEventHandler(this, new ClientEventListener())).start();
+                transportLayer = new BluetoothTransportLayer(appState.devInput,
+                        appState.devOutput);
+                transportLayer.setOnReceiveListener(new ClientEventListener());
                 break;
             case DogfightModeSelectActivity.ERROR_RESULT_CODE:
                 Toast.makeText(this, "Error while connecting...", Toast.LENGTH_LONG).show();
@@ -460,11 +463,10 @@ public class FullscreenActivity extends Activity {
 
     }
 
-    class ClientEventListener implements InputEventHandler.InputEventListener {
-        private static final String TAG = "ClientEventListener";
+    class ClientEventListener implements BluetoothTransportLayer.OnReceiveListener {
         @Override
-        public void onInputEvent(DogfightData data) {
-            if (data.hit) {
+        public void onReceive(TEvent data) {
+            if (data.address.equals("hit")) {
                 FullscreenActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -473,18 +475,14 @@ public class FullscreenActivity extends Activity {
                 });
             }
         }
-        @Override
-        public void onListeningStop() {
-            Log.i(TAG, "Listening stopped");
-        }
     }
 
     class ShootButtonListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            DogfightData data = new DogfightData();
-            data.hit = true;
-            outChannel.postData(data);
+            TEvent data = new TEvent();
+            data.address = "hit";
+            transportLayer.send(data);
         }
     }
 }
