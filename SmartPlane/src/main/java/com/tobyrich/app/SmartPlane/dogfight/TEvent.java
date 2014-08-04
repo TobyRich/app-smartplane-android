@@ -8,5 +8,5 @@ import java.io.Serializable;
  */
 public class TEvent implements Serializable{
     public String address;
-    public int value;
+    public float value;
 }

@@ -9,7 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 
-import com.tobyrich.app.SmartPlane.BT.BT_Client_Task;
+import com.tobyrich.app.SmartPlane.TransportLayers.BT_Client_Task;
 
 import java.io.IOException;
 import java.util.ArrayList;

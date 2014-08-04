@@ -1,4 +1,4 @@
-package com.tobyrich.app.SmartPlane.dogfight;
+package com.tobyrich.app.SmartPlane.TransportLayers;
 
 import com.tobyrich.app.SmartPlane.dogfight.TEvent;
 
@@ -16,6 +16,6 @@ public abstract class TransportLayer {
     }
 
     public void setOnReceiveListener(OnReceiveListener receiveListener) {
-        _receiveListener = _receiveListener;
+        _receiveListener = receiveListener;
     }
 }

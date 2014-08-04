@@ -56,11 +56,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tobyrich.app.SmartPlane.BT.BluetoothTransportLayer;
+import com.tobyrich.app.SmartPlane.TransportLayers.BluetoothTransportLayer;
+import com.tobyrich.app.SmartPlane.TransportLayers.FirebaseTransportLayer;
 import com.tobyrich.app.SmartPlane.dogfight.DogfightButtonListener;
 import com.tobyrich.app.SmartPlane.dogfight.TEvent;
 import com.tobyrich.app.SmartPlane.dogfight.DogfightModeSelectActivity;
-import com.tobyrich.app.SmartPlane.dogfight.TransportLayer;
+import com.tobyrich.app.SmartPlane.TransportLayers.TransportLayer;
 import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.MeteoTask;
 import com.tobyrich.app.SmartPlane.util.Util;
@@ -186,16 +187,19 @@ public class FullscreenActivity extends Activity {
                 Toast.makeText(this, "Client online", Toast.LENGTH_LONG).show();
                 bluetoothDelegate.disconnect();
                 sensorHandler.unregisterListener();
-                transportLayer = new BluetoothTransportLayer(appState.devInput,
-                        appState.devOutput);
+                /*transportLayer = new BluetoothTransportLayer(appState.devInput,
+                        appState.devOutput);*/
+                transportLayer = new FirebaseTransportLayer();
                 ImageView shootBtn = (ImageView) findViewById(R.id.shootButton);
                 shootBtn.setVisibility(View.VISIBLE);
                 shootBtn.setOnClickListener(new ShootButtonListener());
                 break;
             case DogfightModeSelectActivity.SERVER_ONLINE_RESULT_CODE:
                 Toast.makeText(this, "Server online", Toast.LENGTH_LONG).show();
-                transportLayer = new BluetoothTransportLayer(appState.devInput,
-                        appState.devOutput);
+                /*transportLayer = new BluetoothTransportLayer(appState.devInput,
+                        appState.devOutput);*/
+                transportLayer = new FirebaseTransportLayer();
+                ((FirebaseTransportLayer) transportLayer).registerForEvent("hit");
                 transportLayer.setOnReceiveListener(new ClientEventListener());
                 break;
             case DogfightModeSelectActivity.ERROR_RESULT_CODE:

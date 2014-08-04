@@ -1,4 +1,4 @@
-package com.tobyrich.app.SmartPlane.BT;
+package com.tobyrich.app.SmartPlane.TransportLayers;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
