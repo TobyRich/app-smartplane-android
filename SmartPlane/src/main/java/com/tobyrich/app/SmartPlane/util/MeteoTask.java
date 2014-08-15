@@ -16,6 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.util.Map;
+
 /**
  * @author Radu Hambasan
  * @date 16 Jul 2014
@@ -135,20 +137,19 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
         String weather_message;
 
         if (result != null) {
-            final double KELVIN_TO_CELSIUS = 273.15;
-            double celsius_temp = (result.temperature - KELVIN_TO_CELSIUS);
-            /* truncate to 2 decimal places */
-            celsius_temp = Math.round(100 * celsius_temp) / 100;
+            final double KELVIN_TO_CELSIUS = 273;
+            long celsius_temp = Math.round(result.temperature - KELVIN_TO_CELSIUS);
+            long kelvin_temp = Math.round(result.temperature);
 
-            weather_message = "Humidity: " + result.humidity + "%" + "\n" +
-                    "Pressure: " + result.pressure + " hPa" + "\n" +
-                    "Temperature: " + result.temperature + "K / " + celsius_temp + "\u2103" + "\n" +
-                    "Wind speed: " + result.wind_speed + " kmph " + "\n" +
-                    "Wind orientation: " + result.wind_deg + "\u00b0" + "\n" +
-                    "Weather forecast: " + result.weather_descr + "\n";
+            weather_message = fw13("Humidity: ") + result.humidity + "%" + "\n" +
+                    fw13("Pressure: ") + result.pressure + " hPa" + "\n" +
+                    fw13("Temperature: ") + result.temperature + "K" + "\n" +
+                    fw13("Wind speed: ") + result.wind_speed + " kmph " + "\n" +
+                    fw13("Wind deg: ") + result.wind_deg + "\u00b0" + "\n" +
+                    fw13("Forecast: ") + result.weather_descr + "\n";
 
-            String wind_txt = "W: " + result.wind_deg + "\u00b0 / " + result.wind_speed + "kmph";
-            String temp_txt = "T: " + result.temperature + "K / " +  celsius_temp + "\u2103";
+            String wind_txt = "W:" + result.wind_deg + "\u00b0/" + result.wind_speed + "kmph";
+            String temp_txt = "T:" + kelvin_temp + "K/" +  celsius_temp + "\u2103";
 
             TextView wind_txt_vw = (TextView) activity.findViewById(R.id.horizon_wind_txt);
             wind_txt_vw.setText(wind_txt);
@@ -165,5 +166,14 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
         weather_data.setText(weather_message);
         weather_data.setVisibility(View.VISIBLE);
         activity.findViewById(R.id.weatherProgressBar).setVisibility(View.GONE);
+    }
+
+    /* returns str but right-padded appropriately to have width 13 */
+    private String fw13(String str) {
+        String ret = str;
+        while (ret.length() < 13) {
+            ret += "\u00A0";
+        }
+        return ret;
     }
 }

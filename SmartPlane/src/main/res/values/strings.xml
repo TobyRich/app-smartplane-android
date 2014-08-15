@@ -36,6 +36,7 @@
     <string name="desc_atcOn">Air Traffic Control ON</string>
     <string name="desc_socialShare">Share Button</string>
     <string name="desc_checklist">Checklist</string>
+    <string name="desc_shadow_cover">Shadow cover</string>
 
     <!-- TextViews labels -->
     <string name="label_fuel">FUEL</string>
