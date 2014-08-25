@@ -75,7 +75,7 @@
             <key>Primary</key>
             <true/>
             <key>DriverClass</key>
-            <string>BLEFirmwareUploadService</string>
+            <string>UNUSED</string>
             <key>Fields</key>
             <dict>
                 <key>imgidentify</key>
