@@ -2,6 +2,7 @@ package com.tobyrich.app.SmartPlane.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -14,9 +15,8 @@ import com.tobyrich.app.SmartPlane.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.util.Map;
+import java.util.Hashtable;
 
 /**
  * @author Radu Hambasan
@@ -24,27 +24,38 @@ import java.util.Map;
  */
 
 class MeteoData {
-    public double temperature;
+    public int temperature;
     public int pressure;
     public int humidity;
-    public double wind_speed;
+    public int wind_speed;
     public int wind_deg;
     public String weather_descr;
+    public String location;
+    public int weather_code;
 }
 
 public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
     @SuppressWarnings("FieldCanBeLocal")
-    private final String TAG = "MeteoTask";
+    private final static String TAG = "MeteoTask";
+    private final static String CLIMA_FONT_NAME = "climacons.ttf";
     private final Activity activity;
     final String BASE_FETCH_URL = "http://api.openweathermap.org/data/2.5/find?";
 
+    private final Hashtable<String, String> iconMapping;
+
     public MeteoTask(Activity activity) {
         this.activity = activity;
+        iconMapping = new Hashtable<String, String>();
+
+        iconMapping.put("rainy", "f");
+        iconMapping.put("sunny", "I");
+        iconMapping.put("windy", "B");
+        iconMapping.put("stormy", "F");
+        iconMapping.put("cloudy", "!");
     }
 
     @Override
     public void onPreExecute() {
-        activity.findViewById(R.id.weather_data).setVisibility(View.GONE);
         activity.findViewById(R.id.weatherProgressBar).setVisibility(View.VISIBLE);
 
         activity.findViewById(R.id.horizon_wind_txt).setVisibility(View.GONE);
@@ -118,39 +129,46 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
             JSONObject wind_obj = first_result.getJSONObject("wind");
             JSONArray weather_arr = first_result.getJSONArray("weather");
 
-            meteoData.temperature = main_obj.getDouble("temp");
+            meteoData.temperature = (int) Math.round(main_obj.getDouble("temp"));
             meteoData.humidity = main_obj.getInt("humidity");
             meteoData.pressure = main_obj.getInt("pressure");
 
-            meteoData.wind_speed = wind_obj.getDouble("speed");
+            meteoData.wind_speed = (int) Math.round(wind_obj.getDouble("speed"));
             meteoData.wind_deg = wind_obj.getInt("deg");
-
             meteoData.weather_descr = weather_arr.getJSONObject(0).getString("description");
+            meteoData.weather_code = weather_arr.getJSONObject(0).getInt("id");
+            meteoData.location = first_result.getString("name");
         } catch (JSONException ex) {
             Log.d(TAG, "Exception while getting data from JSON");
+            return null;
         }
         return meteoData;
     }
 
     @Override
     public void onPostExecute(MeteoData result) {
-        String weather_message;
+        TextView weather_location =
+                (TextView) activity.findViewById(R.id.weather_location);
+        TextView humidity_data =
+                (TextView) activity.findViewById(R.id.weather_humidity_data);
+        TextView pressure_data =
+                (TextView) activity.findViewById(R.id.weather_pressure_data);
+        TextView temperature_data =
+                (TextView) activity.findViewById(R.id.weather_temperature_data);
+        TextView windSpeed_data =
+                (TextView) activity.findViewById(R.id.weather_windspeed_data);
+        TextView windDirection_data =
+                (TextView) activity.findViewById(R.id.weather_direction_data);
+
 
         if (result != null) {
             final double KELVIN_TO_CELSIUS = 273;
             long celsius_temp = Math.round(result.temperature - KELVIN_TO_CELSIUS);
-            long kelvin_temp = Math.round(result.temperature);
 
-            weather_message = fw13("Humidity: ") + result.humidity + "%" + "\n" +
-                    fw13("Pressure: ") + result.pressure + " hPa" + "\n" +
-                    fw13("Temperature: ") + result.temperature + "K" + "\n" +
-                    fw13("Wind speed: ") + result.wind_speed + " kmph " + "\n" +
-                    fw13("Wind deg: ") + result.wind_deg + "\u00b0" + "\n" +
-                    fw13("Forecast: ") + result.weather_descr + "\n";
+            String wind_txt = result.wind_speed + "kmph";
+            String temp_txt = celsius_temp + "℃";
 
-            String wind_txt = "W:" + result.wind_deg + "\u00b0/" + result.wind_speed + "kmph";
-            String temp_txt = "T:" + kelvin_temp + "K/" +  celsius_temp + "\u2103";
-
+            /* On main screen */
             TextView wind_txt_vw = (TextView) activity.findViewById(R.id.horizon_wind_txt);
             wind_txt_vw.setText(wind_txt);
             wind_txt_vw.setVisibility(View.VISIBLE);
@@ -158,22 +176,56 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
             TextView temp_txt_vw = (TextView) activity.findViewById(R.id.horizon_temp_txt);
             temp_txt_vw.setText(temp_txt);
             temp_txt_vw.setVisibility(View.VISIBLE);
+
+            /* On weather screen */
+            weather_location.setText(result.location);
+            humidity_data.setText(result.humidity + "%");
+            pressure_data.setText(result.pressure + " hPa");
+            temperature_data.setText(result.temperature + "K");
+            windSpeed_data.setText(result.wind_speed + "");
+            windDirection_data.setText(result.wind_deg + "°");
         } else {
-            weather_message = "Weather center unavailable.\n(no internet connection)";
+            final String UNAVAILABLE = "N/A";
+            weather_location.setText(UNAVAILABLE);
+            humidity_data.setText(UNAVAILABLE);
+            pressure_data.setText(UNAVAILABLE);
+            temperature_data.setText(UNAVAILABLE);
+            windSpeed_data.setText(UNAVAILABLE);
+            windDirection_data.setText(UNAVAILABLE);
         }
 
-        TextView weather_data = (TextView) activity.findViewById(R.id.weather_data);
-        weather_data.setText(weather_message);
-        weather_data.setVisibility(View.VISIBLE);
         activity.findViewById(R.id.weatherProgressBar).setVisibility(View.GONE);
-    }
 
-    /* returns str but right-padded appropriately to have width 13 */
-    private String fw13(String str) {
-        String ret = str;
-        while (ret.length() < 13) {
-            ret += "\u00A0";
+        if (result == null) {
+            return;  // nothing to do anymore
         }
-        return ret;
+
+        TextView weatherIcon = (TextView) activity.findViewById(R.id.weatherIcon);
+        final Typeface CLIMA_FONT =
+                Typeface.createFromAsset(activity.getAssets(), "fonts/climacons.ttf");
+        weatherIcon.setTypeface(CLIMA_FONT);
+
+        String weatherIcon_id = iconMapping.get("sunny");
+        int code = result.weather_code;
+
+        if ((code >= 300 && code <= 321) || (code >= 500 || code <= 531)) {
+            weatherIcon_id = iconMapping.get("rainy");
+            int blackColor = activity.getResources().getColor(R.color.black);
+            weatherIcon.setTextColor(blackColor);
+        } else if (code >= 900 && code <= 962) {
+            weatherIcon_id = iconMapping.get("windy");
+            int blackColor = activity.getResources().getColor(R.color.black);
+            weatherIcon.setTextColor(blackColor);
+        } else if (code >= 200 && code <= 232) {
+            weatherIcon_id = iconMapping.get("stormy");
+            int blackColor = activity.getResources().getColor(R.color.black);
+            weatherIcon.setTextColor(blackColor);
+        } else if (code >= 801 && code <= 804) {
+            weatherIcon_id = iconMapping.get("cloudy");
+            int whiteColor = activity.getResources().getColor(R.color.white);
+            weatherIcon.setTextColor(whiteColor);
+        }
+        // default is sunny
+        weatherIcon.setText(weatherIcon_id);
     }
 }

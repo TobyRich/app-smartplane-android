@@ -1,48 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/weather_bg"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingBottom="15dp"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
+    android:paddingTop="15dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:padding="15dp">
+    <TextView
+        android:id="@+id/weatherIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/yellow"
+        android:textSize="90sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:text="@string/label_weatherCenter"
-            android:textSize="30sp" />
+    <TextView
+        android:id="@+id/weather_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/weatherIcon"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/white"
+        android:textSize="20sp" />
 
-        <TextView
-            android:id="@+id/weather_data"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:lineSpacingMultiplier="1.5"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/dark_green"
-            android:textSize="20sp"
-            android:typeface="monospace"
-            android:visibility="gone" />
+    <TextView
+        android:id="@+id/weather_humidity_tw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/weather_location"
+        android:layout_marginTop="40dp"
+        android:text="@string/label_w_humidity"
+        android:textColor="@color/black" />
 
-        <ProgressBar
-            android:id="@+id/weatherProgressBar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
-            android:visibility="visible" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/weather_humidity_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/weather_humidity_tw"
+        android:textColor="@color/silver"
+        android:textSize="22sp" />
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        android:src="@drawable/crt_background"
-        android:alpha="0.15"/>
-</FrameLayout>
+    <TextView
+        android:id="@+id/weather_pressure_tw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/weather_humidity_data"
+        android:layout_marginTop="10dp"
+        android:text="@string/label_w_pressure"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/weather_pressure_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/weather_pressure_tw"
+        android:textColor="@color/silver"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/weather_temperature_tw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/weather_pressure_data"
+        android:layout_marginTop="10dp"
+        android:text="@string/label_w_temperature"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/weather_temperature_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/weather_temperature_tw"
+        android:textColor="@color/silver"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/weather_windspeed_tw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/weather_location"
+        android:layout_marginTop="40dp"
+        android:color="@color/black"
+        android:text="@string/label_w_windspeed"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/weather_windspeed_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/weather_windspeed_tw"
+        android:layout_marginTop="-8dp"
+        android:textColor="@color/white"
+        android:textSize="60sp" />
+
+    <TextView
+        android:id="@+id/weather_windspeed_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/weather_windspeed_data"
+        android:layout_marginTop="-8dp"
+        android:text="@string/label_w_speedunit"
+        android:textColor="@color/black" />
+
+
+    <TextView
+        android:id="@+id/weather_direction_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/weather_windspeed_unit"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/silver"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/weather_direction_tw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/weather_direction_data"
+        android:text="@string/label_w_direction"
+        android:textColor="@color/black" />
+
+
+    <ProgressBar
+        android:id="@+id/weatherProgressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="200dp"
+        android:visibility="visible" />
+</RelativeLayout>

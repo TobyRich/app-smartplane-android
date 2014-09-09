@@ -360,13 +360,13 @@ public class FullscreenActivity extends Activity {
             int layout_id = 1;
             switch (position) {
                 case 0:
-                    layout_id = R.layout.weather_center;
+                    layout_id = R.layout.plane_settings;
                     break;
                 case 1:
                     layout_id = R.layout.horizon_screen;
                     break;
                 case 2:
-                    layout_id = R.layout.plane_settings;
+                    layout_id = R.layout.weather_center;
                     break;
             }
             @SuppressWarnings("ResourceType")
@@ -375,23 +375,23 @@ public class FullscreenActivity extends Activity {
 
             switch (position) {
                 case 0:
-                    if (!initializedScreen[0]) {
-                        initializedScreen[0] = true;
-                        new MeteoTask(FullscreenActivity.this).execute();
+                    if (!initializedScreen[2]) {
+                        initializedScreen[2] = true;
+                        initializeSettingsScreen();
+                        Log.d(TAG, "initializing settings screen");
                     }
                     break;
                 case 1:
                     if (!initializedScreen[1]) {
                         initializedScreen[1] = true;
                         initializeMainScreen();
-                        Log.i(TAG, "initializing main screen");
+                        Log.d(TAG, "initializing main screen");
                     }
                     break;
                 case 2:
-                    if (!initializedScreen[2]) {
-                        initializedScreen[2] = true;
-                        initializeSettingsScreen();
-                        Log.i(TAG, "initializing settings screen");
+                    if (!initializedScreen[0]) {
+                        initializedScreen[0] = true;
+                        new MeteoTask(FullscreenActivity.this).execute();
                     }
                     break;
             }

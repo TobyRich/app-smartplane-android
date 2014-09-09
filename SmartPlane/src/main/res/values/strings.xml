@@ -37,6 +37,7 @@
     <string name="desc_socialShare">Share Button</string>
     <string name="desc_checklist">Checklist</string>
     <string name="desc_shadow_cover">Shadow cover</string>
+    <string name="desc_weather_bg">Weather center background</string>
 
     <!-- TextViews labels -->
     <string name="label_fuel">FUEL</string>
@@ -48,9 +49,16 @@
     <string name="label_connecting">Connecting&#8230;</string>
     <string name="label_revRudder">Reverse Rudder</string>
     <string name="label_flightAssist">Flight Assist</string>
-    <string name="label_weatherCenter">Weather Center</string>
     <string name="label_settings">Settings</string>
     <string name="label_tower">ATC Tower</string>
+
+    <string name="label_w_humidity">Humidity</string>
+    <string name="label_w_windspeed">Wind speed</string>
+    <string name="label_w_pressure">Pressure</string>
+    <string name="label_w_direction">Direction</string>
+    <string name="label_w_temperature">Temperature</string>
+    <string name="label_w_speedunit">km/h</string>
+
 
     <!-- Checklist items -->
     <string name="checklist_title">Flight checklist</string>
