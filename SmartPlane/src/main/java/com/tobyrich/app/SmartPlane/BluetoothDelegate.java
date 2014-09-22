@@ -142,7 +142,6 @@ public class BluetoothDelegate
         Log.i(TAG, "did start service: " + service.toString());
         // We are no longer "searching" for the device
         Util.showSearching(activity, false);
-        Util.inform(activity, "Pull Up to Start the Motor");
 
         if (serviceName.equalsIgnoreCase("smartplane") ||
                 serviceName.equalsIgnoreCase("sml1test")) {

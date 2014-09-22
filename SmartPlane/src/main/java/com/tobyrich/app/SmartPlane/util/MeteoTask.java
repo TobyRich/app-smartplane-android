@@ -37,21 +37,90 @@ class MeteoData {
 public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
     @SuppressWarnings("FieldCanBeLocal")
     private final static String TAG = "MeteoTask";
-    private final static String CLIMA_FONT_NAME = "climacons.ttf";
     private final Activity activity;
     final String BASE_FETCH_URL = "http://api.openweathermap.org/data/2.5/find?";
 
-    private final Hashtable<String, String> iconMapping;
+    private final Hashtable<Integer, String> iconMapping;
 
     public MeteoTask(Activity activity) {
         this.activity = activity;
-        iconMapping = new Hashtable<String, String>();
+        iconMapping = new Hashtable<Integer, String>();
 
-        iconMapping.put("rainy", "f");
-        iconMapping.put("sunny", "I");
-        iconMapping.put("windy", "B");
-        iconMapping.put("stormy", "F");
-        iconMapping.put("cloudy", "!");
+        iconMapping.put(200, "F");
+        iconMapping.put(201, "F");
+        iconMapping.put(202, "F");
+        iconMapping.put(210, "F");
+        iconMapping.put(211, "F");
+        iconMapping.put(212, "F");
+        iconMapping.put(221, "F");
+        iconMapping.put(230, "F");
+        iconMapping.put(231, "F");
+        iconMapping.put(232, "F");
+        iconMapping.put(300, "-");
+        iconMapping.put(301, "-");
+        iconMapping.put(302, "-");
+        iconMapping.put(310, "-");
+        iconMapping.put(311, "-");
+        iconMapping.put(312, "-");
+        iconMapping.put(313, "-");
+        iconMapping.put(314, "-");
+        iconMapping.put(321, "-");
+        iconMapping.put(500, "$");
+        iconMapping.put(501, "$");
+        iconMapping.put(502, "*");
+        iconMapping.put(503, "*");
+        iconMapping.put(504, "*");
+        iconMapping.put(511, "*");
+        iconMapping.put(520, "$");
+        iconMapping.put(521, "*");
+        iconMapping.put(522, "*");
+        iconMapping.put(531, "*");
+        iconMapping.put(600, "9");
+        iconMapping.put(601, "9");
+        iconMapping.put(602, "9");
+        iconMapping.put(611, "9");
+        iconMapping.put(612, "9");
+        iconMapping.put(615, "9");
+        iconMapping.put(616, "9");
+        iconMapping.put(620, "9");
+        iconMapping.put(621, "9");
+        iconMapping.put(622, "9");
+        iconMapping.put(701, "?");
+        iconMapping.put(711, "?");
+        iconMapping.put(721, "?");
+        iconMapping.put(731, "?");
+        iconMapping.put(741, "<");
+        iconMapping.put(751, "<");
+        iconMapping.put(761, "<");
+        iconMapping.put(762, "<");
+        iconMapping.put(771, "<");
+        iconMapping.put(781, "X");
+        iconMapping.put(800, "I");
+        iconMapping.put(801, "!");
+        iconMapping.put(802, "!");
+        iconMapping.put(803, "!");
+        iconMapping.put(804, "!");
+        iconMapping.put(900, "X");
+        iconMapping.put(901, "F");
+        iconMapping.put(902, "X");
+        iconMapping.put(903, "9");
+        iconMapping.put(904, "I");
+        iconMapping.put(905, "B");
+        iconMapping.put(906, "3");
+        iconMapping.put(950, "!");
+        iconMapping.put(951, "!");
+        iconMapping.put(952, "B");
+        iconMapping.put(953, "B");
+        iconMapping.put(954, "B");
+        iconMapping.put(955, "B");
+        iconMapping.put(956, "C");
+        iconMapping.put(957, "C");
+        iconMapping.put(958, "C");
+        iconMapping.put(959, "C");
+        iconMapping.put(960, "F");
+        iconMapping.put(961, "F");
+        iconMapping.put(962, "X");
+
     }
 
     @Override
@@ -160,7 +229,6 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
         TextView windDirection_data =
                 (TextView) activity.findViewById(R.id.weather_direction_data);
 
-
         if (result != null) {
             final double KELVIN_TO_CELSIUS = 273;
             long celsius_temp = Math.round(result.temperature - KELVIN_TO_CELSIUS);
@@ -205,23 +273,16 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
                 Typeface.createFromAsset(activity.getAssets(), "fonts/climacons.ttf");
         weatherIcon.setTypeface(CLIMA_FONT);
 
-        String weatherIcon_id = iconMapping.get("sunny");
         int code = result.weather_code;
+        String weatherIcon_id = iconMapping.get(code);
+        if (weatherIcon_id == null) {
+            weatherIcon_id = "I";  // sunny
+        }
 
-        if ((code >= 300 && code <= 321) || (code >= 500 || code <= 531)) {
-            weatherIcon_id = iconMapping.get("rainy");
-            int blackColor = activity.getResources().getColor(R.color.black);
-            weatherIcon.setTextColor(blackColor);
-        } else if (code >= 900 && code <= 962) {
-            weatherIcon_id = iconMapping.get("windy");
-            int blackColor = activity.getResources().getColor(R.color.black);
-            weatherIcon.setTextColor(blackColor);
-        } else if (code >= 200 && code <= 232) {
-            weatherIcon_id = iconMapping.get("stormy");
-            int blackColor = activity.getResources().getColor(R.color.black);
-            weatherIcon.setTextColor(blackColor);
-        } else if (code >= 801 && code <= 804) {
-            weatherIcon_id = iconMapping.get("cloudy");
+        if (code == 800 || code == 904) {  // sunny
+            int yellowColor = activity.getResources().getColor(R.color.yellow);
+            weatherIcon.setTextColor(yellowColor);
+        } else if (code >= 801 && code <= 804) {  // cloudy
             int whiteColor = activity.getResources().getColor(R.color.white);
             weatherIcon.setTextColor(whiteColor);
         }

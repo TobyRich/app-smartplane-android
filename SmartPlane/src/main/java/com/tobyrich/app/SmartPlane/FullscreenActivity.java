@@ -36,6 +36,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -44,11 +45,13 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -244,17 +247,17 @@ public class FullscreenActivity extends Activity {
         checklist_vw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Dialog checklist = new Dialog(FullscreenActivity.this);
-                checklist.setContentView(R.layout.checklist_layout);
+                final AlertDialog checklist =
+                        new AlertDialog.Builder(FullscreenActivity.this).create();
+                checklist.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+                View content = getLayoutInflater().inflate(R.layout.checklist_layout, null);
+                checklist.setView(content);
                 checklist.setCancelable(true);
                 checklist.setCanceledOnTouchOutside(true);
 
-                String checklist_title = getString(R.string.checklist_title);
-                checklist.setTitle(checklist_title);
-
                 // dismiss the dialog on touch
-                checklist.findViewById(R.id.checklist_linearlayout)
-                        .setOnClickListener(new View.OnClickListener() {
+                content.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         checklist.dismiss();

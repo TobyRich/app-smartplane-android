@@ -61,25 +61,28 @@
 
 
     <!-- Checklist items -->
-    <string name="checklist_title">Flight checklist</string>
-    <string name="checklist_text">
-    \ <u>BEFORE TAKEOFF</u>\n <!-- notice the \ at the beginning -->
-    Check Weather Center\n
-    Other air traffic\n
+    <string name="checklist_title">Flight Checklist</string>
+    <string name="checklist_before_title">BEFORE TAKEOFF</string>
+    <string name="checklist_after_title">AFTER LANDING</string>
+    <string name="checklist_charging_title">CHARGING / REFUELING</string>
+
+    <string name="checklist_before_text">
+    \ Check Weather Center\n
     Turn on plane\n
     Connection established\n
     Rudder left/right\n
     Throttle check\n
     Check fuel\n
-    Tower on/off\n\n
-    <u>AFTER LANDING</u>\n
-    Check fuel\n
-    Turn off plane\n\n
-    <u>CHARGING / RE-FUELING</u>\n
-    Turn on plane\n
-    Plug in cable\n
-    Check LED\n
+    Tower on/off
     </string>
-
+    <string name="checklist_after_text">
+    \ Check fuel\n
+    Turn off plane
+    </string>
+    <string name="checklist_charging_text">
+    \ Turn on plane\n
+    Plug in cable\n
+    Check LED flashing
+    </string>
 
 </resources>
