@@ -42,16 +42,15 @@ import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.SmoothingEngine;
 import com.tobyrich.app.SmartPlane.util.Util;
 
-import lib.smartlink.driver.BLESmartplaneService;
-
 /**
+ * Class in charge of the accelerometer and magnetometer callbacks
+ * It processes the received date, to obtain info about the phone orientation
+ * We need the yaw angle to set the compass appropriately, we need the pitch angle
+ * to animate horizon's movement and we need the roll angle to determine rudder's desired angle
+ *
  * @author Samit Vaidya
  * @date 04 March 2014
  * Refactored by: Radu Hambasan
- */
-
-/**
- * Class in charge of the accelerometer and magnetometer callbacks
  */
 
 public class SensorHandler implements SensorEventListener {
@@ -127,6 +126,13 @@ public class SensorHandler implements SensorEventListener {
         }
     }
 
+    /**
+     * When we receive sensor updates, we obtain the orientation of the phone from
+     * <code>getAnglesFromSensor</code>. Then we set the rudder accordingly (with some scaling
+     * if Flight Assist is enabled and also some motor increase). Then. we use the other angles
+     * to animate the compass and the horizon.
+     * @param event
+     */
     @Override
     public void onSensorChanged(SensorEvent event) {
         float[] angles = getAnglesFromSensor(event);
@@ -148,13 +154,9 @@ public class SensorHandler implements SensorEventListener {
                 newRudder = (short) (Const.SCALE_LEFT_RUDDER * -Const.MAX_RUDDER_INPUT);
             }
         }
-        @SuppressWarnings("SpellCheckingInspection")
-        BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
-        if (smartplaneService != null) {
-            smartplaneService.setRudder(
-                    (short) (planeState.rudderReversed ? -newRudder : newRudder)
-            );
-        }
+
+        bluetoothDelegate.setRudder((short) (planeState.rudderReversed ? -newRudder : newRudder));
+
         horizonImage.setRotation(-rollAngle);
         // Increase throttle when turning if flight assist is enabled
         if (planeState.isFlAssistEnabled() && !planeState.screenLocked) {
@@ -168,9 +170,8 @@ public class SensorHandler implements SensorEventListener {
             Util.rotateImageView(throttleNeedle, adjustedMotorSpeed,
                     Const.THROTTLE_NEEDLE_MIN_ANGLE, Const.THROTTLE_NEEDLE_MAX_ANGLE);
             throttleText.setText((short) (adjustedMotorSpeed * 100) + "%");
-            if (smartplaneService != null) {
-                smartplaneService.setMotor((short) (adjustedMotorSpeed * Const.MAX_MOTOR_SPEED));
-            }
+
+            bluetoothDelegate.setMotor((short) (adjustedMotorSpeed * Const.MAX_MOTOR_SPEED));
         }
 
         float compassAngle;
@@ -213,7 +214,7 @@ public class SensorHandler implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
-    /* We handle three main cases:
+    /** We handle three main cases:
      * -high-end phones have ROTATION_VECTOR sensor, which fuses together accelerometer,
      * gyroscope and compass (no smoothing necessary).
      * -low-end phones have only accelerometer and compass, in which case we need to compute

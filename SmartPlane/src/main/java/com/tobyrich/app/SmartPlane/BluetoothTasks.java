@@ -34,12 +34,17 @@ import java.util.TimerTask;
 import lib.smartlink.BluetoothDevice;
 import lib.smartlink.driver.BLESmartplaneService;
 
-/*
- * Tasks that require bluetooth interaction
+/**
+ * Tasks that require periodic bluetooth checks
+ * @author Radu Hambasan
+ * @author Samit Vaidya
+ * @date 06 Jun 2014
  */
 public class BluetoothTasks {
 
-
+    /**
+     * Task used to update the signal level
+     */
     public static class SignalTimerTask extends TimerTask {
         // We have to avoid circular references, i.e.: the bluetooth device will hold a reference
         // to this activity and the activity will have a reference to the bluetooth device,
@@ -59,6 +64,9 @@ public class BluetoothTasks {
         }
     }
 
+    /**
+     * Task used to update the battery status
+     */
     public static class ChargeTimerTask extends TimerTask { // subclass for passing service in timer
         WeakReference<BLESmartplaneService> service; // using weakreference to BLESmartplaneService
 

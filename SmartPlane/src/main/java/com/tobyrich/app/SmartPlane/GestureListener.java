@@ -40,6 +40,9 @@ import com.tobyrich.app.SmartPlane.util.Util;
 import lib.smartlink.driver.BLESmartplaneService;
 
 /**
+ * Class in charge of handling the double tap on the control panel
+ * When the control panel is double tapped, the motor should be reduced to 0 and the UI
+ * updated to reflect this.
  * @author Samit Vaidya
  * @date 04 March 2014
  * Refactored by: Radu Hambasan
@@ -91,10 +94,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
             slider.setEnabled(false);
             controlPanel.setEnabled(false);
 
-            BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
-            if (smartplaneService != null) {
-                smartplaneService.setMotor((short) 0);
-            }
+            bluetoothDelegate.setMotor((short) 0);
             planeState.screenLocked = true;
         } else {
             throttleLock.setVisibility(View.INVISIBLE);

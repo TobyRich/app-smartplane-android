@@ -36,9 +36,10 @@ import android.widget.TextView;
 import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.Util;
 
-import lib.smartlink.driver.BLESmartplaneService;
-
 /**
+ * Class in charge of following the slider's movement
+ * When the slider is moved, the motor is set to the appropriate appropriate value
+ * For double tap events, we need the <code>GestureListener</code>
  * @author Samit Vaidya
  * @date 04 March 2014
  * Refactored by: Radu Hambasan
@@ -116,12 +117,7 @@ public class PanelTouchListener implements View.OnTouchListener {
                 Const.THROTTLE_NEEDLE_MIN_ANGLE, Const.THROTTLE_NEEDLE_MAX_ANGLE);
         throttleText.setText((short) (adjustedMotorSpeed * 100) + "%");
 
-        BLESmartplaneService smartplaneService = bluetoothDelegate.getSmartplaneService();
-        // The smartPlaneService might not be available
-        if (smartplaneService == null) {
-            return true;
-        }
-        smartplaneService.setMotor((short) (adjustedMotorSpeed * Const.MAX_MOTOR_SPEED));
+        bluetoothDelegate.setMotor((short) (adjustedMotorSpeed * Const.MAX_MOTOR_SPEED));
         return true; // the event was digested, keep listening for touch events
     }
 

@@ -37,7 +37,9 @@ import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.Util;
 
 /**
- * Class containing various listeners that are notified by bluetooth devices
+ * Holder class for several UI listeners that require Bluetooth updates
+ * @author Samit Vaidya
+ * @author Radu Hambasan
  */
 
 public class UIChangers {

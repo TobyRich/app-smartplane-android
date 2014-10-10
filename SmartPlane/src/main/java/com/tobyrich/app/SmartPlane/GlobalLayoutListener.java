@@ -34,7 +34,7 @@ import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
 /**
- * Class in charge of maintaining the aspect ratio of the control panel
+ * Class in charge of maintaining the aspect ratio of the control panel.
  */
 public class GlobalLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
     private Activity activity;

@@ -29,14 +29,12 @@ package com.tobyrich.app.SmartPlane;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -45,7 +43,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -65,6 +62,7 @@ import com.viewpagerindicator.CirclePageIndicator;
 import lib.smartlink.BluetoothDisabledException;
 
 /**
+ * Entry point for the Smartplane app
  * @author Samit Vaidya
  * @date 04 March 2014
  * @edit Radu Hambasan
@@ -132,6 +130,12 @@ public class FullscreenActivity extends Activity {
         buttonConfig = this.getSharedPreferences("button_config", MODE_PRIVATE);
     }
 
+    /**
+     * There are 3 interesting result codes that we should handle
+     * BT_REQUEST_CODE is sent when a BluetoothDelegate discovers that Bluetooth is disabled
+     * PHOTO_REQUEST_CODE is sent when we requested the camera to take a picture for social sharing
+     * SHARE_REQUEST_CODE is sent when we return from a social sharing activity
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -185,6 +189,10 @@ public class FullscreenActivity extends Activity {
                 }).create().show();
     }
 
+    /**
+     * Initialize main screen dependencies, such as:
+     * the event listeners, the BluetoothDelegate & SensorHandler
+     */
     private void initializeMainScreen() {
         bluetoothDelegate = new BluetoothDelegate(this);
         try {
@@ -270,6 +278,10 @@ public class FullscreenActivity extends Activity {
 
     }
 
+    /**
+     * Configure the button listeners
+     * Set the buttons to their last known configuration
+     * */
     public void initializeSettingsScreen() {
         final float FX_VOLUME = 10.0f;
         /* setting the version data at the bottom of the screen */
@@ -350,6 +362,11 @@ public class FullscreenActivity extends Activity {
 
     }  // end initializeSettintsScreen()
 
+    /**
+     * All three screens need to be alive at all times, so we don't try to update
+     * inexistent views. This PageAdapter, makes sure to initialize each page as soon
+     * as it is inflated.
+     */
     private class ScreenSlideAdapter extends PagerAdapter {
         @Override
         public int getCount() {
