@@ -30,7 +30,6 @@ class MeteoData {
     public int wind_speed;
     public int wind_deg;
     public String weather_descr;
-    public String location;
     public int weather_code;
 }
 
@@ -206,7 +205,6 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
             meteoData.wind_deg = wind_obj.getInt("deg");
             meteoData.weather_descr = weather_arr.getJSONObject(0).getString("description");
             meteoData.weather_code = weather_arr.getJSONObject(0).getInt("id");
-            meteoData.location = first_result.getString("name");
         } catch (JSONException ex) {
             Log.d(TAG, "Exception while getting data from JSON");
             return null;
@@ -216,8 +214,6 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
 
     @Override
     public void onPostExecute(MeteoData result) {
-        TextView weather_location =
-                (TextView) activity.findViewById(R.id.weather_location);
         TextView humidity_data =
                 (TextView) activity.findViewById(R.id.weather_humidity_data);
         TextView pressure_data =
@@ -246,7 +242,6 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
             temp_txt_vw.setVisibility(View.VISIBLE);
 
             /* On weather screen */
-            weather_location.setText(result.location);
             humidity_data.setText(result.humidity + "%");
             pressure_data.setText(result.pressure + " hPa");
             temperature_data.setText(result.temperature + "K");
@@ -254,7 +249,6 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
             windDirection_data.setText(result.wind_deg + "°");
         } else {
             final String UNAVAILABLE = "N/A";
-            weather_location.setText(UNAVAILABLE);
             humidity_data.setText(UNAVAILABLE);
             pressure_data.setText(UNAVAILABLE);
             temperature_data.setText(UNAVAILABLE);

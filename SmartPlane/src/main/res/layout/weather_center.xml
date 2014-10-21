@@ -11,29 +11,27 @@
     android:paddingTop="15dp">
 
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:textSize="12sp"
+        android:text="OpenWeatherMap™"/>
+
+    <TextView
         android:id="@+id/weatherIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:textColor="@color/black"
-        android:textSize="90sp" />
-
-    <TextView
-        android:id="@+id/weather_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/weatherIcon"
-        android:layout_centerHorizontal="true"
         android:textColor="@color/white"
-        android:textSize="20sp" />
+        android:textSize="150sp" />
 
     <TextView
         android:id="@+id/weather_humidity_tw"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/weather_location"
-        android:layout_marginTop="40dp"
+        android:layout_below="@id/weatherIcon"
         android:text="@string/label_w_humidity"
         android:textColor="@color/black" />
 
@@ -86,8 +84,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/weather_location"
-        android:layout_marginTop="40dp"
+        android:layout_below="@id/weatherIcon"
         android:color="@color/black"
         android:text="@string/label_w_windspeed"
         android:textColor="@color/black" />
