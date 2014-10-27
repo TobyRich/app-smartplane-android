@@ -66,9 +66,6 @@ public class Const {
     public static final long TIMER_PERIOD = 6000;
     public static final double RULER_MOVEMENT_SPEED = 1.4;
     public static final int RULER_MOVEMENT_HEIGHT = 200;
-    /* messages displayed when the charging status changes */
-    public static final String IS_CHARGING = "CHARGING";
-    public static final String IS_NOT_CHARGING = "IN USE";
     /* 360 degrees to be added to a negative angle, etc. TODO: find better name */
     public static final int FULL_DEGREES = 360;
     public static final double TO_DEGREES = 180 / Math.PI;  // change radians to degrees

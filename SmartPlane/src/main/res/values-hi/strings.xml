@@ -6,20 +6,20 @@
     <string name="minus_infinity">-\u221E</string>
     <string name="not_available">N/A</string>
     <string name="zero_percent">0%</string>
-    <string name="social_share_message">I flew #SmartPlane and it was awesome!</string>
-    <string name="shareWithPictureMessage">Would you like to add a photo?</string>
-    <string name="shareWithPictureYes">Add photo</string>
-    <string name="shareWithPictureNo">Just text</string>
-    <string name="shareWithPictureCancel">Cancel</string>
+    <string name="social_share_message">मैंने #SmartPlane उड़ाया और बहुत मजा आया!</string>
+    <string name="shareWithPictureMessage">क्या आप एक फ़ोटो साथ लगाना चाहेंगे?</string>
+    <string name="shareWithPictureYes">फ़ोटो खीचें</string>
+    <string name="shareWithPictureNo">केवल संदेश</string>
+    <string name="shareWithPictureCancel">रद्द करें</string>
     <string name="social_share_success">Sharing successful.</string>
     <string name="social_share_picture_problem">Error while taking picture.</string>
     <string name="social_share_title"> </string>
-    <string name="info_softwareLabel">Software: </string>
-    <string name="info_hardwareLabel">Hardware: </string>
-    <string name="unknown">unknown</string>
-    <string name="exitConfirmationMsg">Are you sure you want to exit?</string>
-    <string name="battery_charging">CHARGING</string>
-    <string name="battery_not_charging">IN USE</string>
+    <string name="info_softwareLabel">सॉफ्टवेअर: </string>
+    <string name="info_hardwareLabel">हार्डवेअर: </string>
+    <string name="unknown">अनुपलब्ध</string>
+    <string name="exitConfirmationMsg">क्या आप ऐप बंद करना चाहते हैं?</string>
+    <string name="battery_charging">रीचार्ज</string>
+    <string name="battery_not_charging">उपयोग में</string>
 
     <!-- Accessibility descriptions -->
     <string name="desc_imgPanel">Control Panel</string>
@@ -42,24 +42,23 @@
     <string name="desc_weather_bg">Weather center background</string>
 
     <!-- TextViews labels -->
-    <string name="label_fuel">FUEL</string>
-    <string name="label_signal">SIGNAL</string>
-    <string name="label_battery">BATTERY</string>
+    <string name="label_fuel">ईंधन</string>
+    <string name="label_signal">सिग्नल</string>
+    <string name="label_battery">बैटरी</string>
     <string name="label_signalStrength">dBm</string>
     <string name="label_compass">HDG</string>
-    <string name="label_searching">Searching&#8230;</string>
+    <string name="label_searching">खोज जारी&#8230;</string>
     <string name="label_connecting">Connecting&#8230;</string>
-    <string name="label_revRudder">Reverse Rudder</string>
-    <string name="label_flightAssist">Flight Assist</string>
+    <string name="label_revRudder">रडर पलटें</string>
+    <string name="label_flightAssist">उड़ान-सहायक™</string>
     <string name="label_tower">ATC Tower</string>
 
-    <string name="label_w_humidity">Humidity</string>
-    <string name="label_w_windspeed">Wind speed</string>
-    <string name="label_w_pressure">Pressure</string>
-    <string name="label_w_direction">Direction</string>
-    <string name="label_w_temperature">Temperature</string>
-    <string name="label_w_speedunit">km/h</string>
-
+    <string name="label_w_humidity">आर्द्रता</string>
+    <string name="label_w_windspeed">वायु गति</string>
+    <string name="label_w_pressure">दबाव</string>
+    <string name="label_w_direction">दिशा</string>
+    <string name="label_w_temperature">तापमान</string>
+    <string name="label_w_speedunit">की०मी०/घंटा</string>
 
     <!-- Checklist items -->
     <string name="checklist_title">Flight Checklist</string>

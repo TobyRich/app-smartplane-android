@@ -131,6 +131,7 @@ public class SensorHandler implements SensorEventListener {
      * <code>getAnglesFromSensor</code>. Then we set the rudder accordingly (with some scaling
      * if Flight Assist is enabled and also some motor increase). Then. we use the other angles
      * to animate the compass and the horizon.
+     *
      * @param event
      */
     @Override
@@ -160,7 +161,7 @@ public class SensorHandler implements SensorEventListener {
         horizonImage.setRotation(-rollAngle);
         // Increase throttle when turning if flight assist is enabled
         if (planeState.isFlAssistEnabled() && !planeState.screenLocked) {
-            double scaler = 1 - Math.cos(rollAngle * Math.PI/2 / Const.MAX_ROLL_ANGLE);
+            double scaler = 1 - Math.cos(rollAngle * Math.PI / 2 / Const.MAX_ROLL_ANGLE);
             if (scaler > 0.3) {
                 scaler = 0.3;
             }
@@ -214,7 +215,8 @@ public class SensorHandler implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
-    /** We handle three main cases:
+    /**
+     * We handle three main cases:
      * -high-end phones have ROTATION_VECTOR sensor, which fuses together accelerometer,
      * gyroscope and compass (no smoothing necessary).
      * -low-end phones have only accelerometer and compass, in which case we need to compute
@@ -267,7 +269,7 @@ public class SensorHandler implements SensorEventListener {
             angles[2] = (float) (-Math.atan2(x, Math.sqrt(y * y + z * z)) * Const.TO_DEGREES);
 
             return angles;
-        } else if (mMagnetometerSensor != null){
+        } else if (mMagnetometerSensor != null) {
             switch (event.sensor.getType()) {
                 case Sensor.TYPE_ACCELEROMETER:
                     mGravity = safeValues;

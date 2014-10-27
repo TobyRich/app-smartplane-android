@@ -135,8 +135,7 @@ public class BluetoothDelegate
      */
     @Override
     public void didStartChargingBattery() {
-        activity.runOnUiThread(new ChargeStatusTextChanger(activity,
-                Const.IS_CHARGING));
+        activity.runOnUiThread(new ChargeStatusTextChanger(activity, true));
     }
 
     /**
@@ -145,8 +144,7 @@ public class BluetoothDelegate
      */
     @Override
     public void didStopChargingBattery() {
-        activity.runOnUiThread(new ChargeStatusTextChanger(activity,
-                Const.IS_NOT_CHARGING));
+        activity.runOnUiThread(new ChargeStatusTextChanger(activity, false));
     }
 
     /**
@@ -156,7 +154,8 @@ public class BluetoothDelegate
      */
     @Override
     public void didUpdateSerialNumber(BLEDeviceInformationService service, String serialNumber) {
-        final String hardwareDataInfo = "Hardware: " + serialNumber;
+        final String hardwareDataInfo =
+                activity.getString(R.string.info_hardwareLabel) + serialNumber;
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -213,7 +212,7 @@ public class BluetoothDelegate
             smartplaneService = (BLESmartplaneService) service;
             smartplaneService.delegate = new WeakReference<BLESmartplaneService.Delegate>(this);
 
-            activity.runOnUiThread(new ChargeStatusTextChanger(activity, Const.IS_NOT_CHARGING));
+            activity.runOnUiThread(new ChargeStatusTextChanger(activity, false));
 
             // if disconnected, or not initialized
             if (timer == null) {
@@ -301,7 +300,8 @@ public class BluetoothDelegate
         batteryService = null;
         deviceInfoService = null;
         // if the smartplane is disconnected, show hardware as "unknown"
-        final String hardwareDataInfo = "Hardware: unknown";
+        final String hardwareDataInfo = activity.getString(R.string.info_hardwareLabel) +
+                activity.getString(R.string.unknown);
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

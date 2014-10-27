@@ -6,20 +6,20 @@
     <string name="minus_infinity">-\u221E</string>
     <string name="not_available">N/A</string>
     <string name="zero_percent">0%</string>
-    <string name="social_share_message">I flew #SmartPlane and it was awesome!</string>
-    <string name="shareWithPictureMessage">Would you like to add a photo?</string>
-    <string name="shareWithPictureYes">Add photo</string>
-    <string name="shareWithPictureNo">Just text</string>
-    <string name="shareWithPictureCancel">Cancel</string>
-    <string name="social_share_success">Sharing successful.</string>
+    <string name="social_share_message">Ich hatte gerade einen supergeilen Flug mit dem #SmartPlane!</string>
+    <string name="shareWithPictureMessage">Willst du ein Foto hinzufügen?</string>
+    <string name="shareWithPictureYes">Mit Foto</string>
+    <string name="shareWithPictureNo">Nur Text</string>
+    <string name="shareWithPictureCancel">Abbrechen</string>
+    <string name="social_share_success">Mitteilung erfolgreich.</string>
     <string name="social_share_picture_problem">Error while taking picture.</string>
     <string name="social_share_title"> </string>
     <string name="info_softwareLabel">Software: </string>
     <string name="info_hardwareLabel">Hardware: </string>
-    <string name="unknown">unknown</string>
+    <string name="unknown">unbekannt</string>
     <string name="exitConfirmationMsg">Are you sure you want to exit?</string>
-    <string name="battery_charging">CHARGING</string>
-    <string name="battery_not_charging">IN USE</string>
+    <string name="battery_charging">LADEN</string>
+    <string name="battery_not_charging">AKTIV</string>
 
     <!-- Accessibility descriptions -->
     <string name="desc_imgPanel">Control Panel</string>
@@ -42,22 +42,22 @@
     <string name="desc_weather_bg">Weather center background</string>
 
     <!-- TextViews labels -->
-    <string name="label_fuel">FUEL</string>
+    <string name="label_fuel">TANK</string>
     <string name="label_signal">SIGNAL</string>
-    <string name="label_battery">BATTERY</string>
+    <string name="label_battery">BATTERIE</string>
     <string name="label_signalStrength">dBm</string>
     <string name="label_compass">HDG</string>
-    <string name="label_searching">Searching&#8230;</string>
+    <string name="label_searching">Suchen&#8230;</string>
     <string name="label_connecting">Connecting&#8230;</string>
-    <string name="label_revRudder">Reverse Rudder</string>
+    <string name="label_revRudder">Rudder umkehren</string>
     <string name="label_flightAssist">Flight Assist</string>
     <string name="label_tower">ATC Tower</string>
 
-    <string name="label_w_humidity">Humidity</string>
-    <string name="label_w_windspeed">Wind speed</string>
-    <string name="label_w_pressure">Pressure</string>
-    <string name="label_w_direction">Direction</string>
-    <string name="label_w_temperature">Temperature</string>
+    <string name="label_w_humidity">Feuchtigkeit</string>
+    <string name="label_w_windspeed">Wind</string>
+    <string name="label_w_pressure">Luftdruck</string>
+    <string name="label_w_direction">Richtung</string>
+    <string name="label_w_temperature">Temperatur</string>
     <string name="label_w_speedunit">km/h</string>
 
 

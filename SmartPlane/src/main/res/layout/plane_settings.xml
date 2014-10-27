@@ -9,21 +9,11 @@
     android:paddingBottom="10dp"
     android:clipToPadding="false">
 
-    <TextView
-        android:id="@+id/settings_menu_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="30dp"
-        android:layout_marginTop="5dp"
-        android:text="@string/label_settings"
-        android:textSize="30sp" />
-
     <RelativeLayout
         android:id="@+id/rudder_setting_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/settings_menu_title"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:gravity="center_vertical">
@@ -139,7 +129,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/imgInfo"
-            android:text="@string/info_softwareData" />
+            android:text="@string/info_softwareLabel" />
 
         <TextView
             android:id="@+id/hardwareInfoData"
@@ -147,6 +137,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/softwareInfoData"
             android:layout_toRightOf="@id/imgInfo"
-            android:text="@string/info_hardwareData" />
+            android:text="@string/info_hardwareLabel" />
     </RelativeLayout>
 </RelativeLayout>

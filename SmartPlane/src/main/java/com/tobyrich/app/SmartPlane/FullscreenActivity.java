@@ -176,7 +176,7 @@ public class FullscreenActivity extends Activity {
     @Override
     public void onBackPressed() { //change functionality of back button
         new AlertDialog.Builder(this)
-                .setMessage("Are you sure you want to exit?")
+                .setMessage(getString(R.string.exitConfirmationMsg))
                 .setNegativeButton(android.R.string.no, null)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
@@ -294,7 +294,8 @@ public class FullscreenActivity extends Activity {
             e.printStackTrace();
         }
 
-        ((TextView) findViewById(R.id.softwareInfoData)).setText("Software: " + appVersion);
+        ((TextView) findViewById(R.id.softwareInfoData))
+                .setText(getString(R.string.info_softwareLabel) + appVersion);
 
         /* setting the switch listeners */
         final Switch rudderReverse = (Switch) findViewById(R.id.rudderSwitch);

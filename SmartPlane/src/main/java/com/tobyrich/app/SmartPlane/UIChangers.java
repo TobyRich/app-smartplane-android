@@ -45,21 +45,27 @@ import com.tobyrich.app.SmartPlane.util.Util;
 public class UIChangers {
     public static class ChargeStatusTextChanger implements Runnable {
         Activity activity;
-        String chargeStatus;
+        boolean isCharging;
 
-        public ChargeStatusTextChanger(Activity activity, String chargeStatus) {
+        public ChargeStatusTextChanger(Activity activity, boolean isCharging) {
             this.activity = activity;
-            this.chargeStatus = chargeStatus;
+            this.isCharging = isCharging;
         }
 
         @Override
         public void run() {
             TextView batteryStatus = (TextView) activity.findViewById(R.id.batteryStatus);
-            batteryStatus.setText(chargeStatus);
+            String batteryText;
+            if (isCharging) {
+                batteryText = activity.getString(R.string.battery_charging);
+            } else {
+                batteryText = activity.getString(R.string.battery_not_charging);
+            }
+            batteryStatus.setText(batteryText);
         }
     }
 
-    public static class SignalLevelUIChanger implements Runnable { // subclass for passing signalStrength
+    public static class SignalLevelUIChanger implements Runnable {
         Activity activity;
         float signalStrength;
         float signalInDb;
