@@ -3,19 +3,19 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="15dp"
-    android:paddingRight="15dp"
-    android:paddingLeft="15dp"
+    android:clipToPadding="false"
     android:paddingBottom="10dp"
-    android:clipToPadding="false">
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingTop="15dp">
 
     <RelativeLayout
         android:id="@+id/rudder_setting_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
+        android:layout_marginTop="20dp"
         android:gravity="center_vertical">
 
         <TextView
@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_revRudder"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textSize="@dimen/settings_label_font_size" />
 
         <Switch
             android:id="@+id/rudderSwitch"
@@ -58,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_flightAssist"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textSize="@dimen/settings_label_font_size" />
 
         <Switch
             android:id="@+id/flAssistSwitch"
@@ -68,67 +68,23 @@
             android:soundEffectsEnabled="true" />
     </RelativeLayout>
 
-    <View
-        android:id="@+id/flAssist_tower_line"
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:layout_below="@id/flAssist_setting_item"
-        android:layout_marginBottom="2dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="2dp"
-        android:background="#c0c0c0" />
-
-    <RelativeLayout
-        android:id="@+id/tower_setting_item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/flAssist_tower_line"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:id="@+id/towerText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_tower"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <Switch
-            android:id="@+id/towerSwitch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:checked="true" />
-    </RelativeLayout>
-
     <RelativeLayout
         android:id="@+id/appInfoData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/dark_green"
         android:layout_marginLeft="-5dp"
         android:layout_marginRight="-5dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
+        android:background="@color/dark_green"
         android:paddingBottom="20dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
         android:paddingTop="5dp">
-
-        <ImageView
-            android:id="@+id/imgInfo"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginRight="8dp"
-            android:contentDescription="@string/desc_info"
-            android:src="@drawable/info" />
 
         <TextView
             android:id="@+id/softwareInfoData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/imgInfo"
             android:text="@string/info_softwareLabel" />
 
         <TextView
@@ -136,7 +92,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/softwareInfoData"
-            android:layout_toRightOf="@id/imgInfo"
             android:text="@string/info_hardwareLabel" />
+
+        <TextView
+            android:id="@+id/serialInfoData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/hardwareInfoData"
+            android:text="@string/info_serialLabel" />
     </RelativeLayout>
 </RelativeLayout>

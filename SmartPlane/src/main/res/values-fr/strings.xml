@@ -14,8 +14,9 @@
     <string name="social_share_success">Sharing successful.</string>
     <string name="social_share_picture_problem">Error while taking picture.</string>
     <string name="social_share_title"> </string>
-    <string name="info_softwareLabel">Logiciel: </string>
-    <string name="info_hardwareLabel">Matériel: </string>
+    <string name="info_softwareLabel">Logiciel:\u0020</string>
+    <string name="info_hardwareLabel">Matériel:\u0020</string>
+    <string name="info_serialLabel">Numéro de série:\u0020</string>
     <string name="unknown">inconnu</string>
     <string name="exitConfirmationMsg">Are you sure you want to exit?</string>
     <string name="battery_charging">CHARGEMENT</string>

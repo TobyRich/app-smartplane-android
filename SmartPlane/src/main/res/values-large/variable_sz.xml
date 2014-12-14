@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- main screen -->
+    <dimen name="margin_top_throttle_slide">-5dp</dimen>
+    <dimen name="margin_bottom_throttle_slide">11dp</dimen>
+    <dimen name="margin_left_throttle_slide">1dp</dimen>
+    <dimen name="margin_right_throttle_slide">2dp</dimen>
+    <dimen name="offset_y_throttle_slider">207dp</dimen>
+    <dimen name="height_thumb">160dp</dimen>
+    <dimen name="offset_thumb">65dp</dimen>
+    <dimen name="margin_left_thumb">-20dp</dimen>
+    <dimen name="margin_right_thumb">-20dp</dimen>
+    <dimen name="panel_label_font_size">20sp</dimen>
+    <dimen name="values_font_size">24sp</dimen>
+    <dimen name="padding_left_battery_status">100dp</dimen>
+    <dimen name="height_throttle_needle">142dp</dimen>
+    <dimen name="width_throttle_needle">225dp</dimen>
+    <dimen name="offset_x_throttle">30dp</dimen>
+    <dimen name="offset_y_throttle">10dp</dimen>
+    <dimen name="offset_y_throttleLevel">10dp</dimen>
+    <dimen name="offset_x_throttleLevel">40dp</dimen>
+    <dimen name="offset_y_right_panel">8dp</dimen>
+    <dimen name="offset_x_right_panel">6dp</dimen>
+    <dimen name="height_fuel_needle">142dp</dimen>
+    <dimen name="width_fuel_needle">225dp</dimen>
+    <dimen name="offset_y_fuel_needle">20dp</dimen>
+    <dimen name="offset_y_fuelLevel">10dp</dimen>
+    <dimen name="offset_y_signalLabel">-12dp</dimen>
+    <dimen name="offset_x_signalLabel">30dp</dimen>
+    <dimen name="height_signal_needle">95dp</dimen>
+    <dimen name="width_signal_needle">105dp</dimen>
+    <dimen name="offset_y_signal_needle">30dp</dimen>
+    <dimen name="offset_x_signal_needle">30dp</dimen>
+    <dimen name="offset_y_signal_value">17dp</dimen>
+    <dimen name="offset_x_signal_value">-15dp</dimen>
+    <dimen name="offset_y_circle_indicator">12dp</dimen>
+
+    <!-- horizon screen -->
+    <dimen name="horizon_width">1200dp</dimen>
+    <dimen name="horizon_height">1300dp</dimen>
+    <dimen name="horiz_temp_y_offset">33dp</dimen>
+    <dimen name="horiz_temp_x_offset">25dp</dimen>
+    <dimen name="horiz_wind_y_offset">15dp</dimen>
+    <dimen name="horiz_wind_x_offset">25dp</dimen>
+    <dimen name="horiz_share_y_offset">15dp</dimen>
+    <dimen name="horiz_share_x_offset">25dp</dimen>
+    <dimen name="horiz_checklist_y_offset">0dp</dimen>
+    <dimen name="horiz_checklist_x_offset">0dp</dimen>
+    <dimen name="horiz_tower_y_offset">5dp</dimen>
+    <dimen name="horiz_tower_x_offset">5dp</dimen>
+    <dimen name="horiz_compass_width">715dp</dimen>
+    <dimen name="horiz_compass_height">748dp</dimen>
+    <dimen name="horiz_compass_offset_y">-225dp</dimen>
+
+    <!-- settings screen -->
+    <dimen name="settings_label_font_size">24sp</dimen>
+
+    <!-- weather screen -->
+    <dimen name="weather_label_font_size">20sp</dimen>
+    <dimen name="weather_values_font_size">32sp</dimen>
+    <dimen name="weather_windsp_font_size">85sp</dimen>
+    <dimen name="weather_icon_font_size">215sp</dimen>
+</resources>

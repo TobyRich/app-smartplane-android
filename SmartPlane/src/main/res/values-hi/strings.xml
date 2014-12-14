@@ -14,8 +14,9 @@
     <string name="social_share_success">Sharing successful.</string>
     <string name="social_share_picture_problem">Error while taking picture.</string>
     <string name="social_share_title"> </string>
-    <string name="info_softwareLabel">सॉफ्टवेअर: </string>
-    <string name="info_hardwareLabel">हार्डवेअर: </string>
+    <string name="info_softwareLabel">सॉफ्टवेअर:\u0020</string>
+    <string name="info_hardwareLabel">हार्डवेअर:\u0020</string>
+    <string name="info_serialLabel">nसीरियल:\u0020</string>
     <string name="unknown">अनुपलब्ध</string>
     <string name="exitConfirmationMsg">क्या आप ऐप बंद करना चाहते हैं?</string>
     <string name="battery_charging">रीचार्ज</string>

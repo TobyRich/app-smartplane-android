@@ -37,8 +37,6 @@ import android.widget.TextView;
 import com.tobyrich.app.SmartPlane.util.Const;
 import com.tobyrich.app.SmartPlane.util.Util;
 
-import lib.smartlink.driver.BLESmartplaneService;
-
 /**
  * Class in charge of handling the double tap on the control panel
  * When the control panel is double tapped, the motor should be reduced to 0 and the UI
@@ -69,11 +67,16 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-        final ImageView controlPanel = (ImageView) activity.findViewById(R.id.imgPanel);
+        final View controlPanel = activity.findViewById(R.id.controlPanel);
         final ImageView throttleLock = (ImageView) activity.findViewById(R.id.lockThrottle);
         final ImageView slider = (ImageView) activity.findViewById(R.id.throttleCursor);
-        final float currHeight = controlPanel.getHeight();
-        final float newHeight = Const.SCALE_FOR_CURSOR_RANGE * currHeight;
+
+        final float panelHeight = controlPanel.getHeight();
+        final float maxRange = Const.SCALE_FOR_CURSOR_RANGE * panelHeight;
+
+        final float density = activity.getResources().getDisplayMetrics().density;
+        final float cursorOffset =
+                activity.getResources().getDimension(R.dimen.offset_thumb) / density;
 
         tapped = !tapped;
 
@@ -85,7 +88,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
             TextView throttleText = (TextView) activity.findViewById(R.id.throttleValue);
             throttleLock.setVisibility(View.VISIBLE);
 
-            slider.setY(newHeight);
+            slider.setY(maxRange - cursorOffset);
             Util.rotateImageView(throttleNeedle, 0, Const.THROTTLE_NEEDLE_MIN_ANGLE,
                     Const.THROTTLE_NEEDLE_MAX_ANGLE);
             throttleText.setText("0" + "%");

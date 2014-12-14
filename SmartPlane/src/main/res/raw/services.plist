@@ -46,6 +46,8 @@
 			<dict>
 				<key>serialnumber</key>
 				<string>2a25</string>
+                <key>systemid</key>
+                <string>2a23</string>
 			</dict>
 		</dict>
 		<key>smartplane</key>

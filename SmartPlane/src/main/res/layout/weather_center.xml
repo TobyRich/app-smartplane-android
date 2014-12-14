@@ -13,10 +13,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:textSize="12sp"
-        android:text="OpenWeatherMap™"/>
+        android:layout_alignParentTop="true"
+        android:text="@string/license_openWM"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/weatherIcon"
@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:textColor="@color/white"
-        android:textSize="150sp" />
+        android:textSize="@dimen/weather_icon_font_size" />
 
     <TextView
         android:id="@+id/weather_humidity_tw"
@@ -33,7 +33,8 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@id/weatherIcon"
         android:text="@string/label_w_humidity"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="@dimen/weather_label_font_size" />
 
     <TextView
         android:id="@+id/weather_humidity_data"
@@ -41,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/weather_humidity_tw"
         android:textColor="@color/silver"
-        android:textSize="22sp" />
+        android:textSize="@dimen/weather_values_font_size" />
 
     <TextView
         android:id="@+id/weather_pressure_tw"
@@ -51,7 +52,8 @@
         android:layout_below="@id/weather_humidity_data"
         android:layout_marginTop="10dp"
         android:text="@string/label_w_pressure"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="@dimen/weather_label_font_size" />
 
     <TextView
         android:id="@+id/weather_pressure_data"
@@ -59,7 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/weather_pressure_tw"
         android:textColor="@color/silver"
-        android:textSize="22sp" />
+        android:textSize="@dimen/weather_values_font_size" />
 
     <TextView
         android:id="@+id/weather_temperature_tw"
@@ -69,7 +71,8 @@
         android:layout_below="@id/weather_pressure_data"
         android:layout_marginTop="10dp"
         android:text="@string/label_w_temperature"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="@dimen/weather_label_font_size" />
 
     <TextView
         android:id="@+id/weather_temperature_data"
@@ -77,7 +80,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/weather_temperature_tw"
         android:textColor="@color/silver"
-        android:textSize="22sp" />
+        android:textSize="@dimen/weather_values_font_size" />
 
     <TextView
         android:id="@+id/weather_windspeed_tw"
@@ -87,7 +90,8 @@
         android:layout_below="@id/weatherIcon"
         android:color="@color/black"
         android:text="@string/label_w_windspeed"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="@dimen/weather_label_font_size" />
 
     <TextView
         android:id="@+id/weather_windspeed_data"
@@ -97,7 +101,7 @@
         android:layout_below="@id/weather_windspeed_tw"
         android:layout_marginTop="-8dp"
         android:textColor="@color/white"
-        android:textSize="60sp" />
+        android:textSize="@dimen/weather_windsp_font_size" />
 
     <TextView
         android:id="@+id/weather_windspeed_unit"
@@ -107,7 +111,8 @@
         android:layout_below="@id/weather_windspeed_data"
         android:layout_marginTop="-8dp"
         android:text="@string/label_w_speedunit"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="@dimen/weather_label_font_size" />
 
 
     <TextView
@@ -118,7 +123,7 @@
         android:layout_below="@id/weather_windspeed_unit"
         android:layout_marginTop="10dp"
         android:textColor="@color/silver"
-        android:textSize="22sp" />
+        android:textSize="@dimen/weather_values_font_size" />
 
     <TextView
         android:id="@+id/weather_direction_tw"
@@ -127,7 +132,8 @@
         android:layout_alignParentRight="true"
         android:layout_below="@id/weather_direction_data"
         android:text="@string/label_w_direction"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="@dimen/weather_label_font_size" />
 
 
     <ProgressBar

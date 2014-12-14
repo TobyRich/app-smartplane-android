@@ -14,12 +14,14 @@
     <string name="social_share_success">Sharing successful.</string>
     <string name="social_share_picture_problem">Error while taking picture.</string>
     <string name="social_share_title"> </string>
-    <string name="info_softwareLabel">Software: </string>
-    <string name="info_hardwareLabel">Hardware: </string>
+    <string name="info_softwareLabel">Software:\u0020</string>
+    <string name="info_hardwareLabel">Hardware:\u0020</string>
+    <string name="info_serialLabel">Serial:\u0020</string>
     <string name="unknown">unknown</string>
     <string name="exitConfirmationMsg">Are you sure you want to exit?</string>
     <string name="battery_charging">CHARGING</string>
     <string name="battery_not_charging">IN USE</string>
+    <string name="license_openWM">OpenWeatherMap™</string>
 
     <!-- Accessibility descriptions -->
     <string name="desc_imgPanel">Control Panel</string>

@@ -76,6 +76,7 @@ public class BluetoothDelegate
 
     /**
      * Create a BluetoothDelegate owned by <code>activity</code>
+     *
      * @param activity the activity that will use this delegate
      */
     public BluetoothDelegate(Activity activity) {
@@ -98,6 +99,7 @@ public class BluetoothDelegate
      * it will be trimmed to be inside it. I.e. if <code>value</code> is less than 0,
      * the motor will be set to 0. If <code>value</code> is more than 255, the motor
      * will be set to 255.
+     *
      * @param value new speed for the motor, it should be in the range [0, 255]
      *              0 corresponds to no motor movement and 255 to max throttle
      */
@@ -112,6 +114,7 @@ public class BluetoothDelegate
      * it will be trimmed to be inside it. I.e. if <code>value</code> is less than -127,
      * the angle will be set to -127. If <code>value</code> is more than 127, the rudder angle
      * will be set to 127.
+     *
      * @param value new speed for the motor, it should be in the range [0, 255]
      *              0 corresponds to no motor movement and 255 to max throttle
      */
@@ -123,6 +126,7 @@ public class BluetoothDelegate
 
     /**
      * Look for peripherals and try to connect
+     *
      * @throws BluetoothDisabledException
      */
     public void connect() throws BluetoothDisabledException {
@@ -149,7 +153,8 @@ public class BluetoothDelegate
 
     /**
      * Callback when the serial number is read
-     * @param service a reference to the service
+     *
+     * @param service      a reference to the service
      * @param serialNumber the new serial number
      */
     @Override
@@ -164,11 +169,25 @@ public class BluetoothDelegate
         });
     }
 
+    @Override
+    public void didUpdateSystemID(BLEDeviceInformationService infoService, String systemID) {
+        final String systemIdInfo =
+                activity.getString(R.string.info_serialLabel) + systemID;
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((TextView) activity.findViewById(R.id.serialInfoData)).setText(systemIdInfo);
+            }
+        });
+
+    }
+
     /**
      * Callback invoked when the battery level changes
      * Due to the varying voltage drop over the motor, we need to do additional computation
      * to get the correct battery level.
      * Afterwards, we just update the UI.
+     *
      * @param percent the new battery level, as reported by the peripheral
      */
     @Override
@@ -196,9 +215,10 @@ public class BluetoothDelegate
     /**
      * Callback invoked when a new service was discovered
      * In this implementation, we just get a reference to that service and set the delegate
-     * @param device the connected devuce
+     *
+     * @param device      the connected devuce
      * @param serviceName as given in the plist config file
-     * @param service a reference to the service
+     * @param service     a reference to the service
      */
     @Override
     public void didStartService(BluetoothDevice device, String serviceName, BLEService service) {
@@ -247,7 +267,8 @@ public class BluetoothDelegate
     /**
      * Callback invoked when the signal strength changes
      * We just update the UI signal level.
-     * @param device the connected device
+     *
+     * @param device         the connected device
      * @param signalStrength the new signal strength
      */
     @Override
@@ -263,6 +284,7 @@ public class BluetoothDelegate
     /**
      * Callback invoked when scanning started
      * We just show a message to the user
+     *
      * @param device the device which is scanning
      */
     @Override
@@ -274,7 +296,8 @@ public class BluetoothDelegate
     /**
      * Callback invoked when a connection is initiated
      * We just show a message to the user
-     * @param device the device which is initiating the connection
+     *
+     * @param device         the device which is initiating the connection
      * @param signalStrength the signal strength
      */
     @Override
@@ -286,6 +309,7 @@ public class BluetoothDelegate
     /**
      * Callback invoked at disconnection
      * Clears all data associated with the old peripheral, then displays a message to the user.
+     *
      * @param device the device to which the bluetooth delegate is attached
      */
     @Override

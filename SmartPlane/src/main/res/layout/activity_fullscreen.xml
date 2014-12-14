@@ -3,233 +3,236 @@
     android:id="@+id/fullscreen_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".FullscreenActivity">
 
-    <RelativeLayout
+
+    <!-- Bottom panel -->
+    <LinearLayout
         android:id="@+id/controlPanel"
         android:layout_width="match_parent"
-        android:layout_height="190dp"
-        android:layout_alignParentBottom="true">
+        android:layout_height="200dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/panel_640x342"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="10dp">
 
-        <ImageView
-            android:id="@+id/imgPanel"
-            android:layout_width="match_parent"
+        <!-- Left section of bottom panel -->
+        <LinearLayout
+            android:layout_width="0px"
             android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:contentDescription="@string/desc_imgPanel"
-            android:scaleType="centerCrop"
-            android:src="@drawable/panel_640x342" />
+            android:layout_weight="4"
+            android:orientation="vertical">
+
+            <!-- Battery & HDG -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textBattery"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_battery"
+                    android:textColor="#BBCC00"
+                    android:textSize="@dimen/panel_label_font_size"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/batteryStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:paddingLeft="@dimen/padding_left_battery_status"
+                    android:text="@string/not_available"
+                    android:textSize="@dimen/values_font_size"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textHDG"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_compass"
+                    android:textColor="#BBCC00"
+                    android:textSize="@dimen/panel_label_font_size"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/hdgValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:paddingLeft="@dimen/padding_left_battery_status"
+                    android:text="@string/not_available"
+                    android:textSize="@dimen/values_font_size"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Fuel needle -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                android:layout_marginLeft="@dimen/offset_x_throttle"
+                android:layout_marginTop="@dimen/offset_y_throttle"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/imgThrottleNeedle"
+                    android:layout_width="@dimen/width_throttle_needle"
+                    android:layout_height="@dimen/height_throttle_needle"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:contentDescription="@string/desc_throttleNeedle"
+                    android:rotation="-140"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/needle_right_circle_up" />
+
+                <TextView
+                    android:id="@+id/throttleValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/imgThrottleNeedle"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="@dimen/offset_y_throttleLevel"
+                    android:layout_marginRight="@dimen/offset_x_throttleLevel"
+                    android:text="@string/zero_percent"
+                    android:textSize="@dimen/values_font_size"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
 
 
-        <ImageView
-            android:id="@+id/imgThrottleNeedle"
-            android:layout_width="150dp"
-            android:layout_height="95dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="6dp"
-            android:layout_marginLeft="14dp"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/desc_throttleNeedle"
-            android:rotation="-140"
-            android:src="@drawable/needle_right_circle_up" />
+        </LinearLayout>
 
-        <ImageView
-            android:id="@+id/imgFuelNeedle"
-            android:layout_width="105dp"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/imgThrottleNeedle"
-            android:layout_marginBottom="-38dp"
-            android:layout_marginLeft="70dp"
-            android:layout_toRightOf="@id/imgThrottleNeedle"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/desc_fuelNeedle"
-            android:rotation="-90"
-            android:src="@drawable/needle_right_circle_up" />
-
-        <ImageView
-            android:id="@+id/imgSignalNeedle"
-            android:layout_width="wrap_content"
-            android:layout_height="70dp"
-            android:layout_alignBottom="@id/imgThrottleNeedle"
-            android:layout_alignEnd="@id/imgFuelNeedle"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginRight="2dp"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/desc_signalNeedle"
-            android:rotation="0"
-            android:src="@drawable/needle_right_circle_up" />
-
-        <TextView
-            android:id="@+id/throttleValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/imgSignalNeedle"
-            android:layout_alignEnd="@id/imgThrottleNeedle"
-            android:layout_marginBottom="10dp"
-            android:layout_marginRight="53dp"
-            android:text="@string/zero_percent"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="bold|normal" />
-
-        <TextView
-            android:id="@+id/signalValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/throttleValue"
-            android:layout_alignStart="@id/imgSignalNeedle"
-            android:layout_marginBottom="-1.5dp"
-            android:layout_marginLeft="1dp"
-            android:singleLine="false"
-            android:text="@string/minus_infinity"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="bold|normal" />
-
-        <TextView
-            android:id="@+id/textSignal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/imgFuelNeedle"
-            android:layout_alignEnd="@id/signalValue"
-            android:layout_marginLeft="4dp"
-            android:text="@string/label_signal"
-            android:textColor="#BBCC00"
-            android:textSize="12sp"
-            android:textStyle="bold|normal"
-            android:typeface="sans" />
-
-        <TextView
-            android:id="@+id/batteryLevelText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/imgSignalNeedle"
-            android:layout_alignStart="@id/signalValue"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="5dp"
-            android:singleLine="false"
-            android:text="@string/not_available"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="bold|normal" />
-
-        <TextView
-            android:id="@+id/textDBM"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/imgSignalNeedle"
-            android:layout_alignStart="@id/textSignal"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="18dp"
-            android:text="@string/label_signalStrength"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/textFuel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/imgFuelNeedle"
-            android:layout_alignEnd="@id/imgSignalNeedle"
-            android:layout_alignStart="@id/textSignal"
-            android:layout_marginRight="4dp"
-            android:gravity="center"
-            android:text="@string/label_fuel"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="#BBCC00"
-            android:textSize="12sp"
-            android:textStyle="bold|normal" />
-
-        <TextView
-            android:id="@+id/textBattery"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/textFuel"
-            android:layout_alignStart="@id/imgThrottleNeedle"
-            android:layout_marginBottom="4dp"
-            android:layout_marginLeft="6dp"
-            android:text="@string/label_battery"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="#BBCC00"
-            android:textSize="12sp"
-            android:textStyle="bold|normal"
-            android:typeface="sans" />
-
-        <TextView
-            android:id="@+id/batteryStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignEnd="@id/imgThrottleNeedle"
-            android:layout_alignStart="@id/textBattery"
-            android:layout_below="@id/textBattery"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="-6dp"
-            android:gravity="left"
-            android:paddingLeft="60dp"
-            android:text="@string/not_available"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textSize="13sp"
-            android:textStyle="bold|normal" />
-
-        <TextView
-            android:id="@+id/textHDG"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@id/imgThrottleNeedle"
-            android:layout_below="@id/batteryStatus"
-            android:layout_marginLeft="6dp"
-            android:layout_marginTop="5dp"
-            android:text="@string/label_compass"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="#BBCC00"
-            android:textSize="12sp"
-            android:textStyle="bold|normal" />
-
-        <TextView
-            android:id="@+id/hdgValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignEnd="@id/imgThrottleNeedle"
-            android:layout_alignStart="@id/textHDG"
-            android:layout_below="@id/textHDG"
-            android:layout_marginTop="-6dp"
-            android:layout_marginRight="30dp"
-            android:gravity="left"
-            android:paddingLeft="60dp"
-            android:text="@string/not_available"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="bold|normal" />
-
-        <ImageView
-            android:id="@+id/lockThrottle"
-            android:layout_width="200dp"
-            android:layout_height="145dp"
-            android:layout_alignBottom="@id/textDBM"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginLeft="13dp"
-            android:layout_toRightOf="@id/textBattery"
-            android:contentDescription="@string/desc_throttleLock"
-            android:src="@drawable/throttle_locked"
-            android:visibility="invisible" />
-
-        <ImageView
-            android:id="@+id/throttleCursor"
-            android:layout_width="120dp"
+        <!-- Center section of bottom panel -->
+        <FrameLayout
+            android:layout_width="0px"
             android:layout_height="match_parent"
-            android:layout_alignTop="@id/textSignal"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="40dp"
-            android:layout_marginLeft="20dp"
-            android:adjustViewBounds="true"
-            android:layout_centerHorizontal="true"
-            android:baselineAlignBottom="false"
-            android:contentDescription="@string/desc_throttleSlider"
-            android:longClickable="false"
-            android:scaleType="centerCrop"
-            android:src="@drawable/throttle_slider" />
+            android:layout_marginBottom="@dimen/margin_bottom_throttle_slide"
+            android:layout_marginLeft="@dimen/margin_left_throttle_slide"
+            android:layout_marginRight="@dimen/margin_right_throttle_slide"
+            android:layout_marginTop="@dimen/margin_top_throttle_slide"
+            android:layout_weight="2.5">
 
-    </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/throttleCursor"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height_thumb"
+                android:layout_marginTop="@dimen/offset_y_throttle_slider"
+                android:contentDescription="@string/desc_throttleLock"
+                android:scaleType="centerCrop"
+                android:src="@drawable/throttle_slider" />
+
+            <ImageView
+                android:id="@+id/lockThrottle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/desc_throttleSlider"
+                android:src="@drawable/throttle_locked"
+                android:visibility="invisible" />
+
+        </FrameLayout>
+
+        <!-- Right section of bottom panel -->
+        <RelativeLayout
+            android:layout_width="0px"
+            android:layout_height="match_parent"
+            android:layout_marginRight="@dimen/offset_x_right_panel"
+            android:layout_marginTop="@dimen/offset_y_right_panel"
+            android:layout_weight="4"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/textFuel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/label_fuel"
+                android:textColor="#BBCC00"
+                android:textSize="@dimen/panel_label_font_size"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imgFuelNeedle"
+                android:layout_width="@dimen/width_fuel_needle"
+                android:layout_height="@dimen/height_fuel_needle"
+                android:layout_below="@id/textFuel"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/offset_y_fuel_needle"
+                android:contentDescription="@string/desc_fuelNeedle"
+                android:rotation="-90"
+                android:scaleType="fitXY"
+                android:src="@drawable/needle_right_circle_up" />
+
+            <TextView
+                android:id="@+id/batteryLevelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:paddingBottom="@dimen/offset_y_fuelLevel"
+                android:text="@string/not_available"
+                android:textSize="@dimen/values_font_size"
+                android:textStyle="bold" />
+
+
+            <TextView
+                android:id="@+id/textSignal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/batteryLevelText"
+                android:layout_marginLeft="@dimen/offset_x_signalLabel"
+                android:layout_marginTop="@dimen/offset_y_signalLabel"
+                android:gravity="left"
+                android:text="@string/label_signal"
+                android:textColor="#BBCC00"
+                android:textSize="@dimen/panel_label_font_size"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imgSignalNeedle"
+                android:layout_width="@dimen/width_signal_needle"
+                android:layout_height="@dimen/height_signal_needle"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/textSignal"
+                android:layout_marginBottom="@dimen/offset_y_signal_needle"
+                android:layout_marginRight="@dimen/offset_x_signal_needle"
+                android:rotation="0"
+                android:scaleType="fitXY"
+                android:src="@drawable/needle_right_circle_up" />
+
+            <TextView
+                android:id="@+id/signalValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/textSignal"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/offset_x_signal_value"
+                android:layout_marginTop="@dimen/offset_y_signal_value"
+                android:layout_toLeftOf="@id/imgSignalNeedle"
+                android:text="@string/minus_infinity"
+                android:textSize="@dimen/values_font_size"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textDBM"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/signalValue"
+                android:layout_marginRight="@dimen/offset_x_signal_value"
+                android:layout_toLeftOf="@id/imgSignalNeedle"
+                android:text="@string/label_signalStrength"
+                android:textSize="@dimen/values_font_size" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -251,8 +254,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:layout_marginBottom="7dp"
+                android:layout_marginBottom="@dimen/offset_y_circle_indicator"
                 android:padding="10dip" />
+
         </RelativeLayout>
 
         <ImageView
@@ -272,9 +276,6 @@
             android:contentDescription="@string/desc_horizonBorder"
             android:scaleType="fitXY"
             android:src="@drawable/cover" />
-
-
     </FrameLayout>
-
 
 </RelativeLayout>

@@ -273,13 +273,6 @@ public class MeteoTask extends AsyncTask<Void, Void, MeteoData> {
             weatherIcon_id = "I";  // sunny
         }
 
-        if (code == 800 || code == 904) {  // sunny
-            int yellowColor = activity.getResources().getColor(R.color.yellow);
-            weatherIcon.setTextColor(yellowColor);
-        } else if (code >= 801 && code <= 804) {  // cloudy
-            int whiteColor = activity.getResources().getColor(R.color.white);
-            weatherIcon.setTextColor(whiteColor);
-        }
         // default is sunny
         weatherIcon.setText(weatherIcon_id);
     }

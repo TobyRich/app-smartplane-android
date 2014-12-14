@@ -54,8 +54,9 @@ public class PanelTouchListener implements View.OnTouchListener {
     ImageView throttleNeedle;
     TextView throttleText;
 
+    final float cursorOffset;
     /* constant only for a specific device */
-   float maxCursorRange = -1;  // uninitialized
+    float maxCursorRange = -1;  // uninitialized
 
     public PanelTouchListener(Activity activity, BluetoothDelegate bluetoothDelegate) {
         this.activity = activity;
@@ -66,6 +67,8 @@ public class PanelTouchListener implements View.OnTouchListener {
         throttleNeedle = (ImageView) activity.findViewById(R.id.imgThrottleNeedle);
         throttleText = (TextView) activity.findViewById(R.id.throttleValue);
 
+        final float density = activity.getResources().getDisplayMetrics().density;
+        cursorOffset = activity.getResources().getDimension(R.dimen.offset_thumb) / density;
     }
 
     @Override
@@ -76,11 +79,13 @@ public class PanelTouchListener implements View.OnTouchListener {
             return true;
         }
 
-        /* If uninitialized, initialize maxCursorRange */
+        // we couldn't initialize maxCursorRange in the constructor,
+        // because the layout wouldn't be created when the constructor is called
         if (maxCursorRange == -1) {
-            float panelHeight = activity.findViewById(R.id.imgPanel).getHeight();
+            final float panelHeight = activity.findViewById(R.id.controlPanel).getHeight();
             maxCursorRange = panelHeight * Const.SCALE_FOR_CURSOR_RANGE;
         }
+
         final float eventYValue = event.getY();
 
         /* Note: The coordinate system of the screen has the following properties:
@@ -91,17 +96,17 @@ public class PanelTouchListener implements View.OnTouchListener {
         float motorSpeed;
         /* check if the touch event went outside the bottom of the panel */
         if (eventYValue >= maxCursorRange) {
-            slider.setY(maxCursorRange);
+            slider.setY(maxCursorRange - cursorOffset);
             motorSpeed = 0;
         /* check if the slider tries to go above the control panel height */
         } else if (eventYValue <= 0) {
             /* 0 corresponds to the max position, because the slider cannot go outside the
              * containing relative layout (the control panel)
              */
-            slider.setY(0);
+            slider.setY(0 - cursorOffset);
             motorSpeed = 1; // 100% throttle
         } else {
-            slider.setY(eventYValue);
+            slider.setY(eventYValue - cursorOffset);
             motorSpeed = 1 - (eventYValue / maxCursorRange);
         }
 
